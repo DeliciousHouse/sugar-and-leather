@@ -21,6 +21,9 @@ export const metadata: Metadata = {
   },
   description:
     "Full-stack marketing execution for small businesses. Clear plans, fast production, and reliable channel management.",
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL ?? "https://snl.hidconsult.com"
+  ),
 };
 
 export default function RootLayout({
