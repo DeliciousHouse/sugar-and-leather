@@ -31,14 +31,14 @@ export const ECOSYSTEM_CARDS = [
       'Gain access to executive leadership and specialized teams that help execute growth initiatives across your organization.',
   },
   {
-    id: 'aries-platform',
-    href: '/aries-platform',
+    id: 'community',
+    href: '/community',
     className: 'c-c',
     photo: a('/assets/photo-night-work.png'),
     index: '03',
-    name: 'Product Platforms',
+    name: 'Community',
     description:
-      'Leverage AI-native technology platforms, including Aries AI and Sequence, to streamline operations, revenue generation, and decision-making.',
+      'Where coaches, founders, and emerging entrepreneurs share knowledge, build capability, and find better direction through distinct learning communities.',
   },
   {
     id: 'advanced-tech',
@@ -138,17 +138,20 @@ export const HOMEPAGE_SHOWCASES = [
         title: 'Sales Pod',
         description:
           'Pipeline development, outbound systems, sales operations, CRM processes, and revenue acceleration.',
+        href: '/strategic-partnerships/sales-pod',
       },
       {
         icon: 'Code',
         title: 'Development Pod',
         description:
           'Product development, software engineering, AI implementation, automation, and technical execution.',
+        href: '/strategic-partnerships/development-pod',
       },
       {
         icon: 'UserPlus',
         title: 'Recruitment Pod',
         description: 'Talent acquisition, hiring systems, workforce planning, and recruitment operations.',
+        href: '/strategic-partnerships/recruitment-pod',
       },
     ],
     cta: { label: 'Explore Strategic Partnerships', href: '/strategic-partnerships' },
@@ -168,41 +171,47 @@ export const HOMEPAGE_SHOWCASES = [
     ],
   },
   {
-    id: 'products-platforms',
+    id: 'community',
     num: '03',
-    eyebrow: 'Products & Platforms',
-    name: 'Technology Built for Modern Businesses',
+    eyebrow: 'Community',
+    name: 'Where the Next Generation of Business Learns to Move',
     tagline: '',
     body:
-      'Our platforms help organizations operate more efficiently, make better decisions, and accelerate growth through AI-powered systems.',
+      'Sugar & Leather brings together coaches, founders, emerging entrepreneurs, and curious operators. A place to share knowledge, build capability, and find better direction.',
     features: [
       {
-        icon: 'Cpu',
-        title: 'Aries AI',
+        icon: 'Users',
+        title: 'Coaches Network',
         description:
-          'An AI-native operating system designed to centralize workflows, automate execution, and improve organizational productivity.',
+          'A platform where coaches share their expertise and people discover guidance that fits the challenge in front of them.',
       },
       {
-        icon: 'Workflow',
-        title: 'Sequence',
+        icon: 'GraduationCap',
+        title: 'Next Level Business Society',
         description:
-          'An intelligent revenue platform combining CRM intelligence, buyer intent signals, and sales execution tools to help teams close more business.',
+          'A Skool-based learning community for founders, young entrepreneurs, and future operators building real capability.',
+      },
+      {
+        icon: 'Sparkles',
+        title: 'Angel Series',
+        description:
+          'A more personal layer of guidance for those moving beyond the first stage of learning. Coming soon.',
       },
     ],
-    cta: { label: 'Explore Products', href: '/aries-platform' },
+    cta: { label: 'Explore Community', href: '/community' },
     reverse: false,
     slides: [
-      { type: 'photo', image: a('/assets/photo-night-work.png'), caption: 'Aries AI' },
+      { type: 'photo', image: a('/assets/photo-coaching-library.png'), caption: 'Coaches Network' },
       {
         type: 'ui',
-        caption: 'Revenue intelligence',
-        tag: 'Sequence · Platform',
-        title: 'Pipeline velocity',
-        subtitle: 'CRM · intent · execution',
-        meter: '74%',
-        lines: ['66%', '80%', '58%'],
+        caption: 'Learning community',
+        tag: 'Next Level Business Society',
+        title: 'Build capability',
+        subtitle: 'Live sessions · roadmaps · peers',
+        meter: '78%',
+        lines: ['64%', '72%', '86%'],
       },
-      { type: 'photo', image: a('/assets/photo-coaching-library.png'), caption: 'Sequence' },
+      { type: 'photo', image: a('/assets/photo-study-light.png'), caption: 'Community learning' },
     ],
   },
 ];
@@ -234,11 +243,11 @@ export const HOMEPAGE_WHY = {
 };
 
 export const HOMEPAGE_COMMUNITY = {
-  eyebrow: 'Community & Innovation',
-  title: 'Building the Future Through Innovation and Collaboration',
+  eyebrow: 'Community',
+  title: 'Where the Next Generation of Business Learns to Move',
   body:
-    'Beyond business services, Sugar & Leather invests in innovation initiatives, founder communities, educational programs, and strategic collaborations that strengthen the broader entrepreneurial ecosystem.',
-  cta: { label: 'Explore Community & Innovation', href: '/advanced-tech' },
+    'Sugar & Leather brings together coaches, founders, emerging entrepreneurs, and curious operators who believe business can be commercially capable, technologically aware, and deeply human — a place to share knowledge, build capability, and find better direction.',
+  cta: { label: 'Explore Our Communities', href: '/community' },
 };
 
 export const HOMEPAGE_CTA = {

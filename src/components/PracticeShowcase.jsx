@@ -23,6 +23,9 @@ import {
   UserPlus,
   Cpu,
   Workflow,
+  Users,
+  GraduationCap,
+  Sparkles,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useParallax } from '../hooks/useParallax';
@@ -57,6 +60,9 @@ const ICONS = {
   UserPlus,
   Cpu,
   Workflow,
+  Users,
+  GraduationCap,
+  Sparkles,
 };
 
 function FeatureIcon({ name }) {

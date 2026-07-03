@@ -3,6 +3,8 @@ import { POD_PAGES } from '../data/podContent';
 import PageHero from '../components/PageHero';
 import ContentSection from '../components/ContentSection';
 import ExpertiseSection from '../components/ExpertiseSection';
+import PodServicesSection from '../components/PodServicesSection';
+import PodPurposeBanner from '../components/PodPurposeBanner';
 import ProcessSection from '../components/ProcessSection';
 import FAQSection from '../components/FAQSection';
 import CTA from '../components/CTA';
@@ -16,9 +18,10 @@ export default function PodPage() {
   }
 
   const [challenge, partnership, model] = pod.sections;
+  const pageClass = ['product-page', 'pod-page', pod.pageClass].filter(Boolean).join(' ');
 
   return (
-    <div className="product-page pod-page">
+    <div className={pageClass}>
       <PageHero
         eyebrow={pod.eyebrow}
         title={pod.heroTitle}
@@ -27,23 +30,29 @@ export default function PodPage() {
         image={pod.heroImage}
         stackedTitle
         primaryAction={{
-          label: 'Book a Strategy Call',
-          href: 'mailto:hello@sugarandleather.com',
+          label: pod.heroPrimaryLabel || 'Book a Strategy Call',
+          href: pod.heroPrimaryHref || 'mailto:hello@sugarandleather.com',
         }}
         secondaryAction={{
           label: pod.parentLabel,
           href: `/${pod.parentSlug}`,
         }}
       />
+      {pod.purpose ? <PodPurposeBanner purpose={pod.purpose} tone="light" /> : null}
       <ContentSection section={challenge} tone="dark" />
       <ContentSection section={partnership} tone="light" />
-      <ExpertiseSection expertise={pod.expertise} tone="dark" />
+      {pod.services ? (
+        <PodServicesSection services={pod.services} tone="dark" />
+      ) : (
+        <ExpertiseSection expertise={pod.expertise} tone="dark" />
+      )}
       <ProcessSection process={pod.process} tone="light" />
       <ContentSection section={model} tone="dark" />
+      {pod.whoThisIsFor ? <ContentSection section={pod.whoThisIsFor} tone="light" /> : null}
       <FAQSection
         items={pod.faq}
         eyebrow={`${pod.name} · FAQ`}
-        title="Questions about the Marketing Pod"
+        title={pod.faqTitle || `Questions about the ${pod.name}`}
         maxim={null}
         id={`${pod.slug}-faq`}
         tone="light"

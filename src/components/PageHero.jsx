@@ -22,6 +22,7 @@ export default function PageHero({
   image,
   primaryAction,
   secondaryAction,
+  actionNote,
   compact = false,
   fullViewport = false,
   stackedTitle = false,
@@ -68,6 +69,11 @@ export default function PageHero({
         {sub ? (
           <Reveal as="p" className="page-hero-sub" delay={2}>
             <MultilineText text={sub} />
+          </Reveal>
+        ) : null}
+        {actionNote ? (
+          <Reveal as="p" className="page-hero-action-note" delay={2}>
+            {actionNote}
           </Reveal>
         ) : null}
         {primaryAction || secondaryAction ? (

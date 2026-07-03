@@ -95,6 +95,7 @@ export const STRATEGIC_PARTNERSHIPS = {
           'Sales Enablement',
         ],
         icon: 'Handshake',
+        href: '/strategic-partnerships/sales-pod',
       },
       {
         title: 'Development Pod',
@@ -108,6 +109,7 @@ export const STRATEGIC_PARTNERSHIPS = {
           'Platform Development',
         ],
         icon: 'Code2',
+        href: '/strategic-partnerships/development-pod',
       },
       {
         title: 'Recruitment Pod',
@@ -121,6 +123,7 @@ export const STRATEGIC_PARTNERSHIPS = {
           'Team Scaling',
         ],
         icon: 'UserPlus',
+        href: '/strategic-partnerships/recruitment-pod',
       },
     ],
   },

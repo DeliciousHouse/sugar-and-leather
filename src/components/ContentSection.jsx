@@ -4,10 +4,11 @@ import SplitText from './ui/SplitText';
 
 export default function ContentSection({ section, tone = 'dark' }) {
   const { eyebrow, title, body, body2, bullets, image, reverse } = section;
+  const sectionIdClass = section?.id ? ` page-section--${section.id}` : '';
 
   return (
     <section
-      className={`section page-section surface-${tone}${reverse ? ' page-section--reverse' : ''}`}
+      className={`section page-section surface-${tone}${reverse ? ' page-section--reverse' : ''}${sectionIdClass}`}
     >
       <div className="wrap">
         <div className="page-split">
@@ -35,10 +36,11 @@ export default function ContentSection({ section, tone = 'dark' }) {
             ) : null}
           </div>
           <Reveal className="page-split-visual" delay={2}>
-            <div
-              className="page-split-photo"
-              style={image ? { backgroundImage: `url('${image}')` } : undefined}
-            />
+            <div className="page-split-photo">
+              {image ? (
+                <img src={image} alt="" className="page-split-photo-img" loading="lazy" />
+              ) : null}
+            </div>
           </Reveal>
         </div>
       </div>

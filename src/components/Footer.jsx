@@ -5,7 +5,7 @@ const FOOTER_LINKS = {
   ecosystem: [
     { href: '/capital-access', label: 'Capital Access', route: true },
     { href: '/strategic-partnerships', label: 'Strategic Partnerships', route: true },
-    { href: '/aries-platform', label: 'ARIES Platform', route: true },
+    { href: '/community', label: 'Community', route: true },
     { href: '/advanced-tech', label: 'Advanced Tech', route: true },
   ],
   firm: [
