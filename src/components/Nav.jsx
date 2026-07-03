@@ -98,7 +98,11 @@ export default function Nav() {
             aria-expanded={drawerOpen}
             onClick={() => setDrawerOpen((open) => !open)}
           >
-            <Menu size={26} strokeWidth={1.75} />
+            {drawerOpen ? (
+              <X size={26} strokeWidth={1.75} />
+            ) : (
+              <Menu size={26} strokeWidth={1.75} />
+            )}
           </button>
         </div>
       </header>

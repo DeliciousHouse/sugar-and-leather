@@ -1,0 +1,481 @@
+/* ============================================================
+   RESPONSIVE — tablet (768–1023px) & mobile (≤767px)
+   Desktop (1024px+) inherits site.css unchanged.
+   ============================================================ */
+
+html {
+  overflow-x: clip;
+}
+
+#root,
+main {
+  overflow-x: clip;
+  min-width: 0;
+}
+
+.wrap {
+  min-width: 0;
+}
+
+img,
+video,
+svg {
+  max-width: 100%;
+  height: auto;
+}
+
+.page-split-photo-img,
+.car-slide .cs-photo,
+.eco-card .eco-photo,
+.page-hero-bg,
+.hero-bg {
+  max-width: none;
+}
+
+/* Touch-friendly targets below desktop */
+@media (max-width: 1023px) {
+  .btn {
+    min-height: 44px;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .nav-burger,
+  .nav-drawer .nd-close {
+    min-width: 44px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .car-arrow,
+  .founder-car-arrow,
+  .car-dot,
+  .founder-car-dot {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .car-dot,
+  .founder-car-dot {
+    width: 44px;
+    height: 8px;
+  }
+
+  .faq-q {
+    min-height: 44px;
+    align-items: center;
+  }
+
+  .nav-drawer a {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+  }
+}
+
+/* Tablet */
+@media (max-width: 1023px) {
+  :root {
+    --page-gutter: clamp(24px, 4vw, 38px);
+  }
+
+  .section-head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 22px;
+  }
+
+  .section-head .lead,
+  .show-body,
+  .page-body,
+  .page-body--wide {
+    max-width: 100%;
+  }
+
+  .community-overview-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .community-overview-card:last-child:nth-child(3) {
+    grid-column: 1 / -1;
+    max-width: min(100%, 420px);
+    justify-self: center;
+    width: 100%;
+  }
+
+  .pods-detail-grid,
+  .engagement-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .outcomes-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .expertise-grid,
+  .process-grid,
+  .pod-services-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .partner-fit-list {
+    grid-template-columns: 1fr;
+  }
+
+  .about-leadership .page-split {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+
+  .about-leadership .page-split-photo {
+    max-width: 420px;
+  }
+
+  .product-page .page-hero {
+    min-height: auto;
+    padding-top: calc(clamp(120px, 12vh, 150px) + 56px);
+    padding-bottom: clamp(64px, 8vh, 96px);
+  }
+
+  .page-hero--viewport.page-hero--about {
+    min-height: auto;
+  }
+}
+
+/* Mobile */
+@media (max-width: 767px) {
+  :root {
+    --page-gutter: clamp(16px, 5vw, 24px);
+  }
+
+  .hero {
+    padding-top: clamp(112px, 18vw, 140px);
+    padding-bottom: 48px;
+  }
+
+  .hero h1 {
+    font-size: clamp(2rem, 9vw, 2.75rem);
+  }
+
+  .hero-sub {
+    max-width: 100%;
+    font-size: clamp(15px, 4.2vw, 18px);
+  }
+
+  .hero-actions {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    max-width: 360px;
+    margin-inline: auto;
+  }
+
+  .hero-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .page-hero {
+    min-height: auto;
+    padding-top: clamp(112px, 18vw, 140px);
+    padding-bottom: clamp(56px, 8vh, 80px);
+  }
+
+  .product-page .page-hero {
+    padding-top: calc(clamp(112px, 18vw, 140px) + 24px);
+    padding-bottom: clamp(56px, 8vh, 80px);
+  }
+
+  .page-hero-title {
+    font-size: clamp(2rem, 8.5vw, 2.75rem);
+  }
+
+  .page-hero-title-line.serif-i {
+    white-space: normal;
+  }
+
+  .page-hero-sub {
+    max-width: 100%;
+    font-size: clamp(15px, 4.2vw, 18px);
+  }
+
+  .page-hero-action-note {
+    white-space: normal;
+    max-width: 100%;
+    font-size: clamp(12px, 3.6vw, 14px);
+  }
+
+  .page-hero-actions {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    max-width: 360px;
+    margin-inline: auto;
+  }
+
+  .page-hero-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  #ecosystem .section-head h2,
+  #ecosystem .wrap .display,
+  .section-head h2.display,
+  .section-head h2,
+  .product-page .page-offerings h2.display,
+  .product-page .page-expertise h2.display,
+  .product-page .page-process h2.display,
+  .product-page .page-pods-detail h2.display,
+  .product-page .page-engagement h2.display,
+  .product-page .page-community-overview h2.display,
+  .product-page .page-community-program h2.display,
+  .product-page .page-section h2.display,
+  .faq-aside h2.display {
+    font-size: clamp(1.85rem, 7.5vw, 2.5rem);
+    line-height: 1.08;
+  }
+
+  .community-page .cta h2,
+  .pod-page--sales .page-section--challenge h2.display,
+  .pod-page--sales .page-section--model h2.display,
+  .pod-page--development .page-section--challenge h2.display,
+  .pod-page--development .page-section--model h2.display,
+  .pod-page--recruitment .page-section--challenge h2.display,
+  .pod-page--recruitment .page-section--model h2.display,
+  .community-page .page-section h2.display,
+  .community-page .community-program-title {
+    font-size: clamp(1.75rem, 7vw, 2.35rem);
+  }
+
+  .show-name {
+    font-size: clamp(1.85rem, 7.5vw, 2.5rem);
+  }
+
+  #capital-access .show-name,
+  #strategic-partnerships .show-name,
+  #community .show-name {
+    font-size: clamp(1.65rem, 6.5vw, 2.15rem);
+  }
+
+  #capital-access .caps,
+  #strategic-partnerships .caps {
+    grid-template-columns: 1fr;
+    column-gap: 0;
+  }
+
+  #capital-access .cap:nth-last-child(-n+2),
+  #strategic-partnerships .cap:nth-last-child(-n+2) {
+    border-bottom: none;
+  }
+
+  #capital-access .cap:last-child,
+  #strategic-partnerships .cap:last-child {
+    border-bottom: 1px solid rgba(61, 51, 71, 0.6);
+  }
+
+  .show-grid {
+    gap: 32px;
+  }
+
+  .show-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .show-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .eco-card {
+    min-height: 300px;
+    padding: 28px;
+  }
+
+  .eco-card .eco-name {
+    font-size: clamp(1.35rem, 5.5vw, 1.75rem);
+  }
+
+  .community-overview-grid,
+  .pods-detail-grid,
+  .engagement-grid,
+  .outcomes-grid,
+  .expertise-grid,
+  .process-grid,
+  .pod-services-grid,
+  .community-audience-grid,
+  .offerings-grid,
+  .offerings-grid--quad,
+  .story-grid,
+  .philosophy-links,
+  .about-name-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .community-overview-card:last-child:nth-child(3) {
+    grid-column: auto;
+    max-width: none;
+  }
+
+  .community-overview-cta,
+  .community-program-cta {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .community-overview-cta.btn,
+  .community-program-cta.btn {
+    justify-content: center;
+  }
+
+  .page-split {
+    gap: 32px;
+  }
+
+  .page-section,
+  .page-offerings,
+  .page-expertise,
+  .page-process,
+  .page-pods-detail,
+  .page-engagement,
+  .page-partner-fit,
+  .page-outcomes,
+  .page-community-overview,
+  .page-community-program,
+  .page-stories,
+  .section {
+    padding-top: clamp(56px, 10vw, 80px);
+    padding-bottom: clamp(56px, 10vw, 80px);
+  }
+
+  .cta {
+    padding: clamp(48px, 10vw, 72px) 0;
+  }
+
+  .cta h2 {
+    font-size: clamp(1.85rem, 7.5vw, 2.5rem);
+  }
+
+  .cta-actions {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    max-width: 360px;
+    margin-inline: auto;
+  }
+
+  .cta-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .faq-q {
+    font-size: clamp(1.1rem, 4.8vw, 1.35rem);
+    gap: 16px;
+    padding: 22px 0;
+  }
+
+  .faq-a-inner {
+    padding: 0 0 24px;
+    max-width: 100%;
+  }
+
+  .footer-giant {
+    font-size: clamp(44px, 13vw, 96px);
+    margin-top: 48px;
+  }
+
+  .footer-base {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .footer-base .legal {
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .strip-item {
+    font-size: clamp(18px, 5.5vw, 26px);
+    gap: 12px;
+  }
+
+  .nav-drawer {
+    padding: 0 var(--page-gutter);
+  }
+
+  .nav-drawer a {
+    font-size: clamp(1.65rem, 7vw, 2.25rem);
+    padding: 10px 0;
+  }
+
+  .car-ctrl,
+  .founder-car-ctrl {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .car-arrows,
+  .founder-car-arrows {
+    margin-left: 0;
+  }
+
+  .about-name-title,
+  .about-mv-title,
+  .partner-fit-title,
+  .outcomes-title {
+    font-size: clamp(1.75rem, 7vw, 2.35rem);
+    max-width: none;
+  }
+
+  .page-philosophy .philosophy-title {
+    font-size: clamp(1.85rem, 7.5vw, 2.35rem);
+  }
+
+  .about-name-together-box {
+    padding: clamp(28px, 6vw, 40px) clamp(20px, 5vw, 28px);
+  }
+
+  .display {
+    overflow-wrap: break-word;
+  }
+
+  .pods-detail-card,
+  .engagement-card,
+  .offering-card,
+  .pod-service-card,
+  .community-overview-card {
+    padding: 24px;
+  }
+
+  .pod-service-desc,
+  .pod-service-bullets li,
+  .community-audience-list li,
+  .community-bullets-list li {
+    font-size: 14px;
+  }
+}
+
+/* Small phones */
+@media (max-width: 359px) {
+  .brand-name {
+    font-size: 16px;
+  }
+
+  .brand img {
+    height: 28px;
+  }
+
+  .btn {
+    padding: 14px 18px;
+    font-size: 12px;
+    letter-spacing: 0.04em;
+  }
+
+  .nav-inner {
+    gap: 12px;
+  }
+}
