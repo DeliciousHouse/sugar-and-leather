@@ -10,7 +10,7 @@ export const COMMUNITY = {
     'Sugar & Leather brings together coaches, founders, emerging entrepreneurs, and curious operators who believe business can be commercially capable, technologically aware, and deeply human.',
   heroActionNote:
     'A place to share knowledge. Build capability. Find better direction.',
-  heroImage: a('/assets/photo-coaching-library.png'),
+  heroImage: a('/assets/photo-coaching-library.webp'),
   primaryCta: {
     label: 'Explore Our Communities',
     href: '#our-communities',
@@ -21,7 +21,7 @@ export const COMMUNITY = {
     body: 'The strongest businesses are rarely built in isolation. They are shaped through better thinking, practical experience, honest conversation, and people willing to share what they have learned.',
     body2:
       'Our communities create space for that exchange. From experienced coaches sharing hard-won perspective, to founders learning how to build with greater clarity, each community plays a different role in a wider environment designed for what comes next.',
-    image: a('/assets/photo-knowledge-motion.png'),
+    image: a('/assets/photo-knowledge-motion.webp'),
     reverse: false,
   },
   overview: {

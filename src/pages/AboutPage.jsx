@@ -105,10 +105,14 @@ export default function AboutPage() {
         <div className="wrap">
           <div className="page-split">
             <Reveal className="page-split-visual" delay={1}>
-              <div
-                className="page-split-photo page-split-photo--portrait"
-                style={{ backgroundImage: `url('${leadership.image}')` }}
-              />
+              <div className="page-split-photo page-split-photo--portrait">
+                <img
+                  src={leadership.image}
+                  alt="Troy Cunningham-Jackson and Audrey Cunningham-Jackson"
+                  className="page-split-photo-img"
+                  loading="lazy"
+                />
+              </div>
             </Reveal>
             <div className="page-split-text">
               <Reveal as={Eyebrow}>{leadership.eyebrow}</Reveal>

@@ -1,5 +1,4 @@
 import { useEffect } from 'react';
-import { asset } from '../lib/asset';
 import { useHeroParallax } from '../hooks/useParallax';
 import { HOMEPAGE_HERO } from '../data/siteContent';
 import Eyebrow from './ui/Eyebrow';
@@ -24,7 +23,7 @@ export default function Hero({ ready }) {
         className="hero-bg"
         id="heroBg"
         ref={heroBgRef}
-        style={{ backgroundImage: `url('${asset('/assets/photo-coaching-library.png')}')` }}
+        style={{ backgroundImage: `url('${HOMEPAGE_HERO.heroImage}')` }}
       />
       <div className="hero-scrim" />
       <div className="hero-grain" />

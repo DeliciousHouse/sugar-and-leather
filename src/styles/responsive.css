@@ -130,7 +130,7 @@ svg {
   }
 
   .about-leadership .page-split-photo {
-    max-width: 420px;
+    max-width: min(480px, 100%);
   }
 
   .product-page .page-hero {
@@ -449,6 +449,23 @@ svg {
   .pod-service-card,
   .community-overview-card {
     padding: 24px;
+  }
+
+  .inquiry-grid {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+
+  .inquiry-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .inquiry-social {
+    flex-wrap: wrap;
+  }
+
+  .inquiry-map.inquiry-map--full {
+    height: 340px;
   }
 
   .pod-service-desc,

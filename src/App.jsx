@@ -7,6 +7,7 @@ import PodPage from './pages/PodPage';
 import StrategicPartnershipsPage from './pages/StrategicPartnershipsPage';
 import AboutPage from './pages/AboutPage';
 import CommunityPage from './pages/CommunityPage';
+import InquiryPage from './pages/InquiryPage';
 
 const routerBasename = import.meta.env.BASE_URL.replace(/\/$/, '') || undefined;
 
@@ -17,6 +18,7 @@ export default function App() {
         <Route element={<Layout />}>
           <Route index element={<HomePage />} />
           <Route path="about" element={<AboutPage />} />
+          <Route path="inquiry" element={<InquiryPage />} />
           <Route path="practices/:slug" element={<ProductPage />} />
           <Route path="strategic-partnerships" element={<StrategicPartnershipsPage />} />
           <Route path="strategic-partnerships/:podSlug" element={<PodPage />} />

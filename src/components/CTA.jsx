@@ -18,7 +18,7 @@ export default function CTA({
       <div className="cta-glow" />
       <div className="wrap">
         <Reveal>
-          <img className="cta-mark" src={asset('/assets/logo-mark-lavender-flat.png')} alt="" />
+          <img className="cta-mark" src={asset('/assets/logo-mark-lavender-flat.webp')} alt="" />
         </Reveal>
         <SplitText as="h2" className="display">
           {highlight ? (

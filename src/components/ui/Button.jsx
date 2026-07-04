@@ -14,7 +14,7 @@ function isHashRoute(href) {
 export default function Button({
   href,
   variant = 'cream',
-  magnetic = true,
+  magnetic = false,
   children,
   className = '',
   showArrow = true,

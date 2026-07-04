@@ -14,7 +14,7 @@ export default function Brand({ className = '' }) {
       onMouseLeave={onMouseLeave}
       data-magnetic
     >
-      <img src={asset('/assets/logo-mark-cream-flat.png')} alt="" />
+      <img src={asset('/assets/logo-mark-cream-flat.webp')} alt="" />
       <span className="brand-name">
         Sugar <span className="brand-amp">&amp;</span> Leather
       </span>

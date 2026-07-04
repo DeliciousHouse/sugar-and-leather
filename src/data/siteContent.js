@@ -14,7 +14,7 @@ export const ECOSYSTEM_CARDS = [
     id: 'capital-access',
     href: '/capital-access',
     className: 'c-a',
-    photo: a('/assets/photo-coaching-sage.png'),
+    photo: a('/assets/photo-coaching-sage.webp'),
     index: '01',
     name: 'Capital Access & Grant Services',
     description:
@@ -24,7 +24,7 @@ export const ECOSYSTEM_CARDS = [
     id: 'strategic-partnerships',
     href: '/strategic-partnerships',
     className: 'c-b',
-    photo: a('/assets/photo-coaching-library.png'),
+    photo: a('/assets/sp-ecosystem-card.webp'),
     index: '02',
     name: 'Strategic Partnerships',
     description:
@@ -34,7 +34,7 @@ export const ECOSYSTEM_CARDS = [
     id: 'community',
     href: '/community',
     className: 'c-c',
-    photo: a('/assets/photo-night-work.png'),
+    photo: a('/assets/photo-coaching-library.webp'),
     index: '03',
     name: 'Community',
     description:
@@ -42,13 +42,14 @@ export const ECOSYSTEM_CARDS = [
   },
   {
     id: 'advanced-tech',
-    href: '/advanced-tech',
+    href: 'https://sugarandleather.ai/',
+    external: true,
     className: 'c-d',
-    photo: a('/assets/photo-study-light.png'),
+    photo: a('/assets/photo-study-light.webp'),
     index: '04',
-    name: 'Innovation & Community',
+    name: 'Innovation & Advanced Tech',
     description:
-      'Access research initiatives, innovation programs, and business communities designed to support founders and organizations at every stage.',
+      'Access research initiatives, innovation programs, and advanced technology designed to support founders and organizations at every stage.',
   },
 ];
 
@@ -104,7 +105,7 @@ export const HOMEPAGE_SHOWCASES = [
     cta: { label: 'Explore Capital Services', href: '/capital-access' },
     reverse: false,
     slides: [
-      { type: 'photo', image: a('/assets/photo-coaching-sage.png'), caption: 'Capital strategy' },
+      { type: 'photo', image: a('/assets/photo-coaching-sage.webp'), caption: 'Capital strategy' },
       {
         type: 'ui',
         caption: 'Funding roadmap',
@@ -114,7 +115,7 @@ export const HOMEPAGE_SHOWCASES = [
         meter: '68%',
         lines: ['72%', '58%', '64%'],
       },
-      { type: 'photo', image: a('/assets/photo-study-light.png'), caption: 'Operational readiness' },
+      { type: 'photo', image: a('/assets/photo-study-light.webp'), caption: 'Operational readiness' },
     ],
   },
   {
@@ -157,7 +158,7 @@ export const HOMEPAGE_SHOWCASES = [
     cta: { label: 'Explore Strategic Partnerships', href: '/strategic-partnerships' },
     reverse: true,
     slides: [
-      { type: 'photo', image: a('/assets/photo-coaching-library.png'), caption: 'Executive leadership' },
+      { type: 'photo', image: a('/assets/sp-showcase-leadership.webp'), caption: 'Executive leadership' },
       {
         type: 'ui',
         caption: 'Execution pods',
@@ -167,7 +168,7 @@ export const HOMEPAGE_SHOWCASES = [
         meter: '82%',
         lines: ['60%', '78%', '48%'],
       },
-      { type: 'photo', image: a('/assets/photo-night-work.png'), caption: 'Operational delivery' },
+      { type: 'photo', image: a('/assets/sp-showcase-execution.webp'), caption: 'Operational delivery' },
     ],
   },
   {
@@ -201,7 +202,7 @@ export const HOMEPAGE_SHOWCASES = [
     cta: { label: 'Explore Community', href: '/community' },
     reverse: false,
     slides: [
-      { type: 'photo', image: a('/assets/photo-coaching-library.png'), caption: 'Coaches Network' },
+      { type: 'photo', image: a('/assets/photo-coaching-library.webp'), caption: 'Coaches Network' },
       {
         type: 'ui',
         caption: 'Learning community',
@@ -211,7 +212,7 @@ export const HOMEPAGE_SHOWCASES = [
         meter: '78%',
         lines: ['64%', '72%', '86%'],
       },
-      { type: 'photo', image: a('/assets/photo-study-light.png'), caption: 'Community learning' },
+      { type: 'photo', image: a('/assets/photo-study-light.webp'), caption: 'Community learning' },
     ],
   },
 ];
@@ -266,6 +267,7 @@ export const HOMEPAGE_HERO = {
   title: 'Building Companies Through Capital, Leadership, and Execution.',
   sub:
     'Sugar & Leather helps founders secure grants and non-dilutive funding, deploy executive leadership, and scale with execution pods across marketing, sales, development, and recruitment.',
+  heroImage: a('/assets/home-hero.webp'),
   primaryCta: { label: 'Book a Strategy Call', href: '#cta' },
   secondaryCta: { label: 'Explore Our Ecosystem', href: '#ecosystem' },
 };
@@ -355,7 +357,7 @@ export const PRACTICES = [
     cta: { label: 'View more', href: '/practices/atelier' },
     reverse: false,
     slides: [
-      { type: 'photo', image: a('/assets/photo-coaching-sage.png'), caption: 'The room' },
+      { type: 'photo', image: a('/assets/photo-coaching-sage.webp'), caption: 'The room' },
       {
         type: 'ui',
         caption: 'The arc',
@@ -365,7 +367,7 @@ export const PRACTICES = [
         meter: '34%',
         lines: ['72%', '54%', '64%'],
       },
-      { type: 'photo', image: a('/assets/photo-study-light.png'), caption: 'The work' },
+      { type: 'photo', image: a('/assets/photo-study-light.webp'), caption: 'The work' },
     ],
   },
   {
@@ -395,7 +397,7 @@ export const PRACTICES = [
     cta: { label: 'View more', href: '/practices/forge' },
     reverse: true,
     slides: [
-      { type: 'photo', image: a('/assets/photo-coaching-library.png'), caption: 'The table' },
+      { type: 'photo', image: a('/assets/photo-coaching-library.webp'), caption: 'The table' },
       {
         type: 'ui',
         caption: 'The rehearsal',
@@ -405,7 +407,7 @@ export const PRACTICES = [
         meter: '82%',
         lines: ['60%', '78%', '48%'],
       },
-      { type: 'photo', image: a('/assets/photo-night-work.png'), caption: 'The pressure' },
+      { type: 'photo', image: a('/assets/photo-night-work.webp'), caption: 'The pressure' },
     ],
   },
   {
@@ -444,8 +446,8 @@ export const PRACTICES = [
         meter: '58%',
         lines: ['84%', '56%', '70%'],
       },
-      { type: 'photo', image: a('/assets/photo-night-work.png'), caption: 'The build' },
-      { type: 'photo', image: a('/assets/photo-coaching-library.png'), caption: 'The counsel' },
+      { type: 'photo', image: a('/assets/photo-night-work.webp'), caption: 'The build' },
+      { type: 'photo', image: a('/assets/photo-coaching-library.webp'), caption: 'The counsel' },
     ],
   },
   {
@@ -475,7 +477,7 @@ export const PRACTICES = [
     cta: { label: 'View more', href: '/practices/lexicon' },
     reverse: true,
     slides: [
-      { type: 'photo', image: a('/assets/photo-study-light.png'), caption: 'The study' },
+      { type: 'photo', image: a('/assets/photo-study-light.webp'), caption: 'The study' },
       {
         type: 'ui',
         caption: 'The path',
@@ -485,7 +487,7 @@ export const PRACTICES = [
         meter: '62%',
         lines: ['66%', '80%', '50%'],
       },
-      { type: 'photo', image: a('/assets/photo-night-work.png'), caption: 'The practice' },
+      { type: 'photo', image: a('/assets/photo-night-work.webp'), caption: 'The practice' },
     ],
   },
 ];

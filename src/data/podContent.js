@@ -13,7 +13,7 @@ export const POD_PAGES = {
     heroHighlight: 'that grows with your business.',
     heroSub:
       "Marketing isn't about volume. It's a system that attracts and converts.\nOur Pod pairs executive leadership with specialists built to scale.\nGrow a marketing function, not just a list of campaigns.",
-    heroImage: a('/assets/photo-coaching-library.png'),
+    heroImage: a('/assets/pod-marketing-hero.webp'),
     sections: [
       {
         id: 'challenge',
@@ -27,7 +27,7 @@ export const POD_PAGES = {
           'Social media creates awareness without engagement',
           'Email marketing lacks a nurturing strategy',
         ],
-        image: a('/assets/photo-night-work.png'),
+        image: a('/assets/pod-marketing-challenge.webp'),
         reverse: false,
       },
       {
@@ -35,7 +35,7 @@ export const POD_PAGES = {
         eyebrow: 'Why a strategic partnership',
         title: 'More than an agency. A partner at the table.',
         body: "Unlike a traditional agency, we don't simply execute marketing tasks. We become a strategic partner that works alongside your leadership team, helping define priorities, establish systems, provide specialist expertise, and continuously improve performance as your business grows.",
-        image: a('/assets/photo-study-light.png'),
+        image: a('/assets/pod-marketing-partnership.webp'),
         reverse: true,
       },
       {
@@ -43,7 +43,7 @@ export const POD_PAGES = {
         eyebrow: 'Why this model works',
         title: 'One team. One outcome.',
         body: "Businesses don't need more disconnected vendors. They need one team working toward a shared outcome. Our Marketing Pod combines leadership, strategy, execution, and technology into one integrated capability, reducing complexity while improving consistency and performance.",
-        image: a('/assets/photo-coaching-sage.png'),
+        image: a('/assets/pod-marketing-model.webp'),
         reverse: false,
       },
     ],
@@ -156,7 +156,7 @@ export const POD_PAGES = {
       'Revenue should not depend on one founder, one salesperson, or one good month. The Sales Pod brings commercial direction, experienced leadership, and specialist execution into one focused partnership.',
     heroPrimaryLabel: 'Book a Commercial Strategy Call',
     heroPrimaryHref: 'mailto:hello@sugarandleather.com',
-    heroImage: a('/assets/photo-night-work.png'),
+    heroImage: a('/assets/pod-sales-hero.webp'),
     sections: [
       {
         id: 'challenge',
@@ -170,7 +170,7 @@ export const POD_PAGES = {
           'CRM visibility is incomplete or misleading',
           'Commercial rhythm is inconsistent across the team',
         ],
-        image: a('/assets/photo-study-light.png'),
+        image: a('/assets/pod-sales-challenge.webp'),
         reverse: false,
       },
       {
@@ -178,7 +178,7 @@ export const POD_PAGES = {
         eyebrow: 'A strategic partnership',
         title: 'The Sales Pod',
         body: 'A strong sales function connects strategy, messaging, people, process, data, and discipline. Our Sales Pod works alongside your leadership team to understand what is holding revenue back, then brings in the right expertise to strengthen the full commercial system. We do not arrive with a fixed playbook. We start with the business in front of us.',
-        image: a('/assets/photo-coaching-sage.png'),
+        image: a('/assets/pod-sales-partnership.webp'),
         reverse: true,
       },
       {
@@ -186,7 +186,7 @@ export const POD_PAGES = {
         eyebrow: 'Sales does not operate alone',
         title: 'Built Into a Wider Ecosystem',
         body: 'Sales performs better when the wider business is aligned. Marketing strengthens demand and positioning. Recruitment helps build the right commercial team. Engineering supports systems and automation. Innovation and technology create leverage, and capital access supports the next stage of growth. The Sales Pod sits inside a wider Sugar & Leather ecosystem designed for meaningful progress.',
-        image: a('/assets/photo-coaching-library.png'),
+        image: a('/assets/pod-sales-ecosystem.webp'),
         reverse: false,
       },
     ],
@@ -272,7 +272,7 @@ export const POD_PAGES = {
         'Have a sales team but lack process, leadership, or visibility',
         'Want to use AI to improve sales without losing the human relationship',
       ],
-      image: a('/assets/photo-study-light.png'),
+      image: a('/assets/pod-sales-who.webp'),
       reverse: true,
     },
     faqTitle: 'Questions about the Sales Pod',
@@ -336,7 +336,7 @@ export const POD_PAGES = {
       'The right technology does not add complexity. It removes friction, improves visibility, and gives people more room to focus on work that matters. We help businesses define, build, and improve the systems, products, and workflows that support their next stage.',
     heroPrimaryLabel: 'Book a Technology Strategy Call',
     heroPrimaryHref: 'mailto:hello@sugarandleather.com',
-    heroImage: a('/assets/photo-study-light.png'),
+    heroImage: a('/assets/pod-development-hero.webp'),
     sections: [
       {
         id: 'challenge',
@@ -350,7 +350,7 @@ export const POD_PAGES = {
           'Teams spend time managing tools instead of improving outcomes',
           'Investment happens without clarity on what to solve',
         ],
-        image: a('/assets/photo-night-work.png'),
+        image: a('/assets/pod-development-challenge.webp'),
         reverse: false,
       },
       {
@@ -358,7 +358,7 @@ export const POD_PAGES = {
         eyebrow: 'A technology and product partnership',
         title: 'The Development Pod',
         body: 'The Development Pod works alongside leadership teams to turn business problems, customer needs, and growth priorities into useful digital systems. We help define what is worth building, decide whether existing tools can do the job, and create technology that supports the wider operating model. This is not development for development’s sake. It is focused technical capability designed around the work your business needs to do next.',
-        image: a('/assets/photo-coaching-sage.png'),
+        image: a('/assets/pod-development-partnership.webp'),
         reverse: true,
       },
       {
@@ -366,7 +366,7 @@ export const POD_PAGES = {
         eyebrow: 'Technology does not operate in isolation',
         title: 'Built Into a Wider Ecosystem',
         body: 'Technology decisions affect every part of the organisation. A sales team needs systems that make pipeline activity visible. A marketing team needs connected data and useful automation. A recruitment process needs clear workflows. Leadership needs better information to make stronger decisions. Where needed, the Development Pod works alongside the wider Sugar & Leather ecosystem to ensure technology supports business direction, rather than becoming another disconnected initiative.',
-        image: a('/assets/photo-coaching-library.png'),
+        image: a('/assets/pod-development-ecosystem.webp'),
         reverse: false,
       },
     ],
@@ -513,7 +513,7 @@ export const POD_PAGES = {
         'Businesses exploring practical uses of AI',
         'Companies that need technical capability without building a large internal team',
       ],
-      image: a('/assets/photo-study-light.png'),
+      image: a('/assets/pod-development-who.webp'),
       reverse: true,
     },
     faqTitle: 'Development Pod FAQs',
@@ -582,7 +582,7 @@ export const POD_PAGES = {
       'The right hire is not simply a person with the right experience. It is someone whose capability, judgment, and way of working can move the business forward. We help teams define the roles that matter, attract the right people, and build a stronger foundation.',
     heroPrimaryLabel: 'Book a Talent Strategy Call',
     heroPrimaryHref: 'mailto:hello@sugarandleather.com',
-    heroImage: a('/assets/photo-coaching-sage.png'),
+    heroImage: a('/assets/pod-recruitment-hero.webp'),
     sections: [
       {
         id: 'challenge',
@@ -596,7 +596,7 @@ export const POD_PAGES = {
           'Job descriptions exist without clear success measures',
           'Strong candidates are placed into poorly designed roles',
         ],
-        image: a('/assets/photo-night-work.png'),
+        image: a('/assets/pod-recruitment-challenge.webp'),
         reverse: false,
       },
       {
@@ -604,7 +604,7 @@ export const POD_PAGES = {
         eyebrow: 'A strategic talent partnership',
         title: 'The Recruitment Pod',
         body: 'The Recruitment Pod works alongside leadership teams to understand the work ahead, define the people required to carry it, and create a stronger hiring system around that need. This is not a CV-forwarding service. We help businesses make better talent decisions, from whether to hire through to how a new person becomes effective inside the team.',
-        image: a('/assets/photo-study-light.png'),
+        image: a('/assets/pod-recruitment-partnership.webp'),
         reverse: true,
       },
       {
@@ -612,7 +612,7 @@ export const POD_PAGES = {
         eyebrow: 'Talent does not operate in isolation',
         title: 'Built Into a Wider Ecosystem',
         body: 'Recruitment connects to every part of a business. A sales hire needs a clear commercial system. A marketing leader needs a defined brand and growth direction. An engineering team needs the right technology priorities. A founder needs a structure that does not depend on one person carrying everything. Where needed, the Recruitment Pod works alongside the wider Sugar & Leather ecosystem to ensure talent decisions support the broader business direction.',
-        image: a('/assets/photo-coaching-library.png'),
+        image: a('/assets/pod-recruitment-ecosystem.webp'),
         reverse: false,
       },
     ],
@@ -749,7 +749,7 @@ export const POD_PAGES = {
         'Companies with hiring activity but inconsistent outcomes',
         'Leaders who want a stronger recruitment process without building a large internal talent function',
       ],
-      image: a('/assets/photo-coaching-sage.png'),
+      image: a('/assets/pod-recruitment-who.webp'),
       reverse: true,
     },
     faqTitle: 'Recruitment Pod FAQs',

@@ -9,13 +9,19 @@ import SplitText from './ui/SplitText';
 function EcoCard({ card }) {
   const { ref, onMouseMove, onMouseLeave } = useTilt();
   const isRoute = card.href.startsWith('/') && !card.href.startsWith('/#');
+  const isExternal = card.external || card.href.startsWith('http');
   const CardTag = isRoute ? Link : 'a';
-  const linkProps = isRoute ? { to: card.href } : { href: card.href };
+  const linkProps = isRoute
+    ? { to: card.href }
+    : {
+        href: card.href,
+        ...(isExternal ? { target: '_blank', rel: 'noopener noreferrer' } : {}),
+      };
 
   return (
     <CardTag
       {...linkProps}
-      className={`eco-card ${card.className}`}
+      className={`eco-card ${card.className}${isExternal ? ' eco-card--external' : ''}`}
       ref={ref}
       onMouseMove={onMouseMove}
       onMouseLeave={onMouseLeave}

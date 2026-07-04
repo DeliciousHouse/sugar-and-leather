@@ -8,7 +8,7 @@ export const STRATEGIC_PARTNERSHIPS = {
   heroHighlight: 'Built for Growth',
   heroSub:
     'Gain executive leadership, operational expertise, and specialized execution teams without building an entire internal department.',
-  heroImage: a('/assets/photo-coaching-library.png'),
+  heroImage: a('/assets/sp-hero.webp'),
   primaryCta: {
     label: 'Book a Discovery Call',
     href: 'mailto:hello@sugarandleather.com',
@@ -19,7 +19,7 @@ export const STRATEGIC_PARTNERSHIPS = {
     body: 'A Strategic Partnership is designed for businesses that need more than advice. Rather than hiring multiple executives, agencies, and contractors, organizations partner with Sugar & Leather to gain access to executive guidance and dedicated execution pods that work together toward clearly defined growth objectives.',
     body2:
       'We become an extension of your leadership team while helping drive measurable outcomes.',
-    image: a('/assets/photo-night-work.png'),
+    image: a('/assets/sp-partnership.webp'),
     reverse: false,
   },
   process: {

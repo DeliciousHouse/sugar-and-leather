@@ -9,7 +9,7 @@ export default function Loader({ onComplete }) {
   return (
     <div className={`loader${done ? ' done' : ''}`} id="loader">
       <div className="loader-inner">
-        <img src={asset('/assets/logo-mark-cream-flat.png')} alt="Sugar &amp; Leather" />
+        <img src={asset('/assets/logo-mark-cream-flat.webp')} alt="Sugar &amp; Leather" />
         <div className="loader-bar">
           <i id="loaderFill" style={{ width: `${progress}%` }} />
         </div>

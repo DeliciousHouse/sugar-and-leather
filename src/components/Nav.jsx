@@ -9,10 +9,8 @@ import Button from './ui/Button';
 
 const NAV_LINKS = [
   { href: '/#ecosystem', label: 'Ecosystem' },
-  { href: '/#products', label: 'Products' },
   { href: '/about', label: 'About', route: true },
-  { href: '/#founder', label: 'Founder' },
-  { href: '/#faq', label: 'Enquiry' },
+  { href: '/inquiry', label: 'Enquiry', route: true },
 ];
 
 function NavAnchor({ href, label, route, onNavigate }) {
