@@ -73,6 +73,12 @@ svg {
     display: flex;
     align-items: center;
   }
+
+  .nav-drawer-sublink {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+  }
 }
 
 /* Tablet */

@@ -1,6 +1,6 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { Menu, X } from 'lucide-react';
+import { ChevronDown, Menu, X } from 'lucide-react';
 import { useScrollNav } from '../hooks/useScrollNav';
 import { scrollToSection } from '../hooks/useSmoothAnchor';
 import { hashHref } from '../lib/asset';
@@ -11,6 +11,11 @@ const NAV_LINKS = [
   { href: '/#ecosystem', label: 'Ecosystem' },
   { href: '/about', label: 'About', route: true },
   { href: '/inquiry', label: 'Enquiry', route: true },
+];
+
+const PRODUCT_LINKS = [
+  { href: 'https://aries.sugarandleather.com/', label: 'Aries AI' },
+  { href: 'https://sequence.sugarandleather.com/', label: 'Sequence' },
 ];
 
 function NavAnchor({ href, label, route, onNavigate }) {
@@ -54,6 +59,51 @@ function NavAnchor({ href, label, route, onNavigate }) {
   );
 }
 
+function NavProductDropdown() {
+  return (
+    <div className="nav-dropdown">
+      <button type="button" className="nav-link nav-dropdown-toggle" aria-haspopup="true">
+        Product
+        <ChevronDown size={14} strokeWidth={1.75} aria-hidden="true" />
+      </button>
+      <div className="nav-dropdown-menu" role="menu">
+        {PRODUCT_LINKS.map((link) => (
+          <a
+            key={link.label}
+            href={link.href}
+            className="nav-dropdown-item"
+            role="menuitem"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {link.label}
+          </a>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function NavProductDrawer({ onNavigate }) {
+  return (
+    <div className="nav-drawer-group">
+      <span className="nav-drawer-label">Product</span>
+      {PRODUCT_LINKS.map((link) => (
+        <a
+          key={link.label}
+          href={link.href}
+          className="nav-drawer-sublink"
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={onNavigate}
+        >
+          {link.label}
+        </a>
+      ))}
+    </div>
+  );
+}
+
 export default function Nav() {
   const scrolled = useScrollNav();
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -82,7 +132,9 @@ export default function Nav() {
         <div className="nav-inner">
           <Brand />
           <nav className="nav-links">
-            {NAV_LINKS.map((link) => (
+            <NavAnchor href="/#ecosystem" label="Ecosystem" />
+            <NavProductDropdown />
+            {NAV_LINKS.slice(1).map((link) => (
               <NavAnchor key={`${link.label}-${link.href}`} {...link} />
             ))}
           </nav>
@@ -114,7 +166,9 @@ export default function Nav() {
         >
           <X size={30} strokeWidth={1.75} />
         </button>
-        {NAV_LINKS.map((link) => (
+        <NavAnchor href="/#ecosystem" label="Ecosystem" onNavigate={closeDrawer} />
+        <NavProductDrawer onNavigate={closeDrawer} />
+        {NAV_LINKS.slice(1).map((link) => (
           <NavAnchor key={`${link.label}-${link.href}`} {...link} onNavigate={closeDrawer} />
         ))}
         <NavAnchor href="/#cta" label="Book a call" onNavigate={closeDrawer} />
