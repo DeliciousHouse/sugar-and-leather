@@ -2444,6 +2444,14 @@ body.cursor-hot .cursor { width: 5px; height: 5px; }
   margin-top: clamp(40px, 5vw, 56px);
 }
 
+.grant-services-cta .btn-outline::after {
+  background: var(--lavender);
+}
+
+.grant-services-cta .btn-outline:hover {
+  border-color: var(--lavender);
+}
+
 .grant-services-card {
   display: flex;
   flex-direction: column;
