@@ -1,4 +1,5 @@
 import { asset as a } from '../lib/asset';
+import { CAL_BOOKING_URL, ECOSYSTEM_HASH } from '../lib/links';
 
 export const MARQUEE_ITEMS = [
   'Capital',
@@ -65,41 +66,41 @@ export const HOMEPAGE_SHOWCASES = [
   {
     id: 'capital-access',
     num: '01',
-    eyebrow: 'Capital Access & Grant Services',
-    name: 'Funding Growth Without Giving Away Equity',
+    eyebrow: 'Grant Writing & Funding Strategy',
+    name: 'Turn a Funding Opportunity Into a Fundable Case',
     tagline: '',
     body:
-      'We help businesses identify funding opportunities, prepare grant applications, improve operational readiness, and secure non-dilutive capital that accelerates growth.',
+      'We help organizations pursue grants with a stronger strategy, clearer narrative, credible budget, and the operational readiness funders expect.',
     features: [
       {
-        icon: 'Landmark',
-        title: 'Funding Strategy',
-        description: 'Identify the right capital pathways aligned to your growth stage and goals.',
-      },
-      {
         icon: 'FileText',
-        title: 'Grant Writing & Submission',
-        description: 'Prepare compelling applications and manage submissions end to end.',
+        title: 'Grant Strategy',
+        description: 'Opportunity research, funding roadmaps, and go / no-go decision support before you apply.',
       },
       {
-        icon: 'Building2',
-        title: 'Government Incentives',
-        description: 'Navigate incentive programs designed to support business expansion.',
+        icon: 'Landmark',
+        title: 'Grant Proposal Development',
+        description: 'Proposal narrative, budget support, attachments, and submission-ready review.',
       },
       {
-        icon: 'Coins',
-        title: 'Non-Dilutive Capital Programs',
-        description: 'Secure funding that fuels growth without giving away equity.',
+        icon: 'ClipboardCheck',
+        title: 'Funding Readiness',
+        description: 'Program framing, operating plans, financial readiness, and capacity narrative.',
       },
       {
         icon: 'TrendingUp',
-        title: 'Investment Readiness',
-        description: 'Build the operational and financial foundation funders expect.',
+        title: 'Grant Readiness Review',
+        description: 'Expert assessment of eligibility, competitiveness, and proposal scope.',
       },
       {
         icon: 'Map',
-        title: 'Funding Roadmaps',
-        description: 'Sequence capital milestones across grants, incentives, and programs.',
+        title: 'Fixed-Scope Proposal Plans',
+        description: 'Clear deliverables, timeline, and project fee tied to the actual work required.',
+      },
+      {
+        icon: 'Building2',
+        title: 'Capital Readiness Support',
+        description: 'Financial planning, delivery structure, and broader capital preparation where needed.',
       },
     ],
     cta: { label: 'Explore Capital Services', href: '/capital-access' },
@@ -257,7 +258,7 @@ export const HOMEPAGE_CTA = {
   sub:
     "Whether you're looking for funding, leadership support, execution capacity, or AI-powered technology, Sugar & Leather provides the infrastructure to help organizations grow with confidence.",
   primaryLabel: 'Book a Strategy Call',
-  primaryHref: 'mailto:hello@sugarandleather.com',
+  primaryHref: CAL_BOOKING_URL,
   secondaryLabel: 'Talk to Our Team',
   secondaryHref: 'mailto:hello@sugarandleather.com',
 };
@@ -268,7 +269,7 @@ export const HOMEPAGE_HERO = {
   sub:
     'Sugar & Leather helps founders secure grants and non-dilutive funding, deploy executive leadership, and scale with execution pods across marketing, sales, development, and recruitment.',
   heroImage: a('/assets/home-hero.webp'),
-  primaryCta: { label: 'Book a Strategy Call', href: '#cta' },
+  primaryCta: { label: 'Book a Strategy Call', href: CAL_BOOKING_URL },
   secondaryCta: { label: 'Explore Our Ecosystem', href: '#ecosystem' },
 };
 

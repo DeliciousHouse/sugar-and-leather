@@ -1,4 +1,5 @@
 import { asset as a } from '../lib/asset';
+import { CAL_BOOKING_URL, ECOSYSTEM_HASH } from '../lib/links';
 
 export const STRATEGIC_PARTNERSHIPS = {
   slug: 'strategic-partnerships',
@@ -11,7 +12,7 @@ export const STRATEGIC_PARTNERSHIPS = {
   heroImage: a('/assets/sp-hero.webp'),
   primaryCta: {
     label: 'Book a Discovery Call',
-    href: 'mailto:hello@sugarandleather.com',
+    href: CAL_BOOKING_URL,
   },
   whatIs: {
     eyebrow: 'What is a strategic partnership',
@@ -175,8 +176,8 @@ export const STRATEGIC_PARTNERSHIPS = {
     highlight: 'the right partner',
     sub: 'Access leadership, execution, and specialized expertise through a single strategic partnership designed around your growth objectives.',
     primaryLabel: 'Schedule a Discovery Session',
-    primaryHref: 'mailto:hello@sugarandleather.com',
+    primaryHref: CAL_BOOKING_URL,
     secondaryLabel: 'Explore the ecosystem',
-    secondaryHref: '/#ecosystem',
+    secondaryHref: ECOSYSTEM_HASH,
   },
 };

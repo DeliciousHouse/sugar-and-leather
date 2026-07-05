@@ -1,4 +1,5 @@
 import { asset as a } from '../lib/asset';
+import { ECOSYSTEM_HASH } from '../lib/links';
 
 export const COMMUNITY = {
   slug: 'community',
@@ -194,6 +195,6 @@ export const COMMUNITY = {
     primaryLabel: 'Start a Conversation',
     primaryHref: 'mailto:hello@sugarandleather.com',
     secondaryLabel: 'Explore the ecosystem',
-    secondaryHref: '/#ecosystem',
+    secondaryHref: ECOSYSTEM_HASH,
   },
 };

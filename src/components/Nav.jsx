@@ -4,6 +4,7 @@ import { ChevronDown, Menu, X } from 'lucide-react';
 import { useScrollNav } from '../hooks/useScrollNav';
 import { scrollToSection } from '../hooks/useSmoothAnchor';
 import { hashHref } from '../lib/asset';
+import { CAL_BOOKING_URL } from '../lib/links';
 import Brand from './ui/Brand';
 import Button from './ui/Button';
 
@@ -84,22 +85,40 @@ function NavProductDropdown() {
   );
 }
 
-function NavProductDrawer({ onNavigate }) {
+function NavProductDrawer({ onNavigate, drawerOpen }) {
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    if (!drawerOpen) setOpen(false);
+  }, [drawerOpen]);
+
   return (
-    <div className="nav-drawer-group">
-      <span className="nav-drawer-label">Product</span>
-      {PRODUCT_LINKS.map((link) => (
-        <a
-          key={link.label}
-          href={link.href}
-          className="nav-drawer-sublink"
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={onNavigate}
-        >
-          {link.label}
-        </a>
-      ))}
+    <div className={`nav-drawer-group${open ? ' is-open' : ''}`}>
+      <button
+        type="button"
+        className="nav-drawer-toggle"
+        aria-expanded={open}
+        onClick={() => setOpen((value) => !value)}
+      >
+        <span>Product</span>
+        <ChevronDown size={18} strokeWidth={1.75} aria-hidden="true" />
+      </button>
+      <div className="nav-drawer-submenu" aria-hidden={!open}>
+        <div className="nav-drawer-submenu-inner">
+          {PRODUCT_LINKS.map((link) => (
+            <a
+              key={link.label}
+              href={link.href}
+              className="nav-drawer-sublink"
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={onNavigate}
+            >
+              {link.label}
+            </a>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
@@ -138,7 +157,7 @@ export default function Nav() {
               <NavAnchor key={`${link.label}-${link.href}`} {...link} />
             ))}
           </nav>
-          <Button href="/#cta" variant="outline" className="nav-cta" magnetic={false}>
+          <Button href={CAL_BOOKING_URL} variant="outline" className="nav-cta" magnetic={false}>
             Book a call
           </Button>
           <button
@@ -167,11 +186,13 @@ export default function Nav() {
           <X size={30} strokeWidth={1.75} />
         </button>
         <NavAnchor href="/#ecosystem" label="Ecosystem" onNavigate={closeDrawer} />
-        <NavProductDrawer onNavigate={closeDrawer} />
+        <NavProductDrawer onNavigate={closeDrawer} drawerOpen={drawerOpen} />
         {NAV_LINKS.slice(1).map((link) => (
           <NavAnchor key={`${link.label}-${link.href}`} {...link} onNavigate={closeDrawer} />
         ))}
-        <NavAnchor href="/#cta" label="Book a call" onNavigate={closeDrawer} />
+        <a href={CAL_BOOKING_URL} className="nav-drawer-link" onClick={closeDrawer}>
+          Book a call
+        </a>
       </div>
     </>
   );

@@ -1,4 +1,5 @@
 import { asset } from '../lib/asset';
+import { CAL_BOOKING_URL } from '../lib/links';
 import Reveal from './ui/Reveal';
 import SplitText from './ui/SplitText';
 import Button from './ui/Button';
@@ -8,7 +9,7 @@ export default function CTA({
   highlight = 'You will be built',
   sub = 'If you are leading through change and refuse to lose your humanity in the process, we should talk. Introductions are limited, and considered.',
   primaryLabel = 'Book a call',
-  primaryHref = 'mailto:hello@sugarandleather.com',
+  primaryHref = CAL_BOOKING_URL,
   secondaryLabel = 'Revisit the ecosystem',
   secondaryHref = '/#ecosystem',
   tone = 'dark',
@@ -35,9 +36,11 @@ export default function CTA({
         </Reveal>
         <Reveal className="cta-actions" delay={3}>
           <Button href={primaryHref}>{primaryLabel}</Button>
-          <Button href={secondaryHref} variant="outline" showArrow={false}>
-            {secondaryLabel}
-          </Button>
+          {secondaryLabel ? (
+            <Button href={secondaryHref} variant="outline" showArrow={false}>
+              {secondaryLabel}
+            </Button>
+          ) : null}
         </Reveal>
       </div>
     </section>

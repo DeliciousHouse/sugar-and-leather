@@ -68,14 +68,20 @@ svg {
     align-items: center;
   }
 
-  .nav-drawer a {
+  .nav-drawer a,
+  .nav-drawer-link,
+  .nav-drawer-toggle {
     min-height: 44px;
     display: flex;
     align-items: center;
   }
 
+  .nav-drawer-toggle {
+    justify-content: space-between;
+  }
+
   .nav-drawer-sublink {
-    min-height: 44px;
+    min-height: 40px;
     display: flex;
     align-items: center;
   }
@@ -86,6 +92,10 @@ svg {
   :root {
     --page-gutter: clamp(24px, 4vw, 38px);
   }
+
+  .nav-links { display: none; }
+  .nav-cta { display: none; }
+  .nav-burger { display: inline-flex; }
 
   .section-head {
     flex-direction: column;
@@ -411,11 +421,19 @@ svg {
 
   .nav-drawer {
     padding: 0 var(--page-gutter);
+    gap: 4px;
   }
 
-  .nav-drawer a {
-    font-size: clamp(1.65rem, 7vw, 2.25rem);
-    padding: 10px 0;
+  .nav-drawer a,
+  .nav-drawer-link,
+  .nav-drawer-toggle {
+    font-size: clamp(1.1rem, 4.5vw, 1.4rem);
+    padding: 8px 0;
+  }
+
+  .nav-drawer-sublink {
+    font-size: clamp(0.82rem, 3.2vw, 0.95rem);
+    padding: 6px 0 6px 14px;
   }
 
   .car-ctrl,

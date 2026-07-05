@@ -1,9 +1,10 @@
 import Eyebrow from './ui/Eyebrow';
 import Reveal from './ui/Reveal';
 import SplitText from './ui/SplitText';
+import Button from './ui/Button';
 
 export default function ContentSection({ section, tone = 'dark' }) {
-  const { eyebrow, title, body, body2, bullets, image, reverse } = section;
+  const { eyebrow, title, body, body2, bullets, image, reverse, cta } = section;
   const sectionIdClass = section?.id ? ` page-section--${section.id}` : '';
 
   return (
@@ -33,6 +34,18 @@ export default function ContentSection({ section, tone = 'dark' }) {
                   </Reveal>
                 ))}
               </ul>
+            ) : null}
+            {cta ? (
+              <Reveal className="page-section-cta" delay={3}>
+                <Button
+                  href={cta.href}
+                  variant={cta.variant || 'cream'}
+                  showArrow={false}
+                  magnetic={false}
+                >
+                  {cta.label}
+                </Button>
+              </Reveal>
             ) : null}
           </div>
           <Reveal className="page-split-visual" delay={2}>

@@ -1,5 +1,6 @@
 import { Navigate, useParams } from 'react-router-dom';
 import { PRODUCT_PAGES } from '../data/pagesContent';
+import { CAL_BOOKING_URL } from '../lib/links';
 import PageHero from '../components/PageHero';
 import ContentSection from '../components/ContentSection';
 import SuccessStories from '../components/SuccessStories';
@@ -24,7 +25,7 @@ export default function ProductPage() {
         image={product.heroImage}
         primaryAction={{
           label: 'Book a call',
-          href: 'mailto:hello@sugarandleather.com',
+          href: CAL_BOOKING_URL,
         }}
         secondaryAction={{
           label: 'Back to home',

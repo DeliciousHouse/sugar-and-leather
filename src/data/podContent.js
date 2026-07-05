@@ -1,4 +1,5 @@
 import { asset as a } from '../lib/asset';
+import { CAL_BOOKING_URL } from '../lib/links';
 
 export const POD_SLUGS = ['marketing-pod', 'sales-pod', 'development-pod', 'recruitment-pod'];
 
@@ -138,7 +139,7 @@ export const POD_PAGES = {
       highlight: 'sustainable growth',
       sub: 'Not just activity. Book a strategy call and discover how the Marketing Pod can support your next stage of growth.',
       primaryLabel: 'Book a Strategy Call',
-      primaryHref: 'mailto:hello@sugarandleather.com',
+      primaryHref: CAL_BOOKING_URL,
       secondaryLabel: 'Strategic Partnerships',
       secondaryHref: '/strategic-partnerships',
     },

@@ -1,12 +1,13 @@
 import Eyebrow from './ui/Eyebrow';
 import Reveal from './ui/Reveal';
 import SplitText from './ui/SplitText';
+import Button from './ui/Button';
 
 export default function ProcessSection({ process, tone = 'dark' }) {
   if (!process?.steps?.length) return null;
 
   return (
-    <section className={`section page-process surface-${tone}`}>
+    <section className={`section page-process surface-${tone}`} id={process.id || undefined}>
       <div className="wrap">
         <div className="section-head">
           <div>
@@ -23,6 +24,17 @@ export default function ProcessSection({ process, tone = 'dark' }) {
               <div>
                 <h3 className="process-title">{step.title}</h3>
                 <p className="process-desc">{step.description}</p>
+                {step.cta ? (
+                  <Button
+                    href={step.cta.href}
+                    variant="outline"
+                    showArrow={false}
+                    magnetic={false}
+                    className="process-step-cta"
+                  >
+                    {step.cta.label}
+                  </Button>
+                ) : null}
               </div>
             </Reveal>
           ))}

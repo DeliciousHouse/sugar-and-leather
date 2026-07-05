@@ -1,5 +1,6 @@
 import { Navigate, useParams } from 'react-router-dom';
 import { ECOSYSTEM_PAGES } from '../data/ecosystemContent';
+import { CAL_BOOKING_URL } from '../lib/links';
 import PageHero from '../components/PageHero';
 import OfferingsSection from '../components/OfferingsSection';
 import ContentSection from '../components/ContentSection';
@@ -25,7 +26,7 @@ export default function EcosystemPage() {
         image={product.heroImage}
         primaryAction={{
           label: 'Book a call',
-          href: 'mailto:hello@sugarandleather.com',
+          href: CAL_BOOKING_URL,
         }}
         secondaryAction={{
           label: 'All products',
