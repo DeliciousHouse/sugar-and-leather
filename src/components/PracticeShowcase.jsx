@@ -26,6 +26,17 @@ import {
   Users,
   GraduationCap,
   Sparkles,
+  Brain,
+  Search,
+  Bot,
+  Share2,
+  Link2,
+  Layers,
+  MessageSquare,
+  Signal,
+  Database,
+  Activity,
+  BarChart3,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useParallax } from '../hooks/useParallax';
@@ -63,6 +74,17 @@ const ICONS = {
   Users,
   GraduationCap,
   Sparkles,
+  Brain,
+  Search,
+  Bot,
+  Share2,
+  Link2,
+  Layers,
+  MessageSquare,
+  Signal,
+  Database,
+  Activity,
+  BarChart3,
 };
 
 function FeatureIcon({ name }) {
@@ -79,6 +101,22 @@ function BodyCopy({ text }) {
       {line}
     </span>
   ));
+}
+
+function StaticShowVisual({ slide }) {
+  if (!slide?.image) return null;
+
+  return (
+    <div className="carousel carousel--static">
+      <div className="car-frame">
+        <div className="car-slide">
+          <div className="cs-photo" style={{ backgroundImage: `url('${slide.image}')` }} />
+          <div className="cs-veil" />
+          {slide.caption ? <span className="cs-caption">{slide.caption}</span> : null}
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default function PracticeShowcase({ practice }) {
@@ -119,17 +157,28 @@ export default function PracticeShowcase({ practice }) {
                     ) : (
                       <span className="cap-t">{feature.title}</span>
                     )}
-                    <span className="cap-d">{feature.description}</span>
+                    {feature.description ? (
+                      <span className="cap-d">{feature.description}</span>
+                    ) : null}
                   </span>
                 </Reveal>
               ))}
             </ul>
             <Reveal className="show-actions" delay={3}>
-              <Button href={practice.cta.href}>{practice.cta.label}</Button>
+              <Button
+                href={practice.cta.href}
+                showArrow={practice.cta.showArrow ?? true}
+              >
+                {practice.cta.label}
+              </Button>
             </Reveal>
           </div>
           <div className="show-visual" ref={visualRef} data-parallax="0.06">
-            <Carousel slides={practice.slides} />
+            {practice.staticVisual ? (
+              <StaticShowVisual slide={practice.slides[0]} />
+            ) : (
+              <Carousel slides={practice.slides} />
+            )}
           </div>
         </div>
       </div>

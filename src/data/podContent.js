@@ -1,5 +1,5 @@
 import { asset as a } from '../lib/asset';
-import { CAL_BOOKING_URL } from '../lib/links';
+import { CAL_BOOKING_URL, HOW_IT_WORKS_HASH } from '../lib/links';
 
 export const POD_SLUGS = ['marketing-pod', 'sales-pod', 'development-pod', 'recruitment-pod'];
 
@@ -77,6 +77,7 @@ export const POD_PAGES = {
       ],
     },
     process: {
+      id: 'how-it-works',
       eyebrow: 'How we work',
       title: 'From discovery to scalable growth',
       steps: [
@@ -140,8 +141,8 @@ export const POD_PAGES = {
       sub: 'Not just activity. Book a strategy call and discover how the Marketing Pod can support your next stage of growth.',
       primaryLabel: 'Book a Strategy Call',
       primaryHref: CAL_BOOKING_URL,
-      secondaryLabel: 'Strategic Partnerships',
-      secondaryHref: '/strategic-partnerships',
+      secondaryLabel: 'How we work',
+      secondaryHref: HOW_IT_WORKS_HASH,
     },
   },
   'sales-pod': {
@@ -225,6 +226,7 @@ export const POD_PAGES = {
       ],
     },
     process: {
+      id: 'how-it-works',
       eyebrow: 'The partnership journey',
       title: 'How We Work',
       steps: [
@@ -320,8 +322,8 @@ export const POD_PAGES = {
       sub: 'The first step is understanding what is holding your commercial growth back.',
       primaryLabel: 'Book a Commercial Strategy Call',
       primaryHref: 'mailto:hello@sugarandleather.com',
-      secondaryLabel: 'Strategic Partnerships',
-      secondaryHref: '/strategic-partnerships',
+      secondaryLabel: 'How we work',
+      secondaryHref: HOW_IT_WORKS_HASH,
     },
   },
   'development-pod': {
@@ -465,6 +467,7 @@ export const POD_PAGES = {
       ],
     },
     process: {
+      id: 'how-it-works',
       eyebrow: 'A clearer way to build',
       title: 'How We Work',
       steps: [
@@ -566,8 +569,8 @@ export const POD_PAGES = {
       sub: 'If you are considering a product, system, automation, or AI initiative, start with a conversation about the problem behind it.',
       primaryLabel: 'Start a Technology Conversation',
       primaryHref: 'mailto:hello@sugarandleather.com',
-      secondaryLabel: 'Strategic Partnerships',
-      secondaryHref: '/strategic-partnerships',
+      secondaryLabel: 'How we work',
+      secondaryHref: HOW_IT_WORKS_HASH,
     },
   },
   'recruitment-pod': {
@@ -702,6 +705,7 @@ export const POD_PAGES = {
       ],
     },
     process: {
+      id: 'how-it-works',
       eyebrow: 'A clearer hiring journey',
       title: 'How We Work',
       steps: [
@@ -802,8 +806,8 @@ export const POD_PAGES = {
       sub: 'If you are planning a hire, questioning a team structure, or trying to understand the capability your business needs next, start with a conversation.',
       primaryLabel: 'Start a Talent Conversation',
       primaryHref: 'mailto:hello@sugarandleather.com',
-      secondaryLabel: 'Strategic Partnerships',
-      secondaryHref: '/strategic-partnerships',
+      secondaryLabel: 'How we work',
+      secondaryHref: HOW_IT_WORKS_HASH,
     },
   },
 };

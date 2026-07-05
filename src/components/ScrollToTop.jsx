@@ -7,7 +7,17 @@ export default function ScrollToTop() {
 
   useEffect(() => {
     if (hash) {
-      window.setTimeout(() => scrollToSection(hash), 80);
+      let attempts = 0;
+      const tryScroll = () => {
+        const target = document.querySelector(hash);
+        if (target || attempts >= 12) {
+          scrollToSection(hash);
+          return;
+        }
+        attempts += 1;
+        window.setTimeout(tryScroll, 80);
+      };
+      window.setTimeout(tryScroll, 80);
       return;
     }
     window.scrollTo(0, 0);

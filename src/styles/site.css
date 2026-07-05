@@ -314,12 +314,10 @@ body.no-motion .strip-track { animation: none; }
 .show-meta { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; }
 .show-meta .num { font-family: var(--font-display); font-style: italic; font-weight: 700; font-size: 30px; color: var(--deep-plum); }
 .show-name { font-size: clamp(40px,4.6vw,74px); margin: 0; }
-#capital-access .show-name,
-#strategic-partnerships .show-name,
-#community .show-name { font-size: 3rem; line-height: 1.05; }
+#aries-ai .show-name,
+#sequence .show-name { font-size: 3rem; line-height: 1.05; }
 .show-tagline { font-size: clamp(18px,1.6vw,22px); color: var(--lavender); margin: 18px 0 0; line-height: 1.4; }
 .show-body { font-size: 17px; line-height: 1.7; color: var(--silver); margin: 26px 0 0; max-width: 46ch; }
-#strategic-partnerships .show-body { max-width: 58ch; line-height: 1.55; }
 .caps { list-style: none; padding: 0; margin: 34px 0 0; display: grid; gap: 0; }
 .cap { display: flex; align-items: flex-start; gap: 16px; padding: 18px 0; border-top: 1px solid rgba(61,51,71,.6); }
 .cap:last-child { border-bottom: 1px solid rgba(61,51,71,.6); }
@@ -332,28 +330,40 @@ body.no-motion .strip-track { animation: none; }
 .cap .cap-d { display: block; font-size: 14.5px; color: var(--silver); margin-top: 0; line-height: 1.5; }
 .show-actions { margin-top: 38px; display: flex; gap: 16px; flex-wrap: wrap; }
 
-/* Capital Access — compact viewport layout for 6-item list */
-#capital-access .show-grid { align-items: start; }
-#capital-access .show-body { margin-top: 18px; font-size: 16px; line-height: 1.6; }
-#capital-access .caps {
+/* Our Products — compact two-column capability lists */
+#aries-ai .show-grid,
+#sequence .show-grid { align-items: start; }
+#aries-ai .show-body,
+#sequence .show-body { margin-top: 18px; font-size: 16px; line-height: 1.6; max-width: 58ch; }
+#aries-ai .caps,
+#sequence .caps {
   margin-top: 22px;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   column-gap: 28px;
 }
-#capital-access .cap { padding: 14px 0; border-bottom: none; }
-#capital-access .cap:nth-last-child(-n+2) { border-bottom: 1px solid rgba(61,51,71,.6); }
+#aries-ai .cap,
+#sequence .cap { padding: 14px 0; border-bottom: none; }
+#aries-ai .cap:nth-last-child(-n+2),
+#sequence .cap:nth-last-child(-n+2) { border-bottom: 1px solid rgba(61,51,71,.6); }
+#aries-ai .cap .cap-t,
+#sequence .cap .cap-t { font-size: 15px; line-height: 1.45; }
 
-/* Strategic Partnerships — two-column pod list */
-#strategic-partnerships .caps {
-  margin-top: 22px;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  column-gap: 28px;
+#aries-ai .car-slide .cs-photo,
+#sequence .car-slide .cs-photo {
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-color: #0e0c0f;
+  filter: none;
 }
-#strategic-partnerships .cap { padding: 14px 0; border-bottom: none; }
-#strategic-partnerships .cap:nth-last-child(-n+2) { border-bottom: 1px solid rgba(61,51,71,.6); }
+#aries-ai .car-slide .cs-veil,
+#sequence .car-slide .cs-veil {
+  background: linear-gradient(180deg, rgba(14, 12, 15, 0), rgba(14, 12, 15, 0.35));
+}
 
 /* carousel */
 .carousel { position: relative; }
+.carousel--static .car-frame { aspect-ratio: 4/3; }
+.carousel--static .car-slide { position: absolute; inset: 0; flex: none; width: 100%; height: 100%; }
 .car-frame { position: relative; border-radius: var(--radius-lg); overflow: hidden; border: 1px solid var(--deep-plum); aspect-ratio: 4/3; background: var(--charcoal); box-shadow: var(--shadow-lg); }
 .car-track { position: absolute; inset: 0; display: flex; transition: transform .7s var(--ease); }
 .car-slide { position: relative; flex: 0 0 100%; height: 100%; }
@@ -1943,7 +1953,8 @@ body.cursor-hot .cursor { width: 5px; height: 5px; }
   transition: transform .5s var(--ease), visibility 0s;
 }
 .nav-drawer a,
-.nav-drawer-link {
+.nav-drawer-link,
+.nav-drawer-toggle {
   font-family: var(--font-display);
   font-weight: 700;
   font-size: clamp(1.2rem, 4.8vw, 1.55rem);
@@ -2007,10 +2018,16 @@ body.cursor-hot .cursor { width: 5px; height: 5px; }
   color: var(--obsidian);
 }
 
+.inquiry-page .page-hero {
+  min-height: clamp(480px, 76vh, 820px);
+  min-height: clamp(480px, 76svh, 820px);
+  overflow: hidden;
+}
+
 .inquiry-page .page-hero-bg {
   inset: 0;
-  background-size: 88% auto;
-  background-position: center 72%;
+  background-size: cover;
+  background-position: center center;
   background-repeat: no-repeat;
   filter: grayscale(0.05) contrast(1.04) brightness(0.72);
 }
@@ -2023,13 +2040,6 @@ body.cursor-hot .cursor { width: 5px; height: 5px; }
 
 .inquiry-page .page-hero-grain {
   opacity: 0.28;
-}
-
-@media (max-width: 767px) {
-  .inquiry-page .page-hero-bg {
-    background-size: 92% auto;
-    background-position: center 72%;
-  }
 }
 
 .inquiry-main {
@@ -2590,6 +2600,26 @@ body.cursor-hot .cursor { width: 5px; height: 5px; }
   margin-top: clamp(36px, 5vw, 48px);
 }
 
+@media (max-width: 1279px) {
+  .grant-foundation-grid,
+  .grant-services-grid,
+  .pricing-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .grant-services-grid .grant-services-card:last-child:nth-child(3) {
+    grid-column: 1 / -1;
+    max-width: min(520px, 100%);
+    justify-self: center;
+  }
+
+  .pricing-grid .pricing-card:last-child:nth-child(3) {
+    grid-column: 1 / -1;
+    max-width: min(520px, 100%);
+    justify-self: center;
+  }
+}
+
 @media (max-width: 1023px) {
   .grant-foundation-grid,
   .grant-services-grid,
@@ -2597,11 +2627,26 @@ body.cursor-hot .cursor { width: 5px; height: 5px; }
     grid-template-columns: 1fr;
   }
 
+  .grant-services-grid .grant-services-card:last-child:nth-child(3),
+  .pricing-grid .pricing-card:last-child:nth-child(3) {
+    grid-column: auto;
+    max-width: none;
+    justify-self: stretch;
+  }
+
   .page-split--grant-services {
     grid-template-columns: 1fr;
   }
 
   .page-split--grant-services .page-split-visual {
+    order: -1;
+  }
+
+  .capital-access-page .page-grant-foundation .page-split {
+    grid-template-columns: 1fr;
+  }
+
+  .capital-access-page .page-grant-foundation .page-split-visual {
     order: -1;
   }
 }

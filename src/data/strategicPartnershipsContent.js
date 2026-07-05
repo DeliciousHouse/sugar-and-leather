@@ -1,5 +1,5 @@
 import { asset as a } from '../lib/asset';
-import { CAL_BOOKING_URL, ECOSYSTEM_HASH } from '../lib/links';
+import { CAL_BOOKING_URL, HOW_IT_WORKS_HASH } from '../lib/links';
 
 export const STRATEGIC_PARTNERSHIPS = {
   slug: 'strategic-partnerships',
@@ -14,6 +14,10 @@ export const STRATEGIC_PARTNERSHIPS = {
     label: 'Book a Discovery Call',
     href: CAL_BOOKING_URL,
   },
+  secondaryCta: {
+    label: 'See how it works',
+    href: HOW_IT_WORKS_HASH,
+  },
   whatIs: {
     eyebrow: 'What is a strategic partnership',
     title: 'Designed for businesses that need more than advice.',
@@ -24,6 +28,7 @@ export const STRATEGIC_PARTNERSHIPS = {
     reverse: false,
   },
   process: {
+    id: 'how-it-works',
     eyebrow: 'How it works',
     title: 'From assessment to execution',
     steps: [
@@ -177,7 +182,7 @@ export const STRATEGIC_PARTNERSHIPS = {
     sub: 'Access leadership, execution, and specialized expertise through a single strategic partnership designed around your growth objectives.',
     primaryLabel: 'Schedule a Discovery Session',
     primaryHref: CAL_BOOKING_URL,
-    secondaryLabel: 'Explore the ecosystem',
-    secondaryHref: ECOSYSTEM_HASH,
+    secondaryLabel: 'See how it works',
+    secondaryHref: HOW_IT_WORKS_HASH,
   },
 };

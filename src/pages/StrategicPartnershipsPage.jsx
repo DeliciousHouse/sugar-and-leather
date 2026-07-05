@@ -1,5 +1,4 @@
 import { STRATEGIC_PARTNERSHIPS } from '../data/strategicPartnershipsContent';
-import { ECOSYSTEM_HASH } from '../lib/links';
 import PageHero from '../components/PageHero';
 import ContentSection from '../components/ContentSection';
 import ProcessSection from '../components/ProcessSection';
@@ -22,10 +21,7 @@ export default function StrategicPartnershipsPage() {
         sub={page.heroSub}
         image={page.heroImage}
         primaryAction={page.primaryCta}
-        secondaryAction={{
-          label: 'Explore the ecosystem',
-          href: ECOSYSTEM_HASH,
-        }}
+        secondaryAction={page.secondaryCta}
       />
       <ContentSection section={page.whatIs} tone="dark" />
       <ProcessSection process={page.process} tone="light" />

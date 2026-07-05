@@ -15,7 +15,7 @@ export const ECOSYSTEM_CARDS = [
     id: 'capital-access',
     href: '/capital-access',
     className: 'c-a',
-    photo: a('/assets/photo-coaching-sage.webp'),
+    photo: a('/assets/ca-hero.webp'),
     index: '01',
     name: 'Capital Access & Grant Services',
     description:
@@ -46,7 +46,7 @@ export const ECOSYSTEM_CARDS = [
     href: 'https://sugarandleather.ai/',
     external: true,
     className: 'c-d',
-    photo: a('/assets/photo-study-light.webp'),
+    photo: a('/assets/photo-night-work.webp'),
     index: '04',
     name: 'Innovation & Advanced Tech',
     description:
@@ -62,158 +62,87 @@ export const HOMEPAGE_ECOSYSTEM = {
     'Growing businesses rarely fail for lack of ideas. They need capital, leadership, and execution. Sugar & Leather unites all three in one ecosystem built for sustainable growth.',
 };
 
-export const HOMEPAGE_SHOWCASES = [
+export const HOMEPAGE_PRODUCTS = [
   {
-    id: 'capital-access',
+    id: 'aries-ai',
     num: '01',
-    eyebrow: 'Grant Writing & Funding Strategy',
-    name: 'Turn a Funding Opportunity Into a Fundable Case',
-    tagline: '',
+    eyebrow: 'Our Products',
+    name: 'Aries AI',
+    tagline: 'An AI orchestration layer for your complete marketing operation.',
     body:
-      'We help organizations pursue grants with a stronger strategy, clearer narrative, credible budget, and the operational readiness funders expect.',
+      'Marketing becomes fragmented when strategy, research, execution, and channel management live in separate places. Aries AI gives marketing one connected intelligence layer, from insight to strategy to execution.',
     features: [
       {
-        icon: 'FileText',
-        title: 'Grant Strategy',
-        description: 'Opportunity research, funding roadmaps, and go / no-go decision support before you apply.',
+        icon: 'Brain',
+        title: 'Builds a working understanding of your business, market, audience, and competitors',
       },
       {
-        icon: 'Landmark',
-        title: 'Grant Proposal Development',
-        description: 'Proposal narrative, budget support, attachments, and submission-ready review.',
+        icon: 'Search',
+        title: 'Continuously gathers relevant market and competitor intelligence',
       },
       {
-        icon: 'ClipboardCheck',
-        title: 'Funding Readiness',
-        description: 'Program framing, operating plans, financial readiness, and capacity narrative.',
-      },
-      {
-        icon: 'TrendingUp',
-        title: 'Grant Readiness Review',
-        description: 'Expert assessment of eligibility, competitiveness, and proposal scope.',
-      },
-      {
-        icon: 'Map',
-        title: 'Fixed-Scope Proposal Plans',
-        description: 'Clear deliverables, timeline, and project fee tied to the actual work required.',
-      },
-      {
-        icon: 'Building2',
-        title: 'Capital Readiness Support',
-        description: 'Financial planning, delivery structure, and broader capital preparation where needed.',
-      },
-    ],
-    cta: { label: 'Explore Capital Services', href: '/capital-access' },
-    reverse: false,
-    slides: [
-      { type: 'photo', image: a('/assets/photo-coaching-sage.webp'), caption: 'Capital strategy' },
-      {
-        type: 'ui',
-        caption: 'Funding roadmap',
-        tag: 'Capital Access · Roadmap',
-        title: 'Non-dilutive capital',
-        subtitle: 'Grants · incentives · readiness',
-        meter: '68%',
-        lines: ['72%', '58%', '64%'],
-      },
-      { type: 'photo', image: a('/assets/photo-study-light.webp'), caption: 'Operational readiness' },
-    ],
-  },
-  {
-    id: 'strategic-partnerships',
-    num: '02',
-    eyebrow: 'Strategic Partnerships',
-    name: 'Executive Leadership Without Full-Time Overhead',
-    tagline: '',
-    body:
-      'For scaling organizations, Sugar & Leather pairs executive leadership with execution teams. Leaders guide strategy; specialist pods deliver.',
-    features: [
-      {
-        icon: 'Megaphone',
-        title: 'Marketing Pod',
-        description:
-          'Campaign execution, content systems, demand generation, brand growth, and marketing operations.',
-        href: '/strategic-partnerships/marketing-pod',
+        icon: 'Bot',
+        title: 'Orchestrates specialized AI agents for different marketing tasks',
       },
       {
         icon: 'Target',
-        title: 'Sales Pod',
-        description:
-          'Pipeline development, outbound systems, sales operations, CRM processes, and revenue acceleration.',
-        href: '/strategic-partnerships/sales-pod',
+        title: 'Uses that context to shape marketing priorities and strategy',
       },
       {
-        icon: 'Code',
-        title: 'Development Pod',
-        description:
-          'Product development, software engineering, AI implementation, automation, and technical execution.',
-        href: '/strategic-partnerships/development-pod',
+        icon: 'Share2',
+        title: 'Supports execution across social profiles, content, research, and search',
       },
       {
-        icon: 'UserPlus',
-        title: 'Recruitment Pod',
-        description: 'Talent acquisition, hiring systems, workforce planning, and recruitment operations.',
-        href: '/strategic-partnerships/recruitment-pod',
+        icon: 'Layers',
+        title: 'Keeps strategy, messaging, and activity connected in one place',
       },
     ],
-    cta: { label: 'Explore Strategic Partnerships', href: '/strategic-partnerships' },
-    reverse: true,
+    cta: { label: 'Explore Aries AI', href: 'https://aries.sugarandleather.com/' },
+    reverse: false,
     slides: [
-      { type: 'photo', image: a('/assets/sp-showcase-leadership.webp'), caption: 'Executive leadership' },
-      {
-        type: 'ui',
-        caption: 'Execution pods',
-        tag: 'Strategic Partnerships · Pods',
-        title: 'Growth execution',
-        subtitle: 'Marketing · sales · dev · recruitment',
-        meter: '82%',
-        lines: ['60%', '78%', '48%'],
-      },
-      { type: 'photo', image: a('/assets/sp-showcase-execution.webp'), caption: 'Operational delivery' },
+      { type: 'photo', image: a('/assets/aries-dashboard.webp'), caption: 'Aries AI dashboard' },
+      { type: 'photo', image: a('/assets/aries-ecosystem.webp'), caption: 'Connected marketing ecosystem' },
     ],
   },
   {
-    id: 'community',
-    num: '03',
-    eyebrow: 'Community',
-    name: 'Where the Next Generation of Business Learns to Move',
-    tagline: '',
+    id: 'sequence',
+    num: '02',
+    eyebrow: 'Our Products',
+    name: 'Sequence',
+    tagline: 'A CRM intelligence layer that learns from every customer conversation.',
     body:
-      'Sugar & Leather brings together coaches, founders, emerging entrepreneurs, and curious operators. A place to share knowledge, build capability, and find better direction.',
+      'Customer context is usually scattered across calls, messages, and meeting notes. Sequence builds a living understanding of every customer relationship, so teams know what matters, when to follow up, and how to improve.',
     features: [
       {
-        icon: 'Users',
-        title: 'Coaches Network',
-        description:
-          'A platform where coaches share their expertise and people discover guidance that fits the challenge in front of them.',
+        icon: 'MessageSquare',
+        title: 'Maintains context for each customer across conversations and interactions',
+      },
+      {
+        icon: 'Signal',
+        title: 'Identifies important signals, concerns, needs, and next steps',
+      },
+      {
+        icon: 'Target',
+        title: 'Surfaces stronger buying intent and the right moments to follow up',
+      },
+      {
+        icon: 'Database',
+        title: 'Updates CRM information based on meaningful customer context',
       },
       {
         icon: 'GraduationCap',
-        title: 'Next Level Business Society',
-        description:
-          'A Skool-based learning community for founders, young entrepreneurs, and future operators building real capability.',
+        title: 'Helps SDRs and sales representatives learn from conversations and refine their approach',
       },
       {
-        icon: 'Sparkles',
-        title: 'Angel Series',
-        description:
-          'A more personal layer of guidance for those moving beyond the first stage of learning. Coming soon.',
+        icon: 'Layers',
+        title: 'Keeps relationship intelligence, CRM activity, and sales learning in one place',
       },
     ],
-    cta: { label: 'Explore Community', href: '/community' },
-    reverse: false,
+    cta: { label: 'Explore Sequence', href: 'https://sequence.sugarandleather.com/', showArrow: false },
+    reverse: true,
+    staticVisual: true,
     slides: [
-      { type: 'photo', image: a('/assets/photo-coaching-library.webp'), caption: 'Coaches Network' },
-      {
-        type: 'ui',
-        caption: 'Learning community',
-        tag: 'Next Level Business Society',
-        title: 'Build capability',
-        subtitle: 'Live sessions · roadmaps · peers',
-        meter: '78%',
-        lines: ['64%', '72%', '86%'],
-      },
-      { type: 'photo', image: a('/assets/photo-study-light.webp'), caption: 'Community learning' },
+      { type: 'photo', image: a('/assets/sequence-dashboard.webp'), caption: 'Sequence CRM dashboard' },
     ],
   },
 ];

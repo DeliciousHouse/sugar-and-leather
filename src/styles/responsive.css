@@ -74,6 +74,7 @@ svg {
     min-height: 44px;
     display: flex;
     align-items: center;
+    color: var(--cream);
   }
 
   .nav-drawer-toggle {
@@ -155,8 +156,80 @@ svg {
     padding-bottom: clamp(64px, 8vh, 96px);
   }
 
+  .inquiry-page .page-hero {
+    min-height: clamp(420px, 68vh, 720px);
+    min-height: clamp(420px, 68svh, 720px);
+  }
+
+  .inquiry-page .page-hero-bg {
+    background-position: center center;
+  }
+
   .page-hero--viewport.page-hero--about {
     min-height: auto;
+  }
+
+  /* Homepage — tablet */
+  .hero h1 {
+    font-size: clamp(2.25rem, 6vw, 3.25rem);
+  }
+
+  .hero-sub {
+    max-width: 100%;
+  }
+
+  #ecosystem .section-head h2 {
+    font-size: clamp(2rem, 5.5vw, 2.75rem);
+    line-height: 1.08;
+  }
+
+  #ecosystem .section-head .lead {
+    max-width: 100%;
+    font-size: clamp(16px, 2.2vw, 17.5px);
+  }
+
+  .show-grid {
+    grid-template-columns: 1fr;
+    gap: clamp(32px, 5vw, 44px);
+  }
+
+  .show.reverse .show-grid {
+    direction: ltr;
+  }
+
+  .show-text,
+  .show-visual {
+    min-width: 0;
+    width: 100%;
+  }
+
+  #aries-ai .show-body,
+  #sequence .show-body,
+  .show-body {
+    max-width: 100%;
+  }
+
+  .show-tagline {
+    max-width: 100%;
+  }
+
+  .eco-card .eco-desc {
+    max-height: none;
+    opacity: 1;
+    margin-top: 12px;
+  }
+
+  .founder-quote {
+    font-size: clamp(1.75rem, 4.8vw, 2.5rem);
+  }
+
+  .founder-body {
+    max-width: 100%;
+  }
+
+  #community .community-cta {
+    width: auto;
+    max-width: 100%;
   }
 }
 
@@ -204,6 +277,17 @@ svg {
     padding-bottom: clamp(56px, 8vh, 80px);
   }
 
+  .inquiry-page .page-hero {
+    min-height: clamp(360px, 62svh, 640px);
+    padding-top: calc(clamp(112px, 18vw, 140px) + 24px);
+    padding-bottom: clamp(56px, 8vh, 80px);
+  }
+
+  .inquiry-page .page-hero-bg {
+    background-size: cover;
+    background-position: center center;
+  }
+
   .page-hero-title {
     font-size: clamp(2rem, 8.5vw, 2.75rem);
   }
@@ -245,6 +329,7 @@ svg {
   .product-page .page-process h2.display,
   .product-page .page-pods-detail h2.display,
   .product-page .page-engagement h2.display,
+  .product-page .page-pod-services h2.display,
   .product-page .page-community-overview h2.display,
   .product-page .page-community-program h2.display,
   .product-page .page-section h2.display,
@@ -269,30 +354,83 @@ svg {
     font-size: clamp(1.85rem, 7.5vw, 2.5rem);
   }
 
-  #capital-access .show-name,
-  #strategic-partnerships .show-name,
-  #community .show-name {
+  #aries-ai .show-name,
+  #sequence .show-name {
     font-size: clamp(1.65rem, 6.5vw, 2.15rem);
   }
 
-  #capital-access .caps,
-  #strategic-partnerships .caps {
+  #aries-ai .caps,
+  #sequence .caps {
     grid-template-columns: 1fr;
     column-gap: 0;
   }
 
-  #capital-access .cap:nth-last-child(-n+2),
-  #strategic-partnerships .cap:nth-last-child(-n+2) {
+  #aries-ai .cap:nth-last-child(-n+2),
+  #sequence .cap:nth-last-child(-n+2) {
     border-bottom: none;
   }
 
-  #capital-access .cap:last-child,
-  #strategic-partnerships .cap:last-child {
+  #aries-ai .cap:last-child,
+  #sequence .cap:last-child {
     border-bottom: 1px solid rgba(61, 51, 71, 0.6);
   }
 
   .show-grid {
     gap: 32px;
+  }
+
+  .show {
+    padding: clamp(56px, 10vw, 80px) 0;
+  }
+
+  .show-stack {
+    padding-bottom: clamp(32px, 8vw, 56px);
+  }
+
+  .show-tagline {
+    font-size: clamp(1rem, 4.2vw, 1.15rem);
+  }
+
+  .show-meta .num {
+    font-size: clamp(1.35rem, 5vw, 1.75rem);
+  }
+
+  #aries-ai .cap .cap-t,
+  #sequence .cap .cap-t {
+    font-size: clamp(14px, 3.8vw, 15px);
+  }
+
+  .car-frame,
+  .carousel--static .car-frame {
+    aspect-ratio: 16 / 10;
+  }
+
+  .cs-caption {
+    left: 16px;
+    bottom: 16px;
+    font-size: 10px;
+  }
+
+  #community .community-cta {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .founder-quote {
+    font-size: clamp(1.65rem, 6.5vw, 2.15rem);
+  }
+
+  .founder-sign .sig {
+    font-size: clamp(1.75rem, 7vw, 2.25rem);
+  }
+
+  .faq-a-inner {
+    padding-right: 0;
+    font-size: 15px;
+  }
+
+  .faq-subtitle {
+    font-size: clamp(1.1rem, 4.5vw, 1.35rem);
   }
 
   .show-actions {
@@ -361,9 +499,29 @@ svg {
   .page-community-overview,
   .page-community-program,
   .page-stories,
+  .page-grant-foundation,
+  .page-grant-services,
+  .page-pricing,
   .section {
     padding-top: clamp(56px, 10vw, 80px);
     padding-bottom: clamp(56px, 10vw, 80px);
+  }
+
+  .grant-foundation-card,
+  .grant-services-card,
+  .pricing-card {
+    padding: 24px 20px;
+  }
+
+  .grant-services-card .btn,
+  .pricing-card .btn,
+  .capital-access-page .page-section-cta .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .capital-access-page .page-hero-bg {
+    background-position: center 30%;
   }
 
   .cta {
@@ -429,6 +587,7 @@ svg {
   .nav-drawer-toggle {
     font-size: clamp(1.1rem, 4.5vw, 1.4rem);
     padding: 8px 0;
+    color: var(--cream);
   }
 
   .nav-drawer-sublink {

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { HOMEPAGE_CTA, HOMEPAGE_SHOWCASES } from '../data/siteContent';
+import { HOMEPAGE_CTA, HOMEPAGE_PRODUCTS } from '../data/siteContent';
 import Loader from '../components/Loader';
 import Hero from '../components/Hero';
 import Ecosystem from '../components/Ecosystem';
@@ -18,7 +18,7 @@ export default function HomePage() {
       <Hero ready={heroReady} />
       <Ecosystem />
       <div className="show-stack" id="products">
-        {HOMEPAGE_SHOWCASES.map((practice, i) => (
+        {HOMEPAGE_PRODUCTS.map((practice, i) => (
           <div key={practice.id} className="show-sticky" style={{ '--stack-i': i + 1 }}>
             <PracticeShowcase practice={practice} />
           </div>

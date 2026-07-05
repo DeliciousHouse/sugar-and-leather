@@ -2,6 +2,7 @@ import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useMagnetic } from '../../hooks/useMagnetic';
 import { hashHref } from '../../lib/asset';
+import { scrollToSection } from '../../hooks/useSmoothAnchor';
 
 function isInternalRoute(href) {
   return href && href.startsWith('/') && !href.startsWith('//') && !href.startsWith('/#');
@@ -48,9 +49,35 @@ export default function Button({
   }
 
   if (href) {
+    if (href.startsWith('#') && href.length > 1) {
+      return (
+        <a
+          href={href}
+          className={classes}
+          onClick={(e) => {
+            e.preventDefault();
+            onClick?.(e);
+            scrollToSection(href);
+          }}
+          {...handlers}
+          {...props}
+        >
+          {content}
+        </a>
+      );
+    }
+
     const anchorHref = isHashRoute(href) ? hashHref(href.slice(1)) : href;
+    const external = /^https?:\/\//i.test(anchorHref);
     return (
-      <a href={anchorHref} className={classes} onClick={onClick} {...handlers} {...props}>
+      <a
+        href={anchorHref}
+        className={classes}
+        onClick={onClick}
+        {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+        {...handlers}
+        {...props}
+      >
         {content}
       </a>
     );
