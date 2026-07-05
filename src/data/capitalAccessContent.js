@@ -1,4 +1,5 @@
 import { asset as a } from '../lib/asset';
+import { CAL_BOOKING_URL } from '../lib/links';
 
 const MAIL = 'mailto:hello@sugarandleather.com';
 
@@ -12,7 +13,7 @@ export const CAPITAL_ACCESS = {
     'We help organizations pursue grants with a stronger strategy, clearer narrative, credible budget, and the operational readiness funders expect.',
   heroImage: a('/assets/ca-hero.webp'),
   heroActionNote: 'Grant Strategy · Grant Writing · Funding Readiness',
-  primaryCta: { label: 'Book a Complimentary Fit Call', href: MAIL },
+  primaryCta: { label: 'Book a Complimentary Fit Call', href: CAL_BOOKING_URL },
   secondaryCta: { label: 'See How Grant Support Works', href: '#grant-support' },
   foundation: {
     eyebrow: 'Before the application is written',
@@ -42,6 +43,7 @@ export const CAPITAL_ACCESS = {
     id: 'grant-support',
     eyebrow: 'Grant support built around the opportunity',
     title: 'Support for the work that happens before, during, and after submission.',
+    cta: { label: 'Discuss Your Funding Goals', href: CAL_BOOKING_URL },
     items: [
       {
         title: 'Grant Strategy',
@@ -53,7 +55,6 @@ export const CAPITAL_ACCESS = {
           'Application strategy',
           'Go / no-go decision support',
         ],
-        cta: { label: 'Discuss Your Funding Goals', href: MAIL },
       },
       {
         title: 'Grant Proposal Development',
@@ -65,7 +66,6 @@ export const CAPITAL_ACCESS = {
           'Stakeholder coordination',
           'Submission-ready review',
         ],
-        cta: { label: 'Discuss a Grant Opportunity', href: MAIL },
       },
       {
         title: 'Funding Readiness',
@@ -77,7 +77,6 @@ export const CAPITAL_ACCESS = {
           'Measurement and reporting approach',
           'Leadership and capacity narrative',
         ],
-        cta: { label: 'Assess Your Readiness', href: MAIL },
       },
     ],
   },
@@ -90,7 +89,7 @@ export const CAPITAL_ACCESS = {
         title: 'Complimentary Fit Call',
         description:
           'We start with a short conversation to understand your funding goal, current opportunity, timeline, and readiness.',
-        cta: { label: 'Book a Fit Call', href: MAIL },
+        cta: { label: 'Book a Fit Call', href: CAL_BOOKING_URL },
       },
       {
         num: '02',
@@ -129,7 +128,7 @@ export const CAPITAL_ACCESS = {
           'Fit and readiness conversation',
           'Recommended next step',
         ],
-        cta: { label: 'Book a Fit Call', href: MAIL },
+        cta: { label: 'Book a Fit Call', href: CAL_BOOKING_URL },
       },
       {
         title: 'Grant Readiness Review',
@@ -278,7 +277,7 @@ export const CAPITAL_ACCESS = {
     highlight: 'make sure you are pursuing the right opportunity.',
     sub: 'Book a complimentary fit call to clarify your funding path and determine the strongest next step.',
     primaryLabel: 'Book a Complimentary Fit Call',
-    primaryHref: MAIL,
+    primaryHref: CAL_BOOKING_URL,
     secondaryLabel: 'Discuss a Grant Opportunity',
     secondaryHref: MAIL,
   },

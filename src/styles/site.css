@@ -2438,6 +2438,12 @@ body.cursor-hot .cursor { width: 5px; height: 5px; }
   margin-top: clamp(40px, 5vw, 56px);
 }
 
+.grant-services-cta {
+  display: flex;
+  justify-content: center;
+  margin-top: clamp(40px, 5vw, 56px);
+}
+
 .grant-services-card {
   display: flex;
   flex-direction: column;

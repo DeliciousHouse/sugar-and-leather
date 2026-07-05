@@ -30,14 +30,16 @@ export default function GrantServicesSection({ section, tone = 'light' }) {
                   <li key={service}>{service}</li>
                 ))}
               </ul>
-              {item.cta ? (
-                <Button href={item.cta.href} variant="outline" showArrow={false} magnetic={false}>
-                  {item.cta.label}
-                </Button>
-              ) : null}
             </Reveal>
           ))}
         </div>
+        {section.cta ? (
+          <Reveal className="grant-services-cta" delay={3}>
+            <Button href={section.cta.href} variant="outline" showArrow={false} magnetic={false}>
+              {section.cta.label}
+            </Button>
+          </Reveal>
+        ) : null}
       </div>
     </section>
   );
