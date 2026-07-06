@@ -157,7 +157,7 @@ export const POD_PAGES = {
     heroSub:
       'Revenue should not depend on one founder, one salesperson, or one good month. The Sales Pod brings commercial direction, experienced leadership, and specialist execution into one focused partnership.',
     heroPrimaryLabel: 'Book a Commercial Strategy Call',
-    heroPrimaryHref: 'mailto:hello@sugarandleather.com',
+    heroPrimaryHref: 'mailto:contact@sugarandleather.com',
     heroImage: a('/assets/pod-sales-hero.webp'),
     sections: [
       {
@@ -321,7 +321,7 @@ export const POD_PAGES = {
       highlight: 'Build what comes next.',
       sub: 'The first step is understanding what is holding your commercial growth back.',
       primaryLabel: 'Book a Commercial Strategy Call',
-      primaryHref: 'mailto:hello@sugarandleather.com',
+      primaryHref: 'mailto:contact@sugarandleather.com',
       secondaryLabel: 'How we work',
       secondaryHref: HOW_IT_WORKS_HASH,
     },
@@ -338,7 +338,7 @@ export const POD_PAGES = {
     heroSub:
       'The right technology does not add complexity. It removes friction, improves visibility, and gives people more room to focus on work that matters. We help businesses define, build, and improve the systems, products, and workflows that support their next stage.',
     heroPrimaryLabel: 'Book a Technology Strategy Call',
-    heroPrimaryHref: 'mailto:hello@sugarandleather.com',
+    heroPrimaryHref: 'mailto:contact@sugarandleather.com',
     heroImage: a('/assets/pod-development-hero.webp'),
     sections: [
       {
@@ -568,7 +568,7 @@ export const POD_PAGES = {
       highlight: 'The right technology creates room to move.',
       sub: 'If you are considering a product, system, automation, or AI initiative, start with a conversation about the problem behind it.',
       primaryLabel: 'Start a Technology Conversation',
-      primaryHref: 'mailto:hello@sugarandleather.com',
+      primaryHref: 'mailto:contact@sugarandleather.com',
       secondaryLabel: 'How we work',
       secondaryHref: HOW_IT_WORKS_HASH,
     },
@@ -585,7 +585,7 @@ export const POD_PAGES = {
     heroSub:
       'The right hire is not simply a person with the right experience. It is someone whose capability, judgment, and way of working can move the business forward. We help teams define the roles that matter, attract the right people, and build a stronger foundation.',
     heroPrimaryLabel: 'Book a Talent Strategy Call',
-    heroPrimaryHref: 'mailto:hello@sugarandleather.com',
+    heroPrimaryHref: 'mailto:contact@sugarandleather.com',
     heroImage: a('/assets/pod-recruitment-hero.webp'),
     sections: [
       {
@@ -805,7 +805,7 @@ export const POD_PAGES = {
       highlight: 'The next hire can change more than one role.',
       sub: 'If you are planning a hire, questioning a team structure, or trying to understand the capability your business needs next, start with a conversation.',
       primaryLabel: 'Start a Talent Conversation',
-      primaryHref: 'mailto:hello@sugarandleather.com',
+      primaryHref: 'mailto:contact@sugarandleather.com',
       secondaryLabel: 'How we work',
       secondaryHref: HOW_IT_WORKS_HASH,
     },

@@ -135,7 +135,7 @@ export const COMMUNITY = {
       body3: 'More details will follow.',
       cta: {
         label: 'Register Your Interest',
-        href: 'mailto:hello@sugarandleather.com',
+        href: 'mailto:contact@sugarandleather.com',
       },
     },
   ],
@@ -193,7 +193,7 @@ export const COMMUNITY = {
     highlight: 'Some opportunities begin with a better conversation.',
     sub: 'Whether you want to share your expertise, develop your business capability, find the right guidance, or explore how Sugar & Leather can support your next move, start by telling us what you are working towards.',
     primaryLabel: 'Start a Conversation',
-    primaryHref: 'mailto:hello@sugarandleather.com',
+    primaryHref: 'mailto:contact@sugarandleather.com',
     secondaryLabel: 'Explore the ecosystem',
     secondaryHref: ECOSYSTEM_HASH,
   },

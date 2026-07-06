@@ -11,7 +11,7 @@ export const INQUIRY_PAGE = {
     intro: 'All fields marked with an asterisk are required.',
     submitLabel: 'Send message',
     successTitle: 'Thank you.',
-    successBody: 'Your message is ready to send. If your email client did not open, write to hello@sugarandleather.com and we will be in touch shortly.',
+    successBody: 'Your message is ready to send. If your email client did not open, write to contact@sugarandleather.com and we will be in touch shortly.',
     fields: {
       name: { label: 'Full name', placeholder: 'Your full name' },
       email: { label: 'Email address', placeholder: 'you@company.com' },
@@ -29,8 +29,8 @@ export const INQUIRY_PAGE = {
     },
     email: {
       label: 'Email',
-      value: 'hello@sugarandleather.com',
-      href: 'mailto:hello@sugarandleather.com',
+      value: 'contact@sugarandleather.com',
+      href: 'mailto:contact@sugarandleather.com',
     },
     phone: {
       label: 'Phone',
@@ -68,5 +68,5 @@ export const INQUIRY_PAGE = {
       'https://maps.google.com/maps?q=33+Via+Aspero,+Alamo,+CA+94507&hl=en&z=15&output=embed',
     linkUrl: 'https://maps.google.com/?q=33+Via+Aspero,+Alamo,+CA+94507',
   },
-  mailto: 'hello@sugarandleather.com',
+  mailto: 'contact@sugarandleather.com',
 };

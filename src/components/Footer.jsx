@@ -24,8 +24,8 @@ const FOOTER_LINKS = {
   social: [
     {
       id: 'email',
-      href: 'mailto:hello@sugarandleather.com',
-      label: 'Email hello@sugarandleather.com',
+      href: 'mailto:contact@sugarandleather.com',
+      label: 'Email contact@sugarandleather.com',
       icon: Mail,
     },
     {

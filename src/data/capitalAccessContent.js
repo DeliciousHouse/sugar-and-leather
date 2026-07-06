@@ -1,7 +1,7 @@
 import { asset as a } from '../lib/asset';
 import { CAL_BOOKING_URL } from '../lib/links';
 
-const MAIL = 'mailto:hello@sugarandleather.com';
+const MAIL = 'mailto:contact@sugarandleather.com';
 
 export const CAPITAL_ACCESS = {
   slug: 'capital-access',

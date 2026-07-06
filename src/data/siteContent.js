@@ -189,7 +189,7 @@ export const HOMEPAGE_CTA = {
   primaryLabel: 'Book a Strategy Call',
   primaryHref: CAL_BOOKING_URL,
   secondaryLabel: 'Talk to Our Team',
-  secondaryHref: 'mailto:hello@sugarandleather.com',
+  secondaryHref: 'mailto:contact@sugarandleather.com',
 };
 
 export const HOMEPAGE_HERO = {
