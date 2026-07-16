@@ -577,6 +577,20 @@ svg {
     gap: 12px;
   }
 
+  .experience-backed {
+    padding: 14px 0 18px;
+  }
+
+  .experience-backed-item {
+    font-size: clamp(16px, 4.5vw, 22px);
+    gap: 12px;
+  }
+
+  .experience-backed-track {
+    gap: 32px;
+    animation-duration: 36s;
+  }
+
   .nav-drawer {
     padding: 0 var(--page-gutter);
     gap: 4px;

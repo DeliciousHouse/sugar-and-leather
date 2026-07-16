@@ -1407,7 +1407,7 @@ body.cursor-hot .cursor { width: 5px; height: 5px; }
 }
 .surface-light .engagement-desc { color: var(--mid-gray); }
 
-/* Strategic Partnerships — who this is for */
+/* Strategic CXO team — who this is for */
 .page-partner-fit {
   padding: clamp(72px, 8vw, 120px) 0;
 }
@@ -1461,7 +1461,7 @@ body.cursor-hot .cursor { width: 5px; height: 5px; }
   color: var(--cream);
 }
 
-/* Strategic Partnerships — expected outcomes */
+/* Strategic CXO team — expected outcomes */
 .page-outcomes {
   padding: clamp(72px, 8vw, 120px) 0;
 }
@@ -1515,12 +1515,95 @@ body.cursor-hot .cursor { width: 5px; height: 5px; }
   position: relative; min-height: 76vh; min-height: 76svh; display: flex; align-items: center;
   overflow: hidden; padding: clamp(150px, 14vh, 180px) 0 clamp(96px, 10vh, 120px); background: var(--obsidian);
 }
+.page-hero--with-footer {
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  padding-bottom: 0;
+}
+.page-hero--with-footer .page-hero-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-bottom: clamp(48px, 6vh, 72px);
+}
+
+.experience-backed {
+  position: relative;
+  z-index: 3;
+  margin-top: auto;
+  border-top: 1px solid rgba(61, 51, 71, 0.7);
+  background: rgba(14, 12, 15, 0.42);
+  backdrop-filter: blur(6px);
+  padding: 18px 0 22px;
+}
+.experience-backed-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--silver);
+  text-align: center;
+  margin: 0 0 14px;
+}
+.experience-backed-strip {
+  overflow: hidden;
+}
+.experience-backed-track {
+  display: flex;
+  gap: 48px;
+  white-space: nowrap;
+  width: max-content;
+  animation: marquee 42s linear infinite;
+}
+body.no-motion .experience-backed-track {
+  animation: none;
+}
+.experience-backed-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 18px;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 700;
+  font-size: clamp(20px, 2.2vw, 28px);
+  color: var(--cream);
+  opacity: 0.88;
+}
+.experience-backed-item .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--lavender);
+  flex-shrink: 0;
+}
 .product-page .page-hero {
   min-height: calc(76vh + 30px);
   min-height: calc(76svh + 30px);
   align-items: flex-start;
   padding-top: calc(clamp(150px, 14vh, 180px) + 70px);
   padding-bottom: calc(clamp(96px, 10vh, 120px) + 20px);
+}
+.product-page .page-hero.page-hero--with-footer {
+  align-items: stretch;
+  padding-bottom: 0;
+}
+.product-page .page-hero.page-hero--with-footer .page-hero-content {
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+.strategic-partnerships-page .page-hero.page-hero--with-footer {
+  padding-top: clamp(150px, 14vh, 180px);
+}
+.strategic-partnerships-page .page-hero .eyebrow {
+  justify-content: center;
+  width: 100%;
+  margin-top: clamp(24px, 4vh, 48px);
+}
+.strategic-partnerships-page .experience-backed {
+  margin-top: clamp(80px, 12vh, 140px);
 }
 .product-page .page-hero .page-hero-content {
   width: 100%;

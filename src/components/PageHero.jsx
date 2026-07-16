@@ -27,12 +27,14 @@ export default function PageHero({
   fullViewport = false,
   stackedTitle = false,
   extraClass = '',
+  footer = null,
 }) {
   const heroClass = [
     'page-hero',
     'surface-dark',
     compact && 'page-hero--compact',
     fullViewport && 'page-hero--viewport',
+    footer && 'page-hero--with-footer',
     extraClass,
   ]
     .filter(Boolean)
@@ -89,6 +91,7 @@ export default function PageHero({
           </Reveal>
         ) : null}
       </div>
+      {footer}
     </section>
   );
 }

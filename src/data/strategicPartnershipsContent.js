@@ -3,9 +3,9 @@ import { CAL_BOOKING_URL, HOW_IT_WORKS_HASH } from '../lib/links';
 
 export const STRATEGIC_PARTNERSHIPS = {
   slug: 'strategic-partnerships',
-  eyebrow: 'Strategic Partnerships',
-  name: 'Strategic Partnerships',
-  heroTitle: 'A Strategic Partner',
+  eyebrow: 'Strategic CXO team',
+  name: 'Strategic CXO team',
+  heroTitle: 'A Strategic CXO team',
   heroHighlight: 'Built for Growth',
   heroSub:
     'Gain executive leadership, operational expertise, and specialized execution teams without building an entire internal department.',
@@ -18,10 +18,29 @@ export const STRATEGIC_PARTNERSHIPS = {
     label: 'See how it works',
     href: HOW_IT_WORKS_HASH,
   },
+  experienceBackedBy: {
+    label: 'Experience Backed By',
+    companies: [
+      'State of Missouri — DOL',
+      'Verizon',
+      'Robert Half',
+      'JPMorgan Chase',
+      'Visa',
+      'PayPal',
+      'Salesforce',
+      'IBM',
+      'Autodesk',
+      'Microsoft',
+      'Wells Fargo',
+      'Compass Health',
+      'Google',
+      'Experian',
+    ],
+  },
   whatIs: {
-    eyebrow: 'What is a strategic partnership',
+    eyebrow: 'What is a Strategic CXO team',
     title: 'Designed for businesses that need more than advice.',
-    body: 'A Strategic Partnership is designed for businesses that need more than advice. Rather than hiring multiple executives, agencies, and contractors, organizations partner with Sugar & Leather to gain access to executive guidance and dedicated execution pods that work together toward clearly defined growth objectives.',
+    body: 'A Strategic CXO team is designed for businesses that need more than advice. Rather than hiring multiple executives, agencies, and contractors, organizations partner with Sugar & Leather to gain access to executive guidance and dedicated execution pods that work together toward clearly defined growth objectives.',
     body2:
       'We become an extension of your leadership team while helping drive measurable outcomes.',
     image: a('/assets/sp-partnership.webp'),
@@ -72,7 +91,7 @@ export const STRATEGIC_PARTNERSHIPS = {
     ],
   },
   pods: {
-    eyebrow: 'The four strategic partnership pods',
+    eyebrow: 'The four Strategic CXO team pods',
     title: 'Specialist teams. One partnership.',
     items: [
       {
@@ -179,7 +198,7 @@ export const STRATEGIC_PARTNERSHIPS = {
   cta: {
     title: 'Build faster with',
     highlight: 'the right partner',
-    sub: 'Access leadership, execution, and specialized expertise through a single strategic partnership designed around your growth objectives.',
+    sub: 'Access leadership, execution, and specialized expertise through a single Strategic CXO team designed around your growth objectives.',
     primaryLabel: 'Schedule a Discovery Session',
     primaryHref: CAL_BOOKING_URL,
     secondaryLabel: 'See how it works',

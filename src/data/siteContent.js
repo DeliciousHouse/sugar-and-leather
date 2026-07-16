@@ -27,7 +27,7 @@ export const ECOSYSTEM_CARDS = [
     className: 'c-b',
     photo: a('/assets/sp-ecosystem-card.webp'),
     index: '02',
-    name: 'Strategic Partnerships',
+    name: 'Strategic CXO team',
     description:
       'Gain access to executive leadership and specialized teams that help execute growth initiatives across your organization.',
   },

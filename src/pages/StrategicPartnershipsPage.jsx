@@ -1,5 +1,6 @@
 import { STRATEGIC_PARTNERSHIPS } from '../data/strategicPartnershipsContent';
 import PageHero from '../components/PageHero';
+import ExperienceBackedBy from '../components/ExperienceBackedBy';
 import ContentSection from '../components/ContentSection';
 import ProcessSection from '../components/ProcessSection';
 import ExpertiseSection from '../components/ExpertiseSection';
@@ -22,6 +23,12 @@ export default function StrategicPartnershipsPage() {
         image={page.heroImage}
         primaryAction={page.primaryCta}
         secondaryAction={page.secondaryCta}
+        footer={
+          <ExperienceBackedBy
+            label={page.experienceBackedBy.label}
+            companies={page.experienceBackedBy.companies}
+          />
+        }
       />
       <ContentSection section={page.whatIs} tone="dark" />
       <ProcessSection process={page.process} tone="light" />

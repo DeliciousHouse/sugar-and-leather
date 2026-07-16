@@ -427,7 +427,7 @@ export const ABOUT_PAGE = {
         body: 'From grants and funding pathways to investment readiness, we help businesses access the capital needed to support their next stage of growth.',
       },
       {
-        name: 'Strategic Partnerships',
+        name: 'Strategic CXO team',
         href: '/strategic-partnerships',
         desc: 'Leadership that becomes part of your business.',
         body: 'Our Sales, Marketing, Recruitment, and Engineering Pods work alongside your team, providing strategic direction and embedded execution where it matters most.',
