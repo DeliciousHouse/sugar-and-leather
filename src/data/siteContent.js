@@ -1,5 +1,5 @@
 import { asset as a } from '../lib/asset';
-import { CAL_BOOKING_URL, ECOSYSTEM_HASH } from '../lib/links';
+import { CAL_BOOKING_URL } from '../lib/links';
 
 export const MARQUEE_ITEMS = [
   'Capital',
