@@ -6,6 +6,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { afterEach, describe, expect, it } from 'vitest';
+import * as changedQuality from '../scripts/lint-changed.mjs';
 import {
   changedSourceFiles,
   lintFiles,
@@ -14,8 +15,13 @@ import {
 
 const repoRoot = fileURLToPath(new URL('..', import.meta.url));
 const lintScript = fileURLToPath(new URL('../scripts/lint-changed.mjs', import.meta.url));
+/** @type {string[]} */
 const fixtureDirectories = [];
 
+/**
+ * @param {string} cwd
+ * @param {...string} args
+ */
 function git(cwd, ...args) {
   return execFileSync('git', args, { cwd, encoding: 'utf8' }).trim();
 }
@@ -25,6 +31,73 @@ afterEach(async () => {
 });
 
 describe('diff-scoped lint guard', () => {
+  it('rejects Node-only globals in changed browser source', async () => {
+    const fixtureDirectory = await mkdtemp(path.join(repoRoot, 'src', 'lint-guard-'));
+    fixtureDirectories.push(fixtureDirectory);
+    const fixturePath = path.join(fixtureDirectory, 'node-global.jsx');
+    await writeFile(
+      fixturePath,
+      'export const encoded = Buffer.from("browser-only");\n',
+      'utf8',
+    );
+
+    const fixture = path.relative(repoRoot, fixturePath).split(path.sep).join('/');
+
+    await expect(lintFiles([fixture], { cwd: repoRoot })).rejects.toThrow(
+      "'Buffer' is not defined",
+    );
+  });
+
+  it('lints changed TypeScript instead of treating it as ignored', async () => {
+    const fixtureDirectory = await mkdtemp(path.join(repoRoot, 'tests', 'lint-guard-'));
+    fixtureDirectories.push(fixtureDirectory);
+    const fixturePath = path.join(fixtureDirectory, 'supported.tsx');
+    await writeFile(
+      fixturePath,
+      'export function Supported() { return <div>supported</div>; }\n',
+      'utf8',
+    );
+
+    const fixture = path.relative(repoRoot, fixturePath).split(path.sep).join('/');
+
+    await expect(lintFiles([fixture], { cwd: repoRoot })).resolves.toHaveLength(1);
+  });
+
+  it('fails the changed quality gate on an application type error', async () => {
+    const fixtureDirectory = await mkdtemp(path.join(repoRoot, 'src', 'type-guard-'));
+    fixtureDirectories.push(fixtureDirectory);
+    const fixturePath = path.join(fixtureDirectory, 'changed-app.js');
+    await writeFile(
+      fixturePath,
+      '/** @type {number} */\nexport const count = "not-a-number";\n',
+      'utf8',
+    );
+
+    const fixture = path.relative(repoRoot, fixturePath).split(path.sep).join('/');
+
+    expect(changedQuality.qualityFiles).toBeTypeOf('function');
+    await expect(changedQuality.qualityFiles([fixture], { cwd: repoRoot })).rejects.toThrow(
+      /TypeScript reported issues in changed source files:[\s\S]*changed-app\.js[\s\S]*not assignable to type 'number'/,
+    );
+  });
+
+  it('fails the changed quality gate on a test type error', async () => {
+    const fixtureDirectory = await mkdtemp(path.join(repoRoot, 'tests', 'type-guard-'));
+    fixtureDirectories.push(fixtureDirectory);
+    const fixturePath = path.join(fixtureDirectory, 'changed-test.ts');
+    await writeFile(
+      fixturePath,
+      'export const attempts: number = "not-a-number";\n',
+      'utf8',
+    );
+
+    const fixture = path.relative(repoRoot, fixturePath).split(path.sep).join('/');
+
+    await expect(changedQuality.qualityFiles([fixture], { cwd: repoRoot })).rejects.toThrow(
+      /TypeScript reported issues in changed source files:[\s\S]*changed-test\.ts[\s\S]*not assignable to type 'number'/,
+    );
+  });
+
   it('fails closed when a changed source file contains invalid syntax', async () => {
     const fixtureDirectory = await mkdtemp(path.join(repoRoot, 'tests', 'lint-guard-'));
     fixtureDirectories.push(fixtureDirectory);
@@ -33,14 +106,16 @@ describe('diff-scoped lint guard', () => {
 
     const fixture = path.relative(repoRoot, fixturePath).split(path.sep).join('/');
 
+    /** @type {Error | undefined} */
     let lintError;
     try {
       await lintFiles([fixture], { cwd: repoRoot });
     } catch (error) {
-      lintError = error;
+      if (error instanceof Error) lintError = error;
     }
 
     expect(lintError).toBeInstanceOf(Error);
+    if (!lintError) throw new Error('Expected lintFiles to reject');
     expect(lintError.message).toContain('invalid.jsx');
     expect(lintError.message).toContain('Parsing error');
   });

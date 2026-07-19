@@ -2,6 +2,7 @@ import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { ESLint } from 'eslint';
+import ts from 'typescript';
 
 const SOURCE_FILE = /\.(?:[cm]?[jt]s|[jt]sx)$/i;
 const ZERO_SHA = /^0+$/;
@@ -120,6 +121,83 @@ export async function lintFiles(files, { cwd = process.cwd() } = {}) {
   return results;
 }
 
+/**
+ * @param {string} file
+ */
+function canonicalPath(file) {
+  const absolutePath = path.resolve(file);
+  return ts.sys.useCaseSensitiveFileNames ? absolutePath : absolutePath.toLowerCase();
+}
+
+/**
+ * @param {readonly ts.Diagnostic[]} diagnostics
+ * @param {string} cwd
+ */
+function formatTypeScriptDiagnostics(diagnostics, cwd) {
+  return ts.formatDiagnosticsWithColorAndContext(diagnostics, {
+    getCanonicalFileName: canonicalPath,
+    getCurrentDirectory: () => cwd,
+    getNewLine: () => ts.sys.newLine,
+  });
+}
+
+/**
+ * @param {string[]} files
+ * @param {{ cwd?: string }} [options]
+ * @returns {Promise<readonly ts.Diagnostic[]>}
+ */
+export async function typeCheckFiles(files, { cwd = process.cwd() } = {}) {
+  if (files.length === 0) return [];
+
+  const configPath = ts.findConfigFile(cwd, ts.sys.fileExists, 'tsconfig.json');
+  if (!configPath) {
+    throw new Error(`Cannot find tsconfig.json from ${cwd}`);
+  }
+
+  const configFile = ts.readConfigFile(configPath, ts.sys.readFile);
+  if (configFile.error) {
+    throw new Error(`Cannot read tsconfig.json:\n${formatTypeScriptDiagnostics([configFile.error], cwd)}`);
+  }
+
+  const parsedConfig = ts.parseJsonConfigFileContent(
+    configFile.config,
+    ts.sys,
+    cwd,
+    { noEmit: true },
+    configPath,
+  );
+  if (parsedConfig.errors.length > 0) {
+    throw new Error(
+      `Invalid tsconfig.json:\n${formatTypeScriptDiagnostics(parsedConfig.errors, cwd)}`,
+    );
+  }
+
+  const rootNames = files.map((file) => path.resolve(cwd, file));
+  const changedFiles = new Set(rootNames.map(canonicalPath));
+  const program = ts.createProgram({ rootNames, options: parsedConfig.options });
+  const diagnostics = ts.getPreEmitDiagnostics(program).filter(
+    (diagnostic) => !diagnostic.file || changedFiles.has(canonicalPath(diagnostic.file.fileName)),
+  );
+
+  if (diagnostics.length > 0) {
+    throw new Error(
+      `TypeScript reported issues in changed source files:\n${formatTypeScriptDiagnostics(diagnostics, cwd)}`,
+    );
+  }
+
+  return diagnostics;
+}
+
+/**
+ * @param {string[]} files
+ * @param {{ cwd?: string }} [options]
+ */
+export async function qualityFiles(files, options = {}) {
+  const lintResults = await lintFiles(files, options);
+  await typeCheckFiles(files, options);
+  return lintResults;
+}
+
 /** @param {LintContext} [context] */
 export async function main({ args = process.argv.slice(2), env = process.env, cwd = process.cwd() } = {}) {
   const range = resolveDiffRange({ args, env, cwd });
@@ -130,9 +208,9 @@ export async function main({ args = process.argv.slice(2), env = process.env, cw
     return;
   }
 
-  console.log(`Linting ${files.length} changed source file(s) from ${range}:`);
+  console.log(`Checking ${files.length} changed source file(s) from ${range}:`);
   files.forEach((file) => console.log(`  ${file}`));
-  await lintFiles(files, { cwd });
+  await qualityFiles(files, { cwd });
 }
 
 const isDirectRun = process.argv[1]

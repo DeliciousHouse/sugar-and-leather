@@ -16,6 +16,13 @@ if (typeof window !== 'undefined') {
   window.scrollTo = vi.fn();
 
   globalThis.IntersectionObserver = class IntersectionObserver {
+    root = null;
+
+    rootMargin = '';
+
+    /** @type {number[]} */
+    thresholds = [];
+
     disconnect() {}
 
     observe() {}
