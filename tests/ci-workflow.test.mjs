@@ -4,11 +4,18 @@ import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { parse } from 'yaml';
+import viteConfig from '../vite.config.js';
 
 const workflowPath = fileURLToPath(new URL('../.github/workflows/ci.yml', import.meta.url));
 const packagePath = fileURLToPath(new URL('../package.json', import.meta.url));
 
 describe('CI workflow', () => {
+  it('uses a realistic bounded timeout for compiler-backed quality tests', () => {
+    const testTimeout = viteConfig.test?.testTimeout;
+    expect(testTimeout).toBeGreaterThanOrEqual(15_000);
+    expect(testTimeout).toBeLessThanOrEqual(30_000);
+  });
+
   it('routes CI through the changed-file lint and type quality gate', async () => {
     const packageJson = JSON.parse(await readFile(packagePath, 'utf8'));
 

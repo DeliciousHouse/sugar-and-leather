@@ -48,6 +48,23 @@ describe('diff-scoped lint guard', () => {
     );
   });
 
+  it('rejects Node-only globals in changed browser TypeScript through the quality gate', async () => {
+    const fixtureDirectory = await mkdtemp(path.join(repoRoot, 'src', 'type-guard-'));
+    fixtureDirectories.push(fixtureDirectory);
+    const fixturePath = path.join(fixtureDirectory, 'node-global.tsx');
+    await writeFile(
+      fixturePath,
+      'export const encoded: Buffer = Buffer.from("browser-only");\n',
+      'utf8',
+    );
+
+    const fixture = path.relative(repoRoot, fixturePath).split(path.sep).join('/');
+
+    await expect(changedQuality.qualityFiles([fixture], { cwd: repoRoot })).rejects.toThrow(
+      /TypeScript reported issues in changed source files:[\s\S]*node-global\.tsx[\s\S]*Cannot find name 'Buffer'/,
+    );
+  });
+
   it('lints changed TypeScript instead of treating it as ignored', async () => {
     const fixtureDirectory = await mkdtemp(path.join(repoRoot, 'tests', 'lint-guard-'));
     fixtureDirectories.push(fixtureDirectory);

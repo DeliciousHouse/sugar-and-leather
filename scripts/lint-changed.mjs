@@ -8,6 +8,16 @@ const SOURCE_FILE = /\.(?:[cm]?[jt]s|[jt]sx)$/i;
 const ZERO_SHA = /^0+$/;
 
 /**
+ * @param {string} file
+ * @param {string} cwd
+ */
+function typeScriptConfigName(file, cwd) {
+  const relativePath = path.relative(cwd, path.resolve(cwd, file));
+  const [topLevelDirectory] = relativePath.split(path.sep);
+  return topLevelDirectory === 'src' ? 'tsconfig.json' : 'tsconfig.node.json';
+}
+
+/**
  * @typedef {object} LintContext
  * @property {string[]} [args]
  * @property {string} [cwd]
@@ -149,35 +159,49 @@ function formatTypeScriptDiagnostics(diagnostics, cwd) {
 export async function typeCheckFiles(files, { cwd = process.cwd() } = {}) {
   if (files.length === 0) return [];
 
-  const configPath = ts.findConfigFile(cwd, ts.sys.fileExists, 'tsconfig.json');
-  if (!configPath) {
-    throw new Error(`Cannot find tsconfig.json from ${cwd}`);
-  }
+  /** @type {Map<string, string[]>} */
+  const filesByConfig = new Map();
+  files.forEach((file) => {
+    const configName = typeScriptConfigName(file, cwd);
+    const configFiles = filesByConfig.get(configName) ?? [];
+    configFiles.push(file);
+    filesByConfig.set(configName, configFiles);
+  });
 
-  const configFile = ts.readConfigFile(configPath, ts.sys.readFile);
-  if (configFile.error) {
-    throw new Error(`Cannot read tsconfig.json:\n${formatTypeScriptDiagnostics([configFile.error], cwd)}`);
-  }
+  const diagnostics = [];
+  for (const [configName, configFiles] of filesByConfig) {
+    const configPath = ts.findConfigFile(cwd, ts.sys.fileExists, configName);
+    if (!configPath) {
+      throw new Error(`Cannot find ${configName} from ${cwd}`);
+    }
 
-  const parsedConfig = ts.parseJsonConfigFileContent(
-    configFile.config,
-    ts.sys,
-    cwd,
-    { noEmit: true },
-    configPath,
-  );
-  if (parsedConfig.errors.length > 0) {
-    throw new Error(
-      `Invalid tsconfig.json:\n${formatTypeScriptDiagnostics(parsedConfig.errors, cwd)}`,
+    const configFile = ts.readConfigFile(configPath, ts.sys.readFile);
+    if (configFile.error) {
+      throw new Error(
+        `Cannot read ${configName}:\n${formatTypeScriptDiagnostics([configFile.error], cwd)}`,
+      );
+    }
+
+    const parsedConfig = ts.parseJsonConfigFileContent(
+      configFile.config,
+      ts.sys,
+      cwd,
+      { noEmit: true },
+      configPath,
     );
-  }
+    if (parsedConfig.errors.length > 0) {
+      throw new Error(
+        `Invalid ${configName}:\n${formatTypeScriptDiagnostics(parsedConfig.errors, cwd)}`,
+      );
+    }
 
-  const rootNames = files.map((file) => path.resolve(cwd, file));
-  const changedFiles = new Set(rootNames.map(canonicalPath));
-  const program = ts.createProgram({ rootNames, options: parsedConfig.options });
-  const diagnostics = ts.getPreEmitDiagnostics(program).filter(
-    (diagnostic) => !diagnostic.file || changedFiles.has(canonicalPath(diagnostic.file.fileName)),
-  );
+    const rootNames = configFiles.map((file) => path.resolve(cwd, file));
+    const changedFiles = new Set(rootNames.map(canonicalPath));
+    const program = ts.createProgram({ rootNames, options: parsedConfig.options });
+    diagnostics.push(...ts.getPreEmitDiagnostics(program).filter(
+      (diagnostic) => !diagnostic.file || changedFiles.has(canonicalPath(diagnostic.file.fileName)),
+    ));
+  }
 
   if (diagnostics.length > 0) {
     throw new Error(
