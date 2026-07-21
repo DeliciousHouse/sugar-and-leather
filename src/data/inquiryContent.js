@@ -25,7 +25,7 @@ export const INQUIRY_PAGE = {
     intro: 'Prefer a direct line? Reach us through the details below.',
     address: {
       label: 'Office',
-      lines: ['Sugar & Leather', '33 Via Aspero', 'Alamo, California 94507'],
+      lines: ['Sugar & Leather', '1650 Harbor Bay Pkwy Ste 220', 'Alameda, CA 94502'],
     },
     email: {
       label: 'Email',
@@ -65,8 +65,8 @@ export const INQUIRY_PAGE = {
   map: {
     title: 'Find us',
     embedUrl:
-      'https://maps.google.com/maps?q=33+Via+Aspero,+Alamo,+CA+94507&hl=en&z=15&output=embed',
-    linkUrl: 'https://maps.google.com/?q=33+Via+Aspero,+Alamo,+CA+94507',
+      'https://maps.google.com/maps?q=1650+Harbor+Bay+Pkwy+Ste+220,+Alameda,+CA+94502&hl=en&z=15&output=embed',
+    linkUrl: 'https://maps.google.com/?q=1650+Harbor+Bay+Pkwy+Ste+220,+Alameda,+CA+94502',
   },
   mailto: 'contact@sugarandleather.com',
 };

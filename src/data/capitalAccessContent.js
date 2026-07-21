@@ -4,7 +4,7 @@ import { CAL_BOOKING_URL } from '../lib/links';
 const MAIL = 'mailto:contact@sugarandleather.com';
 
 export const CAPITAL_ACCESS = {
-  slug: 'capital-access',
+  slug: 'capital-access-and-grant-services',
   eyebrow: 'Grant Writing & Funding Strategy',
   name: 'Capital Access & Grant Services',
   heroTitle: 'Turn a funding opportunity',
@@ -204,9 +204,8 @@ export const CAPITAL_ACCESS = {
       'Climate and clean energy',
       'Manufacturing and supply chain',
       'Government and public-sector initiatives',
-      'Financial services',
+      'Financial and professional services',
       'Real estate and infrastructure',
-      'Professional services',
       'International development',
     ],
   },

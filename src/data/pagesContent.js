@@ -422,13 +422,13 @@ export const ABOUT_PAGE = {
     cards: [
       {
         name: 'Capital Access',
-        href: '/capital-access',
+        href: '/capital-access-and-grant-services',
         desc: 'Unlock the resources to move forward.',
         body: 'From grants and funding pathways to investment readiness, we help businesses access the capital needed to support their next stage of growth.',
       },
       {
-        name: 'Strategic Partnerships',
-        href: '/strategic-partnerships',
+        name: 'Strategic CXO team',
+        href: '/strategic-cxo-team',
         desc: 'Leadership that becomes part of your business.',
         body: 'Our Sales, Marketing, Recruitment, and Engineering Pods work alongside your team, providing strategic direction and embedded execution where it matters most.',
       },
@@ -440,7 +440,7 @@ export const ABOUT_PAGE = {
       },
       {
         name: 'Community',
-        href: '/advanced-tech',
+        href: '/community',
         desc: "Growth doesn't happen in isolation.",
         body: 'Our communities bring together founders, operators, coaches, and leaders who learn from one another, challenge ideas, and create opportunities beyond a single engagement.',
       },

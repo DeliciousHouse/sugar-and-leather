@@ -338,7 +338,6 @@ svg {
     line-height: 1.08;
   }
 
-  .community-page .cta h2,
   .pod-page--sales .page-section--challenge h2.display,
   .pod-page--sales .page-section--model h2.display,
   .pod-page--development .page-section--challenge h2.display,
@@ -425,8 +424,10 @@ svg {
   }
 
   .faq-a-inner {
+    padding-left: 42px; /* 26px icon + 16px gap */
     padding-right: 0;
     font-size: 15px;
+    max-width: none;
   }
 
   .faq-subtitle {
@@ -529,7 +530,11 @@ svg {
   }
 
   .cta h2 {
-    font-size: clamp(1.85rem, 7.5vw, 2.5rem);
+    font-size: clamp(1.85rem, 7.5vw, 3.5rem);
+  }
+
+  .cta-sub {
+    margin: 32px auto 40px;
   }
 
   .cta-actions {
@@ -552,8 +557,9 @@ svg {
   }
 
   .faq-a-inner {
-    padding: 0 0 24px;
-    max-width: 100%;
+    padding: 0 0 24px 42px;
+    max-width: none;
+    width: 100%;
   }
 
   .footer-giant {
@@ -575,6 +581,45 @@ svg {
   .strip-item {
     font-size: clamp(18px, 5.5vw, 26px);
     gap: 12px;
+  }
+
+  .experience-backed {
+    padding: 14px 0 18px;
+  }
+
+  .experience-backed-item {
+    height: 56px;
+    min-width: 160px;
+    gap: 10px;
+  }
+
+  .experience-backed-logo {
+    height: 48px;
+    max-width: 200px;
+  }
+
+  .experience-backed-logo--compact {
+    height: 34px;
+    max-width: 140px;
+  }
+
+  .experience-backed-mark {
+    width: 44px;
+    height: 44px;
+  }
+
+  .experience-backed-wordmark {
+    height: 30px;
+    max-width: 140px;
+  }
+
+  .experience-backed-name {
+    font-size: 1.05rem;
+  }
+
+  .experience-backed-track {
+    gap: 40px;
+    animation-duration: 44s;
   }
 
   .nav-drawer {
@@ -656,6 +701,23 @@ svg {
   .community-audience-list li,
   .community-bullets-list li {
     font-size: 14px;
+  }
+
+  .coming-soon-footer {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 28px;
+    padding: 24px clamp(24px, 6vw, 40px) 72px;
+  }
+
+  .coming-soon-footer-left,
+  .coming-soon-footer-right {
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .coming-soon-title {
+    font-size: clamp(2.25rem, 10vw, 3rem);
   }
 }
 

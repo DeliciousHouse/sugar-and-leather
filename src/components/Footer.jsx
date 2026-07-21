@@ -4,17 +4,13 @@ import { asset, hashHref } from '../lib/asset';
 
 const FOOTER_LINKS = {
   ecosystem: [
-    { href: '/capital-access', label: 'Capital Access', route: true },
-    { href: '/strategic-partnerships', label: 'Strategic Partnerships', route: true },
+    { href: '/capital-access-and-grant-services', label: 'Capital Access', route: true },
+    { href: '/strategic-cxo-team', label: 'Strategic CXO team', route: true },
     { href: '/community', label: 'Community', route: true },
-    {
-      href: 'https://sugarandleather.ai/',
-      label: 'Innovation & Advanced Tech',
-      external: true,
-    },
+    { href: '/innovation-and-advanced-tech', label: 'Innovation & Advanced Tech', route: true },
   ],
   connect: [
-    { href: '/inquiry', label: 'Enquiry', route: true },
+    { href: '/inquiry', label: 'Inquiry', route: true },
     { href: '/about', label: 'About', route: true },
   ],
   product: [
@@ -51,8 +47,8 @@ const FOOTER_LINKS = {
     },
     {
       id: 'location',
-      href: 'https://maps.google.com/?q=33+Via+Aspero,+Alamo,+CA+94507',
-      label: 'Alamo, California',
+      href: 'https://maps.google.com/?q=1650+Harbor+Bay+Pkwy+Ste+220,+Alameda,+CA+94502',
+      label: 'Alameda, California',
       icon: MapPin,
       external: true,
     },

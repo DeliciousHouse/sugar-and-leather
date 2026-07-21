@@ -11,7 +11,7 @@ import Button from './ui/Button';
 const NAV_LINKS = [
   { href: '/#ecosystem', label: 'Ecosystem' },
   { href: '/about', label: 'About', route: true },
-  { href: '/inquiry', label: 'Enquiry', route: true },
+  { href: '/inquiry', label: 'Inquiry', route: true },
 ];
 
 const PRODUCT_LINKS = [

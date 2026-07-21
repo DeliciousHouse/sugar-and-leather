@@ -6,9 +6,9 @@ export const POD_SLUGS = ['marketing-pod', 'sales-pod', 'development-pod', 'recr
 export const POD_PAGES = {
   'marketing-pod': {
     slug: 'marketing-pod',
-    parentSlug: 'strategic-partnerships',
-    parentLabel: 'Strategic Partnerships',
-    eyebrow: 'Strategic Partnership · Marketing Pod',
+    parentSlug: 'strategic-cxo-team',
+    parentLabel: 'Strategic CXO team',
+    eyebrow: 'Strategic CXO team · Marketing Pod',
     name: 'Marketing Pod',
     heroTitle: 'Build a marketing engine',
     heroHighlight: 'that grows with your business.',
@@ -33,9 +33,9 @@ export const POD_PAGES = {
       },
       {
         id: 'partnership',
-        eyebrow: 'Why a strategic partnership',
+        eyebrow: 'Why a Strategic CXO team',
         title: 'More than an agency. A partner at the table.',
-        body: "Unlike a traditional agency, we don't simply execute marketing tasks. We become a strategic partner that works alongside your leadership team, helping define priorities, establish systems, provide specialist expertise, and continuously improve performance as your business grows.",
+        body: "Unlike a traditional agency, we don't simply execute marketing tasks. We become a Strategic CXO team that works alongside your leadership team, helping define priorities, establish systems, provide specialist expertise, and continuously improve performance as your business grows.",
         image: a('/assets/pod-marketing-partnership.webp'),
         reverse: true,
       },
@@ -147,10 +147,10 @@ export const POD_PAGES = {
   },
   'sales-pod': {
     slug: 'sales-pod',
-    parentSlug: 'strategic-partnerships',
-    parentLabel: 'Strategic Partnerships',
+    parentSlug: 'strategic-cxo-team',
+    parentLabel: 'Strategic CXO team',
     pageClass: 'pod-page--sales',
-    eyebrow: 'Strategic Partnership · Sales Pod',
+    eyebrow: 'Strategic CXO team · Sales Pod',
     name: 'Sales Pod',
     heroTitle: 'Build a sales system',
     heroHighlight: 'that carries growth.',
@@ -177,7 +177,7 @@ export const POD_PAGES = {
       },
       {
         id: 'partnership',
-        eyebrow: 'A strategic partnership',
+        eyebrow: 'A Strategic CXO team',
         title: 'The Sales Pod',
         body: 'A strong sales function connects strategy, messaging, people, process, data, and discipline. Our Sales Pod works alongside your leadership team to understand what is holding revenue back, then brings in the right expertise to strengthen the full commercial system. We do not arrive with a fixed playbook. We start with the business in front of us.',
         image: a('/assets/pod-sales-partnership.webp'),
@@ -283,7 +283,7 @@ export const POD_PAGES = {
       {
         question: 'What is the Sales Pod?',
         answer:
-          'The Sales Pod is a strategic partnership that combines commercial leadership with the specialist expertise needed to build and improve your sales function.',
+          'The Sales Pod is a Strategic CXO team that combines commercial leadership with the specialist expertise needed to build and improve your sales function.',
       },
       {
         question: 'Is this outsourced sales?',
@@ -303,7 +303,7 @@ export const POD_PAGES = {
       {
         question: 'Can you help us hire salespeople?',
         answer:
-          'Yes. Through the wider Strategic Partnership model, we support commercial hiring and help define the roles your business actually needs.',
+          'Yes. Through the wider Strategic CXO team model, we support commercial hiring and help define the roles your business actually needs.',
       },
       {
         question: 'How do you use AI in sales?',
@@ -328,10 +328,10 @@ export const POD_PAGES = {
   },
   'development-pod': {
     slug: 'development-pod',
-    parentSlug: 'strategic-partnerships',
-    parentLabel: 'Strategic Partnerships',
+    parentSlug: 'strategic-cxo-team',
+    parentLabel: 'Strategic CXO team',
     pageClass: 'pod-page--development',
-    eyebrow: 'Strategic Partnership · Development Pod',
+    eyebrow: 'Strategic CXO team · Development Pod',
     name: 'Development Pod',
     heroTitle: 'Build technology',
     heroHighlight: 'that makes the business work better.',
@@ -575,10 +575,10 @@ export const POD_PAGES = {
   },
   'recruitment-pod': {
     slug: 'recruitment-pod',
-    parentSlug: 'strategic-partnerships',
-    parentLabel: 'Strategic Partnerships',
+    parentSlug: 'strategic-cxo-team',
+    parentLabel: 'Strategic CXO team',
     pageClass: 'pod-page--recruitment',
-    eyebrow: 'Strategic Partnership · Recruitment Pod',
+    eyebrow: 'Strategic CXO team · Recruitment Pod',
     name: 'Recruitment Pod',
     heroTitle: 'Build the team',
     heroHighlight: 'your next stage demands.',
