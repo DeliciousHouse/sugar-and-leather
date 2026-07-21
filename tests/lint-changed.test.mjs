@@ -65,6 +65,23 @@ describe('diff-scoped lint guard', () => {
     );
   });
 
+  it('rejects browser globals in changed Node tooling TypeScript', async () => {
+    const fixtureDirectory = await mkdtemp(path.join(repoRoot, 'scripts', 'type-guard-'));
+    fixtureDirectories.push(fixtureDirectory);
+    const fixturePath = path.join(fixtureDirectory, 'browser-global.ts');
+    await writeFile(
+      fixturePath,
+      'export const pageTitle = document.title;\n',
+      'utf8',
+    );
+
+    const fixture = path.relative(repoRoot, fixturePath).split(path.sep).join('/');
+
+    await expect(changedQuality.qualityFiles([fixture], { cwd: repoRoot })).rejects.toThrow(
+      /TypeScript reported issues in changed source files:[\s\S]*browser-global\.ts[\s\S]*Cannot find name 'document'/,
+    );
+  });
+
   it('lints changed TypeScript instead of treating it as ignored', async () => {
     const fixtureDirectory = await mkdtemp(path.join(repoRoot, 'tests', 'lint-guard-'));
     fixtureDirectories.push(fixtureDirectory);
@@ -98,6 +115,65 @@ describe('diff-scoped lint guard', () => {
     );
   });
 
+  it('fails when a changed shared API breaks an unchanged consumer', async () => {
+    const fixtureDirectory = await mkdtemp(path.join(os.tmpdir(), 'type-guard-'));
+    fixtureDirectories.push(fixtureDirectory);
+    const sourceDirectory = path.join(fixtureDirectory, 'src');
+    const sharedPath = path.join(sourceDirectory, 'shared.ts');
+    const consumerPath = path.join(sourceDirectory, 'consumer.ts');
+    await mkdir(sourceDirectory);
+    await writeFile(
+      path.join(fixtureDirectory, 'tsconfig.json'),
+      JSON.stringify({
+        compilerOptions: {
+          module: 'ESNext',
+          moduleResolution: 'Bundler',
+          noEmit: true,
+          strict: true,
+          target: 'ES2022',
+          types: [],
+        },
+        include: ['src'],
+      }),
+      'utf8',
+    );
+    await writeFile(
+      sharedPath,
+      'export function parseValue(value: number) { return value; }\n',
+      'utf8',
+    );
+    await writeFile(
+      consumerPath,
+      'import { parseValue } from "./shared";\nexport const parsed = parseValue(42);\n',
+      'utf8',
+    );
+    git(fixtureDirectory, 'init', '--initial-branch=main');
+    git(fixtureDirectory, 'config', 'core.autocrlf', 'false');
+    git(fixtureDirectory, 'config', 'user.email', 'ci@example.com');
+    git(fixtureDirectory, 'config', 'user.name', 'CI Test');
+    git(fixtureDirectory, 'add', '.');
+    git(fixtureDirectory, 'commit', '-m', 'baseline');
+    await writeFile(
+      sharedPath,
+      'export function parseValue(value: string) { return value; }\n',
+      'utf8',
+    );
+
+    await expect(changedQuality.typeCheckFiles(['src/shared.ts'], {
+      baselineRef: 'HEAD',
+      cwd: fixtureDirectory,
+    })).rejects.toThrow(
+      /TypeScript reported issues in changed source files:[\s\S]*consumer\.ts[\s\S]*not assignable to parameter of type 'string'/,
+    );
+  });
+
+  it('ignores cross-file diagnostics that a changed module did not introduce', async () => {
+    await expect(changedQuality.typeCheckFiles(['src/data/siteContent.js'], {
+      baselineRef: 'origin/main',
+      cwd: repoRoot,
+    })).resolves.toEqual([]);
+  });
+
   it('fails the changed quality gate on a test type error', async () => {
     const fixtureDirectory = await mkdtemp(path.join(repoRoot, 'tests', 'type-guard-'));
     fixtureDirectories.push(fixtureDirectory);
@@ -113,6 +189,21 @@ describe('diff-scoped lint guard', () => {
     await expect(changedQuality.qualityFiles([fixture], { cwd: repoRoot })).rejects.toThrow(
       /TypeScript reported issues in changed source files:[\s\S]*changed-test\.ts[\s\S]*not assignable to type 'number'/,
     );
+  });
+
+  it('keeps DOM, Node, and Vitest types available to changed tests', async () => {
+    const fixtureDirectory = await mkdtemp(path.join(repoRoot, 'tests', 'type-guard-'));
+    fixtureDirectories.push(fixtureDirectory);
+    const fixturePath = path.join(fixtureDirectory, 'test-environment.ts');
+    await writeFile(
+      fixturePath,
+      'import { expect } from "vitest";\nconst title = Buffer.from(document.title);\nexpect(title).toBeDefined();\n',
+      'utf8',
+    );
+
+    const fixture = path.relative(repoRoot, fixturePath).split(path.sep).join('/');
+
+    await expect(changedQuality.qualityFiles([fixture], { cwd: repoRoot })).resolves.toHaveLength(1);
   });
 
   it('fails closed when a changed source file contains invalid syntax', async () => {

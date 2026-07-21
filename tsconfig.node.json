@@ -1,11 +1,12 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "types": ["node", "vite/client", "vitest/globals", "@testing-library/jest-dom"]
+    "lib": ["ES2022"],
+    "types": ["node"]
   },
   "include": [
     "eslint.config.js",
-    "scripts/**/*.mjs",
+    "scripts",
     "vite.config.js"
   ]
 }
