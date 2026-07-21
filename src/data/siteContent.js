@@ -12,8 +12,8 @@ export const MARQUEE_ITEMS = [
 
 export const ECOSYSTEM_CARDS = [
   {
-    id: 'capital-access',
-    href: '/capital-access',
+    id: 'capital-access-and-grant-services',
+    href: '/capital-access-and-grant-services',
     className: 'c-a',
     photo: a('/assets/ca-hero.webp'),
     index: '01',
@@ -22,8 +22,8 @@ export const ECOSYSTEM_CARDS = [
       'Identify, apply for, and secure grants, incentives, and non-dilutive funding opportunities while building the operational readiness required for long-term growth.',
   },
   {
-    id: 'strategic-partnerships',
-    href: '/strategic-partnerships',
+    id: 'strategic-cxo-team',
+    href: '/strategic-cxo-team',
     className: 'c-b',
     photo: a('/assets/sp-ecosystem-card.webp'),
     index: '02',
@@ -42,9 +42,8 @@ export const ECOSYSTEM_CARDS = [
       'Where coaches, founders, and emerging entrepreneurs share knowledge, build capability, and find better direction through distinct learning communities.',
   },
   {
-    id: 'advanced-tech',
-    href: 'https://sugarandleather.ai/',
-    external: true,
+    id: 'innovation-and-advanced-tech',
+    href: '/innovation-and-advanced-tech',
     className: 'c-d',
     photo: a('/assets/photo-night-work.webp'),
     index: '04',
@@ -206,28 +205,53 @@ export const FOUNDERS = [
   {
     id: 'audrey',
     image: a('/assets/audrey.webp'),
-    tag: 'Founder & Purpose-Driven Coach',
+    tag: 'Heart, Humanity & Leadership',
     eyebrow: 'A note from our founder',
-    quote: 'The leaders I admire most were never the loudest. They stayed',
-    quoteHighlight: 'human',
-    quoteEnd: 'when the pressure said otherwise',
-    body:
-      'I built Sugar & Leather for leaders who refuse to choose between ambition and humanity. We coach the human and advise the strategy, because at this altitude the two cannot be separated.',
+    quote: 'The best leaders don’t lose themselves when success arrives. They become',
+    quoteHighlight: 'more themselves',
+    quoteEnd: '',
+    body: [
+      'I’ve spent my career helping people lead from a place of purpose instead of performance. Whether I’m coaching founders, executives, or emerging leaders, my work always begins with the human being behind the title.',
+      'Sugar & Leather was built on a simple belief: ambition should never cost you your values. The strongest organizations are created by leaders who know how to care deeply, make difficult decisions with compassion, and build cultures where people can do the best work of their lives.',
+      'I lead the human side of our work, executive coaching, leadership development, and the conversations that shape character long before they shape companies. Our commitment to service and community isn’t an initiative we added later; it’s the reason we built this company in the first place.',
+      'Because strategy can grow a business. Humanity builds a legacy.',
+    ],
     name: 'Audrey Cunningham-Jackson',
-    role: 'Founder & Purpose-Driven Coach',
+    role: 'Founder | Heart, Humanity & Leadership',
   },
   {
     id: 'troy',
     image: a('/assets/Troy.webp'),
-    tag: 'Founder & Visionary Leadership Head',
+    tag: 'Strategy, Systems & Innovation',
     eyebrow: 'A note from our founder',
-    quote: 'Strategy without judgment is just motion. The best operators know when to',
-    quoteHighlight: 'pause',
-    quoteEnd: 'before they scale',
-    body:
-      'I joined to build the systems that let leaders move faster without losing the plot — capital, partnerships, and technology wired to the same standard of care.',
+    quote: 'Every meaningful mission deserves an architecture',
+    quoteHighlight: 'strong enough',
+    quoteEnd: 'to carry it.',
+    breakBeforeHighlight: true,
+    body: [
+      'I build the systems behind bold ideas.',
+      'My background spans entrepreneurship, technology, AI, product development, and venture strategy, but I’ve never been interested in innovation for its own sake. The best technology doesn’t replace human judgment, it amplifies it.',
+      'At Sugar & Leather, I design the operating systems that allow leaders to scale without losing clarity. From AI implementation and strategic partnerships to capital strategy and organizational design, my role is turning vision into infrastructure that lasts.',
+      'While Audrey protects the heart of the organization, I build the engine that moves it forward. Together, we believe companies shouldn’t have to choose between human-centered leadership and world-class execution.',
+      'Because vision is only as powerful as the systems that make it real.',
+    ],
     name: 'Troy Cunningham-Jackson',
-    role: 'Founder & Visionary Leadership Head',
+    role: 'Founder | Strategy, Systems & Innovation',
+    press: {
+      label: 'Know More :',
+      links: [
+        {
+          name: 'The Real Edit',
+          href: 'https://therealedit.site/troy-cunningham/',
+          logo: a('/assets/press/the-real-edit.webp'),
+        },
+        {
+          name: 'The Entrepreneur Times',
+          href: 'https://theentrepreneur-times.com/troy-cunningham-jackson-redefining-leadership-in-the-age-of-ai-with-heart-and-purpose/',
+          logo: a('/assets/press/the-entrepreneur-times.webp'),
+        },
+      ],
+    },
   },
 ];
 

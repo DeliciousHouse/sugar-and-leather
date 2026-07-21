@@ -2,15 +2,15 @@ import { asset as a } from '../lib/asset';
 import { CAL_BOOKING_URL } from '../lib/links';
 
 export const ECOSYSTEM_SLUGS = [
-  'capital-access',
-  'strategic-partnerships',
+  'capital-access-and-grant-services',
+  'strategic-cxo-team',
   'aries-platform',
-  'advanced-tech',
+  'innovation-and-advanced-tech',
 ];
 
 export const ECOSYSTEM_PAGES = {
-  'capital-access': {
-    slug: 'capital-access',
+  'capital-access-and-grant-services': {
+    slug: 'capital-access-and-grant-services',
     num: '01',
     eyebrow: 'Capital access & grant services',
     name: 'Capital Access & Grant Services',
@@ -237,8 +237,8 @@ export const ECOSYSTEM_PAGES = {
       secondaryHref: '/#ecosystem',
     },
   },
-  'advanced-tech': {
-    slug: 'advanced-tech',
+  'innovation-and-advanced-tech': {
+    slug: 'innovation-and-advanced-tech',
     num: '04',
     eyebrow: 'Advanced tech & innovation',
     name: 'Advanced Tech & Innovation',

@@ -6,7 +6,7 @@ export const POD_SLUGS = ['marketing-pod', 'sales-pod', 'development-pod', 'recr
 export const POD_PAGES = {
   'marketing-pod': {
     slug: 'marketing-pod',
-    parentSlug: 'strategic-partnerships',
+    parentSlug: 'strategic-cxo-team',
     parentLabel: 'Strategic CXO team',
     eyebrow: 'Strategic CXO team · Marketing Pod',
     name: 'Marketing Pod',
@@ -147,7 +147,7 @@ export const POD_PAGES = {
   },
   'sales-pod': {
     slug: 'sales-pod',
-    parentSlug: 'strategic-partnerships',
+    parentSlug: 'strategic-cxo-team',
     parentLabel: 'Strategic CXO team',
     pageClass: 'pod-page--sales',
     eyebrow: 'Strategic CXO team · Sales Pod',
@@ -328,7 +328,7 @@ export const POD_PAGES = {
   },
   'development-pod': {
     slug: 'development-pod',
-    parentSlug: 'strategic-partnerships',
+    parentSlug: 'strategic-cxo-team',
     parentLabel: 'Strategic CXO team',
     pageClass: 'pod-page--development',
     eyebrow: 'Strategic CXO team · Development Pod',
@@ -575,7 +575,7 @@ export const POD_PAGES = {
   },
   'recruitment-pod': {
     slug: 'recruitment-pod',
-    parentSlug: 'strategic-partnerships',
+    parentSlug: 'strategic-cxo-team',
     parentLabel: 'Strategic CXO team',
     pageClass: 'pod-page--recruitment',
     eyebrow: 'Strategic CXO team · Recruitment Pod',

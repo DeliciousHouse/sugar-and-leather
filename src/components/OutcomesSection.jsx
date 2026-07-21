@@ -1,4 +1,3 @@
-import { Check } from 'lucide-react';
 import Eyebrow from './ui/Eyebrow';
 import Reveal from './ui/Reveal';
 import SplitText from './ui/SplitText';
@@ -18,8 +17,8 @@ export default function OutcomesSection({ section, tone = 'dark' }) {
         <ul className="outcomes-grid">
           {section.items.map((item, i) => (
             <Reveal as="li" className="outcome-card" key={item} delay={i % 6}>
-              <span className="outcome-icon" aria-hidden="true">
-                <Check size={18} strokeWidth={2} />
+              <span className="outcome-num" aria-hidden="true">
+                {String(i + 1).padStart(2, '0')}
               </span>
               <span className="outcome-text">{item}</span>
             </Reveal>

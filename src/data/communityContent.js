@@ -38,7 +38,7 @@ export const COMMUNITY = {
           'For coaches and people looking for guidance. A place where experienced coaches can share their work, and people can find expertise that fits the challenge in front of them.',
         cta: {
           label: 'Explore the Coaches Network',
-          href: 'https://sugarandleather.com/',
+          href: 'https://coaching.sugarandleather.com/',
           external: true,
         },
         icon: 'Users',
@@ -98,7 +98,7 @@ export const COMMUNITY = {
       ],
       cta: {
         label: 'Explore the Coaches Network',
-        href: 'https://sugarandleather.com/',
+        href: 'https://coaching.sugarandleather.com/',
         external: true,
       },
     },

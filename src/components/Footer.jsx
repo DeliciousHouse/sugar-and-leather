@@ -4,14 +4,10 @@ import { asset, hashHref } from '../lib/asset';
 
 const FOOTER_LINKS = {
   ecosystem: [
-    { href: '/capital-access', label: 'Capital Access', route: true },
-    { href: '/strategic-partnerships', label: 'Strategic CXO team', route: true },
+    { href: '/capital-access-and-grant-services', label: 'Capital Access', route: true },
+    { href: '/strategic-cxo-team', label: 'Strategic CXO team', route: true },
     { href: '/community', label: 'Community', route: true },
-    {
-      href: 'https://sugarandleather.ai/',
-      label: 'Innovation & Advanced Tech',
-      external: true,
-    },
+    { href: '/innovation-and-advanced-tech', label: 'Innovation & Advanced Tech', route: true },
   ],
   connect: [
     { href: '/inquiry', label: 'Inquiry', route: true },

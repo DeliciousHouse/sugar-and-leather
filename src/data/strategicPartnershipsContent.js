@@ -2,7 +2,7 @@ import { asset as a } from '../lib/asset';
 import { CAL_BOOKING_URL, HOW_IT_WORKS_HASH } from '../lib/links';
 
 export const STRATEGIC_PARTNERSHIPS = {
-  slug: 'strategic-partnerships',
+  slug: 'strategic-cxo-team',
   eyebrow: 'Strategic CXO team',
   name: 'Strategic CXO team',
   heroTitle: 'A Strategic CXO team',
@@ -21,20 +21,47 @@ export const STRATEGIC_PARTNERSHIPS = {
   experienceBackedBy: {
     label: 'Experience Backed By',
     companies: [
-      'State of Missouri — DOL',
-      'Verizon',
-      'Robert Half',
-      'JPMorgan Chase',
-      'Visa',
-      'PayPal',
-      'Salesforce',
-      'IBM',
-      'Autodesk',
-      'Microsoft',
-      'Wells Fargo',
-      'Compass Health',
-      'Google',
-      'Experian',
+      {
+        name: 'Missouri DOL',
+        mark: a('/assets/logos/missouri-dol.webp'),
+      },
+      {
+        name: 'Verizon',
+        logo: a('/assets/logos/verizon.webp'),
+        compact: true,
+      },
+      {
+        name: 'Robert Half',
+        logo: a('/assets/logos/roberthalf.webp'),
+      },
+      {
+        name: 'JPMorgan Chase',
+        logo: a('/assets/logos/jpmorganchase.webp'),
+      },
+      { name: 'Visa', logo: a('/assets/logos/visa.webp') },
+      {
+        name: 'PayPal',
+        mark: a('/assets/logos/paypal-icon.webp'),
+        wordmark: a('/assets/logos/paypal-wordmark.webp'),
+      },
+      { name: 'Salesforce', logo: a('/assets/logos/salesforce.webp') },
+      { name: 'IBM', logo: a('/assets/logos/ibm.webp'), compact: true },
+      { name: 'Autodesk', logo: a('/assets/logos/autodesk.webp') },
+      { name: 'Microsoft', logo: a('/assets/logos/microsoft.webp'), compact: true },
+      {
+        name: 'Wells Fargo',
+        mark: a('/assets/logos/wellsfargo.webp'),
+      },
+      { name: 'Compass Health', logo: a('/assets/logos/compasshealth.webp') },
+      {
+        name: 'Google',
+        logo: a('/assets/logos/google.webp'),
+        compact: true,
+      },
+      {
+        name: 'Experian',
+        logo: a('/assets/logos/experian.webp'),
+      },
     ],
   },
   whatIs: {
@@ -106,7 +133,7 @@ export const STRATEGIC_PARTNERSHIPS = {
           'Performance Reporting',
         ],
         icon: 'Megaphone',
-        href: '/strategic-partnerships/marketing-pod',
+        href: '/strategic-cxo-team/marketing-pod',
       },
       {
         title: 'Sales Pod',
@@ -120,7 +147,7 @@ export const STRATEGIC_PARTNERSHIPS = {
           'Sales Enablement',
         ],
         icon: 'Handshake',
-        href: '/strategic-partnerships/sales-pod',
+        href: '/strategic-cxo-team/sales-pod',
       },
       {
         title: 'Development Pod',
@@ -134,7 +161,7 @@ export const STRATEGIC_PARTNERSHIPS = {
           'Platform Development',
         ],
         icon: 'Code2',
-        href: '/strategic-partnerships/development-pod',
+        href: '/strategic-cxo-team/development-pod',
       },
       {
         title: 'Recruitment Pod',
@@ -148,7 +175,7 @@ export const STRATEGIC_PARTNERSHIPS = {
           'Team Scaling',
         ],
         icon: 'UserPlus',
-        href: '/strategic-partnerships/recruitment-pod',
+        href: '/strategic-cxo-team/recruitment-pod',
       },
     ],
   },
@@ -195,6 +222,59 @@ export const STRATEGIC_PARTNERSHIPS = {
       'Sustainable business growth',
     ],
   },
+  faqTitle: 'Questions about the Strategic CXO team',
+  faq: [
+    {
+      question: 'What is a fractional CXO?',
+      answer:
+        'A fractional CXO is an experienced executive who works with your business on a part-time, project, or retainer basis. You receive strategic leadership, decision-making, and execution support without hiring a full-time executive.',
+    },
+    {
+      question: 'How is a Strategic CXO team different from consulting?',
+      answer:
+        'Consultants primarily provide recommendations. Our Strategic CXO team becomes part of your leadership structure, helps make decisions, guides execution, mentors internal teams, and remains accountable for outcomes.',
+    },
+    {
+      question: 'Which businesses benefit most from fractional executive leadership?',
+      answer:
+        'Startups, growing companies, family-owned businesses, and organizations preparing to scale often benefit most. Fractional CXO leadership provides senior expertise while keeping cost and commitment flexible.',
+    },
+    {
+      question: 'Do I hire one executive or a full CXO team?',
+      answer:
+        'Either. You can engage a single executive for a focused need, or assemble a coordinated Strategic CXO team. When multiple leaders are engaged, they operate as one aligned team so strategy and execution stay connected.',
+    },
+    {
+      question: 'How long do Strategic CXO engagements last?',
+      answer:
+        'Engagements range from short project-based initiatives to ongoing monthly retainers and interim leadership during transitions. Time commitment is customized to your goals and can expand or contract as the business evolves.',
+    },
+    {
+      question: 'Will fractional CXOs work with our existing team and leadership meetings?',
+      answer:
+        'Yes. They collaborate with, mentor, and guide internal teams, and can join executive meetings, planning sessions, board discussions, and investor updates whenever it strengthens decision-making.',
+    },
+    {
+      question: 'How do you determine which CXO role we need?',
+      answer:
+        'We begin with a business assessment of your challenges, growth stage, and current capabilities, then recommend the executive role or team structure that will create the greatest impact.',
+    },
+    {
+      question: 'What industries does the Strategic CXO team support?',
+      answer:
+        'The model is adaptable across industries. Engagements focus on leadership, strategy, operations, and execution tailored to your market, stage, and growth objectives.',
+    },
+    {
+      question: 'How does AI support the Strategic CXO team?',
+      answer:
+        'AI accelerates research, reporting, planning, and analysis. Final decisions, relationship-building, accountability, and leadership remain with experienced human executives. AI is a productivity tool, not a replacement for judgment.',
+    },
+    {
+      question: 'What outcomes should we expect from a Strategic CXO engagement?',
+      answer:
+        'Results vary by engagement, but commonly include clearer strategy, stronger operations, better financial and commercial planning, faster execution, greater team alignment, and more sustainable growth.',
+    },
+  ],
   cta: {
     title: 'Build faster with',
     highlight: 'the right partner',

@@ -47,7 +47,7 @@ export default function PodPage() {
       ) : (
         <ExpertiseSection expertise={pod.expertise} tone="dark" />
       )}
-      <ProcessSection process={pod.process} tone="light" />
+      <ProcessSection process={pod.process} tone="light" variant="flow" />
       <ContentSection section={model} tone="dark" />
       {pod.whoThisIsFor ? <ContentSection section={pod.whoThisIsFor} tone="light" /> : null}
       <FAQSection

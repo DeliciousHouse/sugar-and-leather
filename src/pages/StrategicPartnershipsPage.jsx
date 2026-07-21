@@ -6,8 +6,8 @@ import ProcessSection from '../components/ProcessSection';
 import ExpertiseSection from '../components/ExpertiseSection';
 import PodsDetailSection from '../components/PodsDetailSection';
 import PartnerFitSection from '../components/PartnerFitSection';
-import EngagementModelsSection from '../components/EngagementModelsSection';
 import OutcomesSection from '../components/OutcomesSection';
+import FAQSection from '../components/FAQSection';
 import CTA from '../components/CTA';
 
 export default function StrategicPartnershipsPage() {
@@ -44,8 +44,15 @@ export default function StrategicPartnershipsPage() {
       />
       <PodsDetailSection pods={page.pods} tone="light" />
       <PartnerFitSection section={page.idealPartners} tone="dark" />
-      <EngagementModelsSection models={page.engagementModels} tone="light" />
-      <OutcomesSection section={page.outcomes} tone="dark" />
+      <OutcomesSection section={page.outcomes} tone="light" />
+      <FAQSection
+        items={page.faq}
+        eyebrow="Strategic CXO team · FAQ"
+        title={page.faqTitle}
+        maxim={null}
+        id={`${page.slug}-faq`}
+        tone="dark"
+      />
       <CTA {...page.cta} />
     </div>
   );
