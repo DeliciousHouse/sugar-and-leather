@@ -33,13 +33,19 @@ ssh-keygen -t ed25519 -C "github-actions-deploy" -f deploy_key -N ""
 
 ### 2. Make sure the repo is checked out on the VM
 
-The workflow expects a git checkout at `DEPLOY_PATH` whose `origin` is this repo, e.g.:
+The workflow expects a git checkout at `DEPLOY_PATH` whose `origin` is this repo. The
+checkout must be **owned by `DEPLOY_USER`** — the workflow runs `git reset --hard` and the
+deploy script as that user, so a root-owned checkout (e.g. from `sudo git clone`) will fail
+with permission errors. Create it owned by the deploy user:
 
 ```bash
-sudo git clone https://github.com/DeliciousHouse/sugar-and-leather.git /srv/sugar-and-leather
+# Run as DEPLOY_USER, or chown the directory to DEPLOY_USER afterwards.
+sudo mkdir -p /srv/sugar-and-leather
+sudo chown "$(id -un):$(id -gn)" /srv/sugar-and-leather   # make DEPLOY_USER the owner
+git clone https://github.com/DeliciousHouse/sugar-and-leather.git /srv/sugar-and-leather
 ```
 
-The SSH user must be able to run `docker` (typically by being in the `docker` group).
+The SSH user must also be able to run `docker` (typically by being in the `docker` group).
 
 ### 3. Add repository secrets
 
@@ -51,16 +57,18 @@ The SSH user must be able to run `docker` (typically by being in the `docker` gr
 | `DEPLOY_USER` | ✅ | SSH user (must be able to run `docker`) |
 | `DEPLOY_SSH_KEY` | ✅ | Contents of the private `deploy_key` |
 | `DEPLOY_PATH` | ✅ | Absolute path to the checkout on the VM, e.g. `/srv/sugar-and-leather` |
+| `DEPLOY_KNOWN_HOSTS` | ✅ | VM SSH host key(s), so each run verifies the server and can't be MITM'd |
 | `DEPLOY_PORT` | optional | SSH port (defaults to `22`) |
-| `DEPLOY_KNOWN_HOSTS` | recommended | VM host key(s) so SSH can verify the server |
 
-Get `DEPLOY_KNOWN_HOSTS` with:
+Get `DEPLOY_KNOWN_HOSTS` by running this from a trusted network (ideally on the VM itself):
 
 ```bash
 ssh-keyscan -H your.vm.host        # add -p PORT if not on 22
 ```
 
-If you omit it, the workflow falls back to trust-on-first-connect and logs a warning.
+It's required: the workflow uses strict host-key checking and fails preflight if it's
+missing. There is intentionally no `ssh-keyscan` fallback in CI — runners are ephemeral, so
+scanning at deploy time would re-trust the host blindly every run and provide no protection.
 
 **Optional repository variable** (Variables tab, not Secrets): `HEALTHCHECK_URL` — defaults
 to `https://sugarandleather.com/`.

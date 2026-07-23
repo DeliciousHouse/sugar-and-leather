@@ -10,9 +10,10 @@ name: Deploy to production
 #   DEPLOY_USER         SSH user (must be able to run docker — e.g. in the `docker` group)
 #   DEPLOY_SSH_KEY      private SSH key authorized on the VM for DEPLOY_USER
 #   DEPLOY_PATH         absolute path to the repo checkout on the VM (e.g. /srv/sugar-and-leather)
+#   DEPLOY_KNOWN_HOSTS  VM's SSH host key(s), so SSH can verify the server and prevent MITM
+#                       (get it with `ssh-keyscan -H <host>`; see deploy/README.md)
 # Optional:
 #   DEPLOY_PORT         SSH port (defaults to 22)
-#   DEPLOY_KNOWN_HOSTS  VM's SSH host key(s) for verification (recommended; see deploy/README.md)
 # Optional repository variable:
 #   HEALTHCHECK_URL     URL to verify after deploy (defaults to https://sugarandleather.com/)
 #
@@ -28,6 +29,11 @@ concurrency:
   group: production-deploy
   cancel-in-progress: false
 
+# This workflow deploys over SSH and never calls the GitHub API, so the job's
+# GITHUB_TOKEN needs no permissions. Least privilege limits blast radius since
+# the job also handles an SSH deploy key.
+permissions: {}
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -38,12 +44,14 @@ jobs:
           DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
           DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
           DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+          DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
         run: |
           missing=()
-          [ -z "$DEPLOY_HOST" ]    && missing+=(DEPLOY_HOST)
-          [ -z "$DEPLOY_USER" ]    && missing+=(DEPLOY_USER)
-          [ -z "$DEPLOY_SSH_KEY" ] && missing+=(DEPLOY_SSH_KEY)
-          [ -z "$DEPLOY_PATH" ]    && missing+=(DEPLOY_PATH)
+          [ -z "$DEPLOY_HOST" ]        && missing+=(DEPLOY_HOST)
+          [ -z "$DEPLOY_USER" ]        && missing+=(DEPLOY_USER)
+          [ -z "$DEPLOY_SSH_KEY" ]     && missing+=(DEPLOY_SSH_KEY)
+          [ -z "$DEPLOY_PATH" ]        && missing+=(DEPLOY_PATH)
+          [ -z "$DEPLOY_KNOWN_HOSTS" ] && missing+=(DEPLOY_KNOWN_HOSTS)
           if [ ${#missing[@]} -ne 0 ]; then
             echo "::error::Missing required secret(s): ${missing[*]}. See deploy/README.md for setup."
             exit 1
@@ -66,12 +74,11 @@ jobs:
           printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
 
-          if [ -n "${DEPLOY_KNOWN_HOSTS:-}" ]; then
-            printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > ~/.ssh/known_hosts
-          else
-            echo "::warning::DEPLOY_KNOWN_HOSTS not set — trusting the VM host key on first connect (TOFU). Set it to pin the host key; see deploy/README.md."
-            ssh-keyscan -p "$port" -H "$DEPLOY_HOST" > ~/.ssh/known_hosts 2>/dev/null
-          fi
+          # DEPLOY_KNOWN_HOSTS is required (verified in preflight) so every run
+          # verifies the VM's host key. We deliberately do NOT fall back to
+          # ssh-keyscan: runners are ephemeral, so a keyscan would re-trust the
+          # host blindly on every deploy — no MITM protection at all.
+          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > ~/.ssh/known_hosts
           chmod 644 ~/.ssh/known_hosts
 
           # Sync the checkout to the just-merged commit, then run the deploy script
@@ -80,6 +87,7 @@ jobs:
           ssh -i ~/.ssh/deploy_key \
               -o IdentitiesOnly=yes \
               -o UserKnownHostsFile=~/.ssh/known_hosts \
+              -o StrictHostKeyChecking=yes \
               -p "$port" \
               "$DEPLOY_USER@$DEPLOY_HOST" \
               "set -euo pipefail; cd '$DEPLOY_PATH'; git fetch --prune origin; git checkout main; git reset --hard origin/main; bash deploy/deploy.sh"
