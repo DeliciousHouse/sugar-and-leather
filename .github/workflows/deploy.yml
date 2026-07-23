@@ -1,0 +1,104 @@
+name: Deploy to production
+
+# Production is served by the Caddy Docker container on the VM at sugarandleather.com.
+# A push to `main` does NOT update the live site on its own — this workflow is what
+# reconnects "merge to main" to an actual deploy: it SSHes into the VM, syncs the repo
+# to the merged commit, and rebuilds/restarts the container via deploy/deploy.sh.
+#
+# Required repository secrets (Settings → Secrets and variables → Actions):
+#   DEPLOY_HOST         hostname or IP of the VM
+#   DEPLOY_USER         SSH user (must be able to run docker — e.g. in the `docker` group)
+#   DEPLOY_SSH_KEY      private SSH key authorized on the VM for DEPLOY_USER
+#   DEPLOY_PATH         absolute path to the repo checkout on the VM (e.g. /srv/sugar-and-leather)
+# Optional:
+#   DEPLOY_PORT         SSH port (defaults to 22)
+#   DEPLOY_KNOWN_HOSTS  VM's SSH host key(s) for verification (recommended; see deploy/README.md)
+# Optional repository variable:
+#   HEALTHCHECK_URL     URL to verify after deploy (defaults to https://sugarandleather.com/)
+#
+# See deploy/README.md for one-time VM setup.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+# Never let two production deploys run at once; let an in-flight deploy finish.
+concurrency:
+  group: production-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify required secrets are configured
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+        run: |
+          missing=()
+          [ -z "$DEPLOY_HOST" ]    && missing+=(DEPLOY_HOST)
+          [ -z "$DEPLOY_USER" ]    && missing+=(DEPLOY_USER)
+          [ -z "$DEPLOY_SSH_KEY" ] && missing+=(DEPLOY_SSH_KEY)
+          [ -z "$DEPLOY_PATH" ]    && missing+=(DEPLOY_PATH)
+          if [ ${#missing[@]} -ne 0 ]; then
+            echo "::error::Missing required secret(s): ${missing[*]}. See deploy/README.md for setup."
+            exit 1
+          fi
+
+      - name: Deploy over SSH
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_PORT: ${{ secrets.DEPLOY_PORT }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+          DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+        run: |
+          set -euo pipefail
+          port="${DEPLOY_PORT:-22}"
+
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+
+          if [ -n "${DEPLOY_KNOWN_HOSTS:-}" ]; then
+            printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          else
+            echo "::warning::DEPLOY_KNOWN_HOSTS not set — trusting the VM host key on first connect (TOFU). Set it to pin the host key; see deploy/README.md."
+            ssh-keyscan -p "$port" -H "$DEPLOY_HOST" > ~/.ssh/known_hosts 2>/dev/null
+          fi
+          chmod 644 ~/.ssh/known_hosts
+
+          # Sync the checkout to the just-merged commit, then run the deploy script
+          # that lives in the repo. Path is single-quoted for the remote shell so
+          # paths with spaces are handled safely.
+          ssh -i ~/.ssh/deploy_key \
+              -o IdentitiesOnly=yes \
+              -o UserKnownHostsFile=~/.ssh/known_hosts \
+              -p "$port" \
+              "$DEPLOY_USER@$DEPLOY_HOST" \
+              "set -euo pipefail; cd '$DEPLOY_PATH'; git fetch --prune origin; git checkout main; git reset --hard origin/main; bash deploy/deploy.sh"
+
+      - name: Verify the site is serving after deploy
+        env:
+          HEALTHCHECK_URL: ${{ vars.HEALTHCHECK_URL }}
+        run: |
+          set -euo pipefail
+          url="${HEALTHCHECK_URL:-https://sugarandleather.com/}"
+          echo "Checking $url for HTTP 200..."
+          for attempt in 1 2 3 4 5; do
+            code="$(curl -sS -o /dev/null -w '%{http_code}' --max-time 20 "$url" || echo 000)"
+            echo "Attempt $attempt: HTTP $code"
+            if [ "$code" = "200" ]; then
+              echo "Site is up."
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "::error::$url did not return HTTP 200 after the deploy. Check the container on the VM."
+          exit 1
