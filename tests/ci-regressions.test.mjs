@@ -65,8 +65,13 @@ function runChangedQuality(cwd) {
 }
 
 function runCanonicalVerify(typeCheckCwd) {
-  const npmCli = path.join(path.dirname(process.execPath), 'node_modules', 'npm', 'bin', 'npm-cli.js');
-  return spawnSync(process.execPath, [npmCli, 'run', 'verify'], {
+  const npmCli = process.env.npm_execpath
+    ?? (process.platform === 'win32'
+      ? path.join(path.dirname(process.execPath), 'node_modules', 'npm', 'bin', 'npm-cli.js')
+      : null);
+  const command = npmCli ? process.execPath : 'npm';
+  const args = npmCli ? [npmCli, 'run', 'verify'] : ['run', 'verify'];
+  return spawnSync(command, args, {
     cwd: repoRoot,
     encoding: 'utf8',
     env: { ...process.env, TYPECHECK_CWD: typeCheckCwd },
