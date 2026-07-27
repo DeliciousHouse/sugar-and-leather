@@ -31,7 +31,7 @@ describe('CI workflow', () => {
     expect(workflow.on.pull_request.branches).toEqual(['main']);
     expect(workflow.on.push.branches).toEqual(['main']);
     expect(workflow.concurrency.group).toContain('github.workflow');
-    expect(workflow.concurrency['cancel-in-progress']).toBe(true);
+    expect(workflow.concurrency['cancel-in-progress']).toBe("${{ github.event_name == 'pull_request' }}");
     expect(job.name).toBe('Verify');
     expect(job['timeout-minutes']).toBeGreaterThan(0);
 

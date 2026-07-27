@@ -1,4 +1,5 @@
 import { execFileSync } from 'node:child_process';
+import { readdirSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { ESLint } from 'eslint';
@@ -6,18 +7,6 @@ import ts from 'typescript';
 
 const SOURCE_FILE = /\.(?:[cm]?[jt]s|[jt]sx)$/i;
 const ZERO_SHA = /^0+$/;
-
-/**
- * @param {string} file
- * @param {string} cwd
- */
-function typeScriptConfigName(file, cwd) {
-  const relativePath = path.relative(cwd, path.resolve(cwd, file));
-  const [topLevelDirectory] = relativePath.split(path.sep);
-  if (topLevelDirectory === 'src') return 'tsconfig.json';
-  if (topLevelDirectory === 'tests') return 'tsconfig.test.json';
-  return 'tsconfig.node.json';
-}
 
 /**
  * @typedef {object} LintContext
@@ -95,19 +84,34 @@ export function resolveDiffRange({ args = [], env = process.env, cwd = process.c
 
 /**
  * @param {string} range
- * @param {{ cwd?: string }} [options]
+ * @param {{ cwd?: string, includeWorkingTree?: boolean }} [options]
  */
-export function changedSourceFiles(range, { cwd = process.cwd() } = {}) {
-  const output = execFileSync(
-    'git',
+export function changedSourceFiles(
+  range,
+  { cwd = process.cwd(), includeWorkingTree = false } = {},
+) {
+  const commands = [
     ['diff', '--name-only', '--diff-filter=ACMR', '-z', range, '--'],
-    { cwd, encoding: 'utf8' },
-  );
+  ];
+  if (includeWorkingTree) {
+    commands.push(
+      ['diff', '--name-only', '--diff-filter=ACMR', '-z', '--cached', '--'],
+      ['diff', '--name-only', '--diff-filter=ACMR', '-z', '--'],
+      ['ls-files', '--others', '--exclude-standard', '-z', '--'],
+    );
+  }
 
-  return output
-    .split('\0')
-    .filter(Boolean)
-    .filter((file) => SOURCE_FILE.test(file));
+  const files = new Set();
+  for (const args of commands) {
+    const output = execFileSync('git', args, { cwd, encoding: 'utf8' });
+    output
+      .split('\0')
+      .filter(Boolean)
+      .filter((file) => SOURCE_FILE.test(file))
+      .forEach((file) => files.add(file));
+  }
+
+  return [...files].sort();
 }
 
 /**
@@ -201,6 +205,25 @@ function createTypeScriptProgram(parsedConfig, sourceOverrides = new Map()) {
 }
 
 /**
+ * @param {ts.SourceFile} sourceFile
+ */
+function containsAmbientContract(sourceFile) {
+  if (sourceFile.isDeclarationFile) return true;
+
+  let containsGlobalAugmentation = false;
+  /** @param {ts.Node} node */
+  const visit = (node) => {
+    if (ts.isModuleDeclaration(node) && (node.flags & ts.NodeFlags.GlobalAugmentation) !== 0) {
+      containsGlobalAugmentation = true;
+      return;
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(sourceFile);
+  return containsGlobalAugmentation;
+}
+
+/**
  * @param {ts.Program} program
  * @param {string[]} changedFiles
  * @param {string} cwd
@@ -236,6 +259,18 @@ function diagnosticsForChangedPrograms(program, changedFiles, cwd) {
   const affectedFiles = new Set(
     changedFiles.map((file) => canonicalPath(path.resolve(cwd, file))),
   );
+  const ambientContractChanged = changedFiles.some((file) => {
+    const sourceFile = program.getSourceFile(path.resolve(cwd, file));
+    return sourceFile ? containsAmbientContract(sourceFile) : false;
+  });
+  if (ambientContractChanged) {
+    for (const sourceFile of program.getSourceFiles()) {
+      const relativePath = path.relative(cwd, sourceFile.fileName);
+      if (!relativePath.startsWith('..') && !path.isAbsolute(relativePath)) {
+        affectedFiles.add(canonicalPath(sourceFile.fileName));
+      }
+    }
+  }
   const pendingFiles = [...affectedFiles];
   while (pendingFiles.length > 0) {
     const dependency = pendingFiles.pop();
@@ -289,6 +324,44 @@ function comparisonBase(range) {
 }
 
 /**
+ * @param {string} configName
+ * @param {string} cwd
+ */
+function parseTypeScriptConfig(configName, cwd) {
+  const configPath = path.join(cwd, configName);
+  const configFile = ts.readConfigFile(configPath, ts.sys.readFile);
+  if (configFile.error) {
+    throw new Error(
+      `Cannot read ${configName}:\n${formatTypeScriptDiagnostics([configFile.error], cwd)}`,
+    );
+  }
+
+  const parsedConfig = ts.parseJsonConfigFileContent(
+    configFile.config,
+    ts.sys,
+    cwd,
+    { noEmit: true },
+    configPath,
+  );
+  if (parsedConfig.errors.length > 0) {
+    throw new Error(
+      `Invalid ${configName}:\n${formatTypeScriptDiagnostics(parsedConfig.errors, cwd)}`,
+    );
+  }
+  return parsedConfig;
+}
+
+/**
+ * @param {string} cwd
+ */
+function typeScriptConfigNames(cwd) {
+  return readdirSync(cwd, { withFileTypes: true })
+    .filter((entry) => entry.isFile() && /^tsconfig(?:\..+)?\.json$/i.test(entry.name))
+    .map((entry) => entry.name)
+    .sort();
+}
+
+/**
  * @param {string[]} files
  * @param {{ baselineRef?: string, cwd?: string }} [options]
  * @returns {Promise<readonly ts.Diagnostic[]>}
@@ -296,43 +369,19 @@ function comparisonBase(range) {
 export async function typeCheckFiles(files, { baselineRef, cwd = process.cwd() } = {}) {
   if (files.length === 0) return [];
 
-  /** @type {Map<string, string[]>} */
-  const filesByConfig = new Map();
-  files.forEach((file) => {
-    const configName = typeScriptConfigName(file, cwd);
-    const configFiles = filesByConfig.get(configName) ?? [];
-    configFiles.push(file);
-    filesByConfig.set(configName, configFiles);
-  });
-
   const diagnostics = [];
-  for (const [configName, configFiles] of filesByConfig) {
-    const configPath = ts.findConfigFile(cwd, ts.sys.fileExists, configName);
-    if (!configPath) {
-      throw new Error(`Cannot find ${configName} from ${cwd}`);
-    }
-
-    const configFile = ts.readConfigFile(configPath, ts.sys.readFile);
-    if (configFile.error) {
-      throw new Error(
-        `Cannot read ${configName}:\n${formatTypeScriptDiagnostics([configFile.error], cwd)}`,
-      );
-    }
-
-    const parsedConfig = ts.parseJsonConfigFileContent(
-      configFile.config,
-      ts.sys,
-      cwd,
-      { noEmit: true },
-      configPath,
-    );
-    if (parsedConfig.errors.length > 0) {
-      throw new Error(
-        `Invalid ${configName}:\n${formatTypeScriptDiagnostics(parsedConfig.errors, cwd)}`,
-      );
-    }
-
+  const representedFiles = new Set();
+  for (const configName of typeScriptConfigNames(cwd)) {
+    const parsedConfig = parseTypeScriptConfig(configName, cwd);
     const program = createTypeScriptProgram(parsedConfig);
+    const configFiles = files.filter((file) => {
+      const sourceFile = program.getSourceFile(path.resolve(cwd, file));
+      if (!sourceFile) return false;
+      representedFiles.add(canonicalPath(sourceFile.fileName));
+      return true;
+    });
+    if (configFiles.length === 0) continue;
+
     let changedProgramDiagnostics = diagnosticsForChangedPrograms(program, configFiles, cwd);
 
     if (baselineRef) {
@@ -356,13 +405,25 @@ export async function typeCheckFiles(files, { baselineRef, cwd = process.cwd() }
     diagnostics.push(...changedProgramDiagnostics);
   }
 
-  if (diagnostics.length > 0) {
+  const missingFiles = files.filter(
+    (file) => !representedFiles.has(canonicalPath(path.resolve(cwd, file))),
+  );
+  if (missingFiles.length > 0) {
     throw new Error(
-      `TypeScript reported issues in changed source files:\n${formatTypeScriptDiagnostics(diagnostics, cwd)}`,
+      `Changed source files are not covered by a TypeScript config:\n${missingFiles.join('\n')}`,
     );
   }
 
-  return diagnostics;
+  const uniqueDiagnostics = [...new Map(
+    diagnostics.map((diagnostic) => [diagnosticKey(diagnostic), diagnostic]),
+  ).values()];
+  if (uniqueDiagnostics.length > 0) {
+    throw new Error(
+      `TypeScript reported issues in changed source files:\n${formatTypeScriptDiagnostics(uniqueDiagnostics, cwd)}`,
+    );
+  }
+
+  return uniqueDiagnostics;
 }
 
 /**
@@ -378,7 +439,10 @@ export async function qualityFiles(files, options = {}) {
 /** @param {LintContext} [context] */
 export async function main({ args = process.argv.slice(2), env = process.env, cwd = process.cwd() } = {}) {
   const range = resolveDiffRange({ args, env, cwd });
-  const files = changedSourceFiles(range, { cwd });
+  const files = changedSourceFiles(range, {
+    cwd,
+    includeWorkingTree: env.GITHUB_ACTIONS !== 'true',
+  });
 
   if (files.length === 0) {
     console.log(`No changed JavaScript or TypeScript files in ${range}.`);

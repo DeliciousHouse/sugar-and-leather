@@ -1,6 +1,6 @@
 // @vitest-environment node
 
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import { mkdtemp, mkdir, rm, unlink, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
@@ -167,6 +167,161 @@ describe('diff-scoped lint guard', () => {
     );
   });
 
+  it('fails when a changed source API breaks an unchanged consumer in another TypeScript config', async () => {
+    const fixtureDirectory = await mkdtemp(path.join(os.tmpdir(), 'type-guard-'));
+    fixtureDirectories.push(fixtureDirectory);
+    const sourceDirectory = path.join(fixtureDirectory, 'src');
+    const testDirectory = path.join(fixtureDirectory, 'tests');
+    const sharedPath = path.join(sourceDirectory, 'shared.ts');
+    await mkdir(sourceDirectory);
+    await mkdir(testDirectory);
+    await writeFile(
+      path.join(fixtureDirectory, 'tsconfig.json'),
+      JSON.stringify({
+        compilerOptions: {
+          module: 'ESNext',
+          moduleResolution: 'Bundler',
+          noEmit: true,
+          strict: true,
+          target: 'ES2022',
+          types: [],
+        },
+        include: ['src'],
+      }),
+      'utf8',
+    );
+    await writeFile(
+      path.join(fixtureDirectory, 'tsconfig.test.json'),
+      JSON.stringify({
+        extends: './tsconfig.json',
+        include: ['tests'],
+      }),
+      'utf8',
+    );
+    await writeFile(
+      sharedPath,
+      'export function parseValue(value: number) { return value; }\n',
+      'utf8',
+    );
+    await writeFile(
+      path.join(testDirectory, 'consumer.test.ts'),
+      'import { parseValue } from "../src/shared";\nexport const parsed = parseValue(42);\n',
+      'utf8',
+    );
+    git(fixtureDirectory, 'init', '--initial-branch=main');
+    git(fixtureDirectory, 'config', 'core.autocrlf', 'false');
+    git(fixtureDirectory, 'config', 'user.email', 'ci@example.com');
+    git(fixtureDirectory, 'config', 'user.name', 'CI Test');
+    git(fixtureDirectory, 'add', '.');
+    git(fixtureDirectory, 'commit', '-m', 'baseline');
+    await writeFile(
+      sharedPath,
+      'export function parseValue(value: string) { return value; }\n',
+      'utf8',
+    );
+
+    await expect(changedQuality.typeCheckFiles(['src/shared.ts'], {
+      baselineRef: 'HEAD',
+      cwd: fixtureDirectory,
+    })).rejects.toThrow(
+      /TypeScript reported issues in changed source files:[\s\S]*consumer\.test\.ts[\s\S]*not assignable to parameter of type 'string'/,
+    );
+  });
+
+  it('fails when a changed declaration file breaks an unchanged ambient consumer', async () => {
+    const fixtureDirectory = await mkdtemp(path.join(os.tmpdir(), 'type-guard-'));
+    fixtureDirectories.push(fixtureDirectory);
+    const sourceDirectory = path.join(fixtureDirectory, 'src');
+    const declarationPath = path.join(sourceDirectory, 'contract.d.ts');
+    await mkdir(sourceDirectory);
+    await writeFile(
+      path.join(fixtureDirectory, 'tsconfig.json'),
+      JSON.stringify({
+        compilerOptions: {
+          module: 'ESNext',
+          moduleResolution: 'Bundler',
+          noEmit: true,
+          strict: true,
+          target: 'ES2022',
+          types: [],
+        },
+        include: ['src'],
+      }),
+      'utf8',
+    );
+    await writeFile(declarationPath, 'declare const featureCount: number;\n', 'utf8');
+    await writeFile(
+      path.join(sourceDirectory, 'consumer.ts'),
+      'export const formatted = featureCount.toFixed(2);\n',
+      'utf8',
+    );
+    git(fixtureDirectory, 'init', '--initial-branch=main');
+    git(fixtureDirectory, 'config', 'core.autocrlf', 'false');
+    git(fixtureDirectory, 'config', 'user.email', 'ci@example.com');
+    git(fixtureDirectory, 'config', 'user.name', 'CI Test');
+    git(fixtureDirectory, 'add', '.');
+    git(fixtureDirectory, 'commit', '-m', 'baseline');
+    await writeFile(declarationPath, 'declare const featureCount: string;\n', 'utf8');
+
+    await expect(changedQuality.typeCheckFiles(['src/contract.d.ts'], {
+      baselineRef: 'HEAD',
+      cwd: fixtureDirectory,
+    })).rejects.toThrow(
+      /TypeScript reported issues in changed source files:[\s\S]*consumer\.ts[\s\S]*Property 'toFixed' does not exist on type 'string'/,
+    );
+  });
+
+  it('fails when a changed declare-global module breaks an unchanged ambient consumer', async () => {
+    const fixtureDirectory = await mkdtemp(path.join(os.tmpdir(), 'type-guard-'));
+    fixtureDirectories.push(fixtureDirectory);
+    const sourceDirectory = path.join(fixtureDirectory, 'src');
+    const declarationPath = path.join(sourceDirectory, 'contract.ts');
+    await mkdir(sourceDirectory);
+    await writeFile(
+      path.join(fixtureDirectory, 'tsconfig.json'),
+      JSON.stringify({
+        compilerOptions: {
+          module: 'ESNext',
+          moduleResolution: 'Bundler',
+          noEmit: true,
+          strict: true,
+          target: 'ES2022',
+          types: [],
+        },
+        include: ['src'],
+      }),
+      'utf8',
+    );
+    await writeFile(
+      declarationPath,
+      'export {};\ndeclare global { const featureCount: number; }\n',
+      'utf8',
+    );
+    await writeFile(
+      path.join(sourceDirectory, 'consumer.ts'),
+      'export const formatted = featureCount.toFixed(2);\n',
+      'utf8',
+    );
+    git(fixtureDirectory, 'init', '--initial-branch=main');
+    git(fixtureDirectory, 'config', 'core.autocrlf', 'false');
+    git(fixtureDirectory, 'config', 'user.email', 'ci@example.com');
+    git(fixtureDirectory, 'config', 'user.name', 'CI Test');
+    git(fixtureDirectory, 'add', '.');
+    git(fixtureDirectory, 'commit', '-m', 'baseline');
+    await writeFile(
+      declarationPath,
+      'export {};\ndeclare global { const featureCount: string; }\n',
+      'utf8',
+    );
+
+    await expect(changedQuality.typeCheckFiles(['src/contract.ts'], {
+      baselineRef: 'HEAD',
+      cwd: fixtureDirectory,
+    })).rejects.toThrow(
+      /TypeScript reported issues in changed source files:[\s\S]*consumer\.ts[\s\S]*Property 'toFixed' does not exist on type 'string'/,
+    );
+  });
+
   it('ignores cross-file diagnostics that a changed module did not introduce', async () => {
     await expect(changedQuality.typeCheckFiles(['src/data/siteContent.js'], {
       baselineRef: 'origin/main',
@@ -261,6 +416,51 @@ describe('diff-scoped lint guard', () => {
     ]);
   });
 
+  it('includes staged, unstaged, and untracked source files during local verification', async () => {
+    const fixtureDirectory = await mkdtemp(path.join(os.tmpdir(), 'lint-changed-'));
+    fixtureDirectories.push(fixtureDirectory);
+    git(fixtureDirectory, 'init', '--initial-branch=main');
+    git(fixtureDirectory, 'config', 'core.autocrlf', 'false');
+    git(fixtureDirectory, 'config', 'user.email', 'ci@example.com');
+    git(fixtureDirectory, 'config', 'user.name', 'CI Test');
+    await mkdir(path.join(fixtureDirectory, 'src'));
+    await writeFile(path.join(fixtureDirectory, 'src', 'staged.ts'), 'export const staged = 1;\n');
+    await writeFile(path.join(fixtureDirectory, 'src', 'unstaged.ts'), 'export const unstaged = 1;\n');
+    git(fixtureDirectory, 'add', '.');
+    git(fixtureDirectory, 'commit', '-m', 'baseline');
+    git(fixtureDirectory, 'update-ref', 'refs/remotes/origin/main', 'HEAD');
+
+    await writeFile(path.join(fixtureDirectory, 'src', 'staged.ts'), 'export const staged = 2;\n');
+    git(fixtureDirectory, 'add', 'src/staged.ts');
+    await writeFile(path.join(fixtureDirectory, 'src', 'unstaged.ts'), 'export const unstaged = 2;\n');
+    await writeFile(path.join(fixtureDirectory, 'src', 'untracked.ts'), 'export const untracked = 1;\n');
+
+    expect(changedSourceFiles('origin/main...HEAD', {
+      cwd: fixtureDirectory,
+      includeWorkingTree: true,
+    })).toEqual([
+      'src/staged.ts',
+      'src/unstaged.ts',
+      'src/untracked.ts',
+    ]);
+  });
+
+  it('fails the local command on an untracked source error', async () => {
+    const fixtureDirectory = await mkdtemp(path.join(repoRoot, 'src', 'local-guard-'));
+    fixtureDirectories.push(fixtureDirectory);
+    const fixturePath = path.join(fixtureDirectory, 'untracked-error.js');
+    await writeFile(fixturePath, 'export const broken = ;\n', 'utf8');
+
+    const result = spawnSync(process.execPath, [lintScript, '--base', 'HEAD'], {
+      cwd: repoRoot,
+      encoding: 'utf8',
+      env: { ...process.env, GITHUB_ACTIONS: '' },
+    });
+
+    expect(result.status).not.toBe(0);
+    expect(`${result.stdout}${result.stderr}`).toContain('untracked-error.js');
+  });
+
   it('uses the pull request base branch as the comparison ref', () => {
     expect(resolveDiffRange({
       cwd: repoRoot,
@@ -318,6 +518,7 @@ describe('diff-scoped lint guard', () => {
     const output = execFileSync(process.execPath, [lintScript, '--base', 'HEAD'], {
       cwd: repoRoot,
       encoding: 'utf8',
+      env: { ...process.env, GITHUB_ACTIONS: 'true' },
     });
 
     expect(output).toContain('No changed JavaScript or TypeScript files in HEAD...HEAD.');
