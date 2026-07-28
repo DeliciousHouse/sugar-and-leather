@@ -1,3 +1,4 @@
+import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -72,23 +73,77 @@ function isTypecheckBaseline(value) {
   ));
 }
 
+/** @param {string} content @param {string} source */
+function parseBaseline(content, source) {
+  /** @type {unknown} */
+  let parsed;
+  try {
+    parsed = JSON.parse(content);
+  } catch (error) {
+    throw new Error(`Cannot read ${source}: ${error instanceof Error ? error.message : String(error)}`);
+  }
+
+  if (!isTypecheckBaseline(parsed)) {
+    throw new Error(`${source} must contain a version 1 diagnostics baseline.`);
+  }
+  return parsed;
+}
+
 /** @param {string} cwd */
 function readBaseline(cwd) {
   const baselinePath = path.join(cwd, BASELINE_FILE);
   if (!existsSync(baselinePath)) return null;
+  return parseBaseline(readFileSync(baselinePath, 'utf8'), BASELINE_FILE);
+}
 
-  /** @type {unknown} */
-  let parsed;
+/** @param {string} cwd @param {string} revision */
+function readBaselineAtRevision(cwd, revision) {
   try {
-    parsed = JSON.parse(readFileSync(baselinePath, 'utf8'));
-  } catch (error) {
-    throw new Error(`Cannot read ${BASELINE_FILE}: ${error instanceof Error ? error.message : String(error)}`);
+    execFileSync('git', ['rev-parse', '--verify', `${revision}^{commit}`], {
+      cwd,
+      stdio: 'ignore',
+    });
+  } catch {
+    throw new Error(`Cannot resolve TypeScript baseline comparison ref: ${revision}`);
   }
 
-  if (!isTypecheckBaseline(parsed)) {
-    throw new Error(`${BASELINE_FILE} must contain a version 1 diagnostics baseline.`);
+  let content;
+  try {
+    content = execFileSync('git', ['show', `${revision}:${BASELINE_FILE}`], {
+      cwd,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    });
+  } catch {
+    return null;
   }
-  return parsed;
+  return parseBaseline(content, `${BASELINE_FILE} at ${revision}`);
+}
+
+/**
+ * @param {Record<string, BaselineDiagnostic[]>} current
+ * @param {TypecheckBaseline} base
+ * @param {string} baseRef
+ */
+function rejectBaselineGrowth(current, base, baseRef) {
+  const growth = [];
+  for (const [configName, entries] of Object.entries(current)) {
+    const baseCounts = new Map(
+      (base.diagnostics[configName] ?? [])
+        .map(({ fingerprint, count }) => [fingerprint, count]),
+    );
+    for (const { fingerprint, count } of entries) {
+      const baseCount = baseCounts.get(fingerprint) ?? 0;
+      if (count > baseCount) {
+        growth.push(`${configName}: ${fingerprint} (base ${baseCount}, current ${count})`);
+      }
+    }
+  }
+  if (growth.length > 0) {
+    throw new Error(
+      `TypeScript baseline growth is not allowed relative to ${baseRef}:\n${growth.join('\n')}`,
+    );
+  }
 }
 
 export function typeScriptConfigNames(cwd = process.cwd()) {
@@ -98,7 +153,12 @@ export function typeScriptConfigNames(cwd = process.cwd()) {
     .sort();
 }
 
-export function typeCheckAllConfigs({ cwd = process.cwd(), writeBaseline = false } = {}) {
+/** @param {{ cwd?: string, writeBaseline?: boolean, baseRef?: string }} [options] */
+export function typeCheckAllConfigs({
+  cwd = process.cwd(),
+  writeBaseline = false,
+  baseRef,
+} = {}) {
   const configNames = typeScriptConfigNames(cwd);
   if (configNames.length === 0) {
     throw new Error('No TypeScript configurations found.');
@@ -137,6 +197,11 @@ export function typeCheckAllConfigs({ cwd = process.cwd(), writeBaseline = false
     currentBaseline[configName] = diagnosticEntries(diagnostics, cwd);
   }
 
+  if (baseRef) {
+    const baseBaseline = readBaselineAtRevision(cwd, baseRef);
+    if (baseBaseline) rejectBaselineGrowth(currentBaseline, baseBaseline, baseRef);
+  }
+
   if (writeBaseline) {
     const baselinePath = path.join(cwd, BASELINE_FILE);
     const baseline = { version: 1, diagnostics: currentBaseline };
@@ -150,6 +215,13 @@ export function typeCheckAllConfigs({ cwd = process.cwd(), writeBaseline = false
       .filter((configName) => !configNames.includes(configName));
     if (missingConfigs.length > 0) {
       throw new Error(`TypeScript configuration(s) missing: ${missingConfigs.join(', ')}`);
+    }
+    const missingBaselineConfigs = configNames
+      .filter((configName) => !(configName in baseline.diagnostics));
+    if (missingBaselineConfigs.length > 0) {
+      throw new Error(
+        `${BASELINE_FILE} is missing configuration(s): ${missingBaselineConfigs.join(', ')}`,
+      );
     }
   }
 
@@ -170,6 +242,14 @@ export function typeCheckAllConfigs({ cwd = process.cwd(), writeBaseline = false
         `TypeScript reported issues in ${configName}:\n${formatDiagnostics(unexpected, cwd)}`,
       );
     }
+    const stale = [...allowed.entries()]
+      .filter(([, count]) => count > 0)
+      .map(([fingerprint, count]) => `${fingerprint} (stale count ${count})`);
+    if (stale.length > 0) {
+      throw new Error(
+        `TypeScript stale baseline entries in ${configName}; regenerate ${BASELINE_FILE}:\n${stale.join('\n')}`,
+      );
+    }
   }
 
   return configNames;
@@ -179,19 +259,23 @@ export function typeCheckAllConfigs({ cwd = process.cwd(), writeBaseline = false
 function parseArguments(args) {
   let cwd = path.resolve(process.env.TYPECHECK_CWD ?? process.cwd());
   let writeBaseline = false;
+  let baseRef;
   for (let index = 0; index < args.length; index += 1) {
     if (args[index] === '--cwd' && args[index + 1]) {
       cwd = path.resolve(args[index + 1]);
+      index += 1;
+    } else if (args[index] === '--base' && args[index + 1]) {
+      baseRef = args[index + 1];
       index += 1;
     } else if (args[index] === '--write-baseline') {
       writeBaseline = true;
     } else {
       throw new Error(
-        'Usage: node scripts/typecheck-all.mjs [--cwd <directory>] [--write-baseline]',
+        'Usage: node scripts/typecheck-all.mjs [--cwd <directory>] [--base <git-ref>] [--write-baseline]',
       );
     }
   }
-  return { cwd, writeBaseline };
+  return { cwd, writeBaseline, baseRef: baseRef ?? (writeBaseline ? 'HEAD' : undefined) };
 }
 
 const isDirectRun = process.argv[1]
@@ -199,8 +283,8 @@ const isDirectRun = process.argv[1]
 
 if (isDirectRun) {
   try {
-    const { cwd, writeBaseline } = parseArguments(process.argv.slice(2));
-    const configs = typeCheckAllConfigs({ cwd, writeBaseline });
+    const { cwd, writeBaseline, baseRef } = parseArguments(process.argv.slice(2));
+    const configs = typeCheckAllConfigs({ cwd, writeBaseline, baseRef });
     console.log(
       writeBaseline
         ? `Wrote ${BASELINE_FILE} for ${configs.length} TypeScript configuration(s).`

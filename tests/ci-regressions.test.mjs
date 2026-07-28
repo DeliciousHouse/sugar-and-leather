@@ -10,6 +10,7 @@ import { parse } from 'yaml';
 const repoRoot = fileURLToPath(new URL('..', import.meta.url));
 const workflowPath = fileURLToPath(new URL('../.github/workflows/ci.yml', import.meta.url));
 const changedQualityPath = fileURLToPath(new URL('../scripts/lint-changed.mjs', import.meta.url));
+const typeCheckPath = fileURLToPath(new URL('../scripts/typecheck-all.mjs', import.meta.url));
 const fixtureDirectories = [];
 
 function git(cwd, ...args) {
@@ -64,6 +65,13 @@ function runChangedQuality(cwd) {
   });
 }
 
+function runTypeCheck(cwd, ...args) {
+  return spawnSync(process.execPath, [typeCheckPath, '--cwd', cwd, ...args], {
+    cwd,
+    encoding: 'utf8',
+  });
+}
+
 function runCanonicalVerify(typeCheckCwd) {
   const npmCli = process.env.npm_execpath
     ?? (process.platform === 'win32'
@@ -97,6 +105,67 @@ test('three main pushes cannot replace pending source verification coverage', as
     undefined,
     'job-level concurrency can replace the only pending main-push verification job',
   );
+});
+
+test('a regenerated baseline cannot ratchet beyond the changed range base', async () => {
+  const cleanSource = 'export const value: string = "ok";\n';
+  const diagnosticSource = 'export const value = 1 as string;\n';
+  const directory = await createTypeScriptFixture({ 'src/value.ts': cleanSource });
+  const sourcePath = path.join(directory, 'src', 'value.ts');
+  const baselinePath = path.join(directory, 'typecheck-baseline.json');
+
+  await writeFile(sourcePath, diagnosticSource, 'utf8');
+  const diagnosticBootstrap = runTypeCheck(directory, '--write-baseline');
+  assert.equal(diagnosticBootstrap.status, 0, diagnosticBootstrap.stderr);
+  const grownBaseline = await readFile(baselinePath, 'utf8');
+
+  await writeFile(sourcePath, cleanSource, 'utf8');
+  const cleanBootstrap = runTypeCheck(directory, '--write-baseline');
+  assert.equal(cleanBootstrap.status, 0, cleanBootstrap.stderr);
+  git(directory, 'add', 'typecheck-baseline.json');
+  git(directory, 'commit', '-m', 'establish typecheck baseline');
+
+  await writeFile(sourcePath, diagnosticSource, 'utf8');
+  await writeFile(baselinePath, grownBaseline, 'utf8');
+
+  const changedResult = runChangedQuality(directory);
+  assert.notEqual(changedResult.status, 0, `${changedResult.stdout}\n${changedResult.stderr}`);
+  assert.match(`${changedResult.stdout}${changedResult.stderr}`, /baseline growth/i);
+
+  const writeResult = runTypeCheck(directory, '--write-baseline');
+  assert.notEqual(writeResult.status, 0, `${writeResult.stdout}\n${writeResult.stderr}`);
+  assert.match(`${writeResult.stdout}${writeResult.stderr}`, /baseline growth/i);
+});
+
+test('a fixed diagnostic requires baseline shrinkage before the same error can return', async () => {
+  const cleanSource = 'export const value: string = "ok";\n';
+  const diagnosticSource = 'export const value = 1 as string;\n';
+  const directory = await createTypeScriptFixture({ 'src/value.ts': diagnosticSource });
+  const sourcePath = path.join(directory, 'src', 'value.ts');
+
+  const bootstrap = runTypeCheck(directory, '--write-baseline');
+  assert.equal(bootstrap.status, 0, bootstrap.stderr);
+  git(directory, 'add', 'typecheck-baseline.json');
+  git(directory, 'commit', '-m', 'establish diagnostic baseline');
+
+  await writeFile(sourcePath, cleanSource, 'utf8');
+  const staleResult = runTypeCheck(directory);
+  assert.notEqual(staleResult.status, 0, `${staleResult.stdout}\n${staleResult.stderr}`);
+  assert.match(`${staleResult.stdout}${staleResult.stderr}`, /stale baseline/i);
+
+  const shrinkResult = runTypeCheck(directory, '--write-baseline');
+  assert.equal(shrinkResult.status, 0, `${shrinkResult.stdout}\n${shrinkResult.stderr}`);
+  git(directory, 'add', 'src/value.ts', 'typecheck-baseline.json');
+  git(directory, 'commit', '-m', 'fix diagnostic and shrink baseline');
+
+  await writeFile(sourcePath, diagnosticSource, 'utf8');
+  const reintroducedResult = runChangedQuality(directory);
+  assert.notEqual(
+    reintroducedResult.status,
+    0,
+    `${reintroducedResult.stdout}\n${reintroducedResult.stderr}`,
+  );
+  assert.match(`${reintroducedResult.stdout}${reintroducedResult.stderr}`, /baseline growth/i);
 });
 
 test('an added ambient contract cannot remain in the reconstructed baseline', async () => {

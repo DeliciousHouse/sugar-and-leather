@@ -101,6 +101,12 @@ function diffChanges(args, cwd) {
   return parseNameStatus(execFileSync('git', args, { cwd, encoding: 'utf8' }));
 }
 
+/** @param {string} range */
+function comparisonBase(range) {
+  const separator = range.includes('...') ? '...' : '..';
+  return range.slice(0, range.indexOf(separator));
+}
+
 /**
  * @param {string} range
  * @param {{ cwd?: string, includeWorkingTree?: boolean }} [options]
@@ -181,7 +187,7 @@ export async function main({ args = process.argv.slice(2), env = process.env, cw
     ))
     .map(({ path: file }) => file))];
   await lintFiles(lintTargets, { cwd });
-  const configs = typeCheckAllConfigs({ cwd });
+  const configs = typeCheckAllConfigs({ cwd, baseRef: comparisonBase(range) });
   console.log(`Type-checked ${configs.length} TypeScript configuration(s): ${configs.join(', ')}`);
 }
 
