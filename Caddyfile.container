@@ -1,7 +1,14 @@
 :80 {
     encode zstd gzip
     root * /usr/share/caddy
-    try_files {path} {path}/ /index.html
+    # Order matters. `{path}/index.html` must come BEFORE `{path}`: scripts/seo-build.mjs
+    # prerenders a directory per route (dist/about/index.html), and matching `{path}`
+    # first would match the directory itself, leaving file_server to 308-redirect
+    # /about -> /about/. That extra hop contradicts the canonical URL we publish
+    # (https://sugarandleather.com/about, no trailing slash). Serving the index directly
+    # keeps the served URL and the canonical identical.
+    # The final /index.html keeps unmatched paths falling through to the SPA shell.
+    try_files {path}/index.html {path} /index.html
     file_server
 
     header {

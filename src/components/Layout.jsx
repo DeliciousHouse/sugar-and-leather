@@ -1,5 +1,6 @@
 import { Outlet, useLocation } from 'react-router-dom';
 import { useCustomCursor } from '../hooks/useCustomCursor';
+import { useSeo } from '../hooks/useSeo';
 import { useSmoothAnchor } from '../hooks/useSmoothAnchor';
 import CustomCursor from './CustomCursor';
 import Nav from './Nav';
@@ -9,6 +10,7 @@ import ScrollToTop from './ScrollToTop';
 export default function Layout() {
   useSmoothAnchor();
   useCustomCursor();
+  useSeo();
   const { pathname } = useLocation();
   const hideFooter =
     pathname === '/innovation-and-advanced-tech' ||
