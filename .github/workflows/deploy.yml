@@ -29,10 +29,12 @@ concurrency:
   group: production-deploy
   cancel-in-progress: false
 
-# This workflow deploys over SSH and never calls the GitHub API, so the job's
-# GITHUB_TOKEN needs no permissions. Least privilege limits blast radius since
-# the job also handles an SSH deploy key.
-permissions: {}
+# This workflow deploys over SSH and never calls the GitHub API. It needs `contents: read`
+# only to check out the repo so it can reproduce the build and verify what production is
+# actually serving. Least privilege limits blast radius since the job also handles an SSH
+# deploy key.
+permissions:
+  contents: read
 
 jobs:
   deploy:
@@ -56,6 +58,33 @@ jobs:
             echo "::error::Missing required secret(s): ${missing[*]}. See deploy/README.md for setup."
             exit 1
           fi
+
+      # Build the same commit the VM is about to deploy, purely to learn the content-hashed
+      # bundle filename Vite produces (e.g. assets/index-C4tm3MiX.js). Vite's hashes are
+      # derived from content, so this filename is a fingerprint of the commit's frontend.
+      # The post-deploy step asserts production is serving exactly this file — which is the
+      # only way to distinguish "deployed" from "the old build is still up".
+      - name: Check out the commit being deployed
+        uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Build the expected artifact
+        id: expected
+        run: |
+          set -euo pipefail
+          npm ci
+          npm run build
+          bundle="$(grep -o 'assets/index-[A-Za-z0-9_-]*\.js' dist/index.html | head -1)"
+          if [ -z "$bundle" ]; then
+            echo "::error::Could not determine the bundle filename from dist/index.html."
+            exit 1
+          fi
+          echo "bundle=$bundle" >> "$GITHUB_OUTPUT"
+          echo "Expecting production to serve: $bundle"
 
       - name: Deploy over SSH
         env:
@@ -92,21 +121,46 @@ jobs:
               "$DEPLOY_USER@$DEPLOY_HOST" \
               "set -euo pipefail; cd '$DEPLOY_PATH'; git fetch --prune origin; git checkout main; git reset --hard origin/main; bash deploy/deploy.sh"
 
-      - name: Verify the site is serving after deploy
+      # A bare "is it 200?" check cannot fail. A stale site returns 200, and because the
+      # container serves an SPA with a catch-all fallback, so does a MISSING file. That is
+      # why the 2026-07-23 no-op deploy went unnoticed for three weeks. These checks assert
+      # production is serving *this commit*, not merely that something is answering.
+      - name: Verify production is serving this commit
         env:
           HEALTHCHECK_URL: ${{ vars.HEALTHCHECK_URL }}
+          EXPECTED_BUNDLE: ${{ steps.expected.outputs.bundle }}
         run: |
           set -euo pipefail
           url="${HEALTHCHECK_URL:-https://sugarandleather.com/}"
-          echo "Checking $url for HTTP 200..."
-          for attempt in 1 2 3 4 5; do
-            code="$(curl -sS -o /dev/null -w '%{http_code}' --max-time 20 "$url" || echo 000)"
-            echo "Attempt $attempt: HTTP $code"
-            if [ "$code" = "200" ]; then
-              echo "Site is up."
-              exit 0
-            fi
-            sleep 5
+          base="${url%/}"
+
+          echo "Waiting for $url to serve $EXPECTED_BUNDLE ..."
+          served=""
+          for attempt in 1 2 3 4 5 6; do
+            body="$(curl -sS --max-time 20 "$url" || true)"
+            served="$(printf '%s' "$body" | grep -o 'assets/index-[A-Za-z0-9_-]*\.js' | head -1 || true)"
+            echo "Attempt $attempt: serving '${served:-<none>}'"
+            [ "$served" = "$EXPECTED_BUNDLE" ] && break
+            sleep 10
           done
-          echo "::error::$url did not return HTTP 200 after the deploy. Check the container on the VM."
-          exit 1
+
+          if [ "$served" != "$EXPECTED_BUNDLE" ]; then
+            echo "::error::Production is serving '${served:-<nothing>}' but this commit builds"
+            echo "::error::'$EXPECTED_BUNDLE'. The deploy did not take effect — the container is"
+            echo "::error::probably still running the previous image. See deploy/README.md."
+            exit 1
+          fi
+          echo "Bundle matches."
+
+          # robots.txt is the canary for the SPA-fallback trap: if the file is missing the
+          # server answers 200 with text/html instead of 404, so only the content type can
+          # tell a real deploy from a broken one.
+          ctype="$(curl -sS -o /dev/null -w '%{content_type}' --max-time 20 "$base/robots.txt" || true)"
+          case "$ctype" in
+            text/plain*) echo "robots.txt OK ($ctype)" ;;
+            *) echo "::error::$base/robots.txt returned content-type '$ctype', expected text/plain."
+               echo "::error::The file is missing and the SPA fallback is answering in its place."
+               exit 1 ;;
+          esac
+
+          echo "Deploy verified."
