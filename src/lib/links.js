@@ -18,7 +18,32 @@ export const CAL_BOOKING_URL = 'https://cal.sugarandleather.com/audrey/';
 // CHANNEL address (`mailto:<address>`) rather than a portal URL — email-in creates
 // tickets without requiring the sender to authenticate, which is the only way to get
 // anonymous feedback into JSM while SLW-32 holds.
-export const FEEDBACK_URL = '/inquiry?subject=Website%20feedback';
+export const FEEDBACK_TARGET = '/inquiry';
+
+/** Path the feedback button points at, without query. Used to suppress the button there. */
+export const FEEDBACK_PATH = '/inquiry';
+
+/** Subject the Inquiry form prefills for feedback. Must match SUBJECT in InquiryForm. */
+export const FEEDBACK_SUBJECT = 'Website feedback';
+
+export const isExternalFeedbackTarget = () =>
+  /^([a-z]+:)?\/\//i.test(FEEDBACK_TARGET) || FEEDBACK_TARGET.startsWith('mailto:');
+
+/**
+ * Build the feedback destination, tagging which route the visitor was on.
+ * "Website feedback" alone is useless across 16 routes — without the origin nobody can
+ * tell whether a complaint is about the pricing page or the contact form.
+ */
+export function buildFeedbackUrl(fromPath) {
+  const subject = fromPath && fromPath !== '/'
+    ? `${FEEDBACK_SUBJECT}: ${fromPath}`
+    : `${FEEDBACK_SUBJECT}: home`;
+  if (isExternalFeedbackTarget()) {
+    const sep = FEEDBACK_TARGET.startsWith('mailto:') ? '?' : '#';
+    return `${FEEDBACK_TARGET}${sep}subject=${encodeURIComponent(subject)}`;
+  }
+  return `${FEEDBACK_TARGET}?subject=${encodeURIComponent(subject)}`;
+}
 
 export const ECOSYSTEM_HASH = '/#ecosystem';
 

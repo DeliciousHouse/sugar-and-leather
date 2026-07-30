@@ -3448,13 +3448,25 @@ body.no-motion .experience-backed-track {
 }
 
 .feedback-btn:focus-visible {
+  /* offset 0, not 3px: at an offset the ring lands on the page background and measured
+     1.54:1 against the cream sections — a WCAG 2.1 SC 1.4.11 failure. Drawn on the pill's
+     own dark surface it has real contrast on every section. */
   outline: 2px solid var(--lavender);
-  outline-offset: 3px;
+  outline-offset: 0;
 }
 
 .feedback-btn svg { flex: 0 0 auto; }
 
-@media (max-width: 600px) {
+/* Set by useOcclusionGuard when an interactive element is underneath the pill.
+   pointer-events: none is the part that matters — it lets the click reach the control
+   below instead of being swallowed. The fade makes that state legible rather than a
+   button that mysteriously stops working. */
+.feedback-btn--tucked {
+  opacity: .32;
+  pointer-events: none;
+}
+
+@media (max-width: 600px), (max-height: 500px) {
   /* Collapse to a circular icon button; the accessible name lives on aria-label
      so hiding the text does not leave the control unlabelled.
      13px padding (not 12) keeps the hit area at 45x45 — 12px measured 43x43,
@@ -3471,3 +3483,11 @@ body.no-motion .experience-backed-track {
 @media print {
   .feedback-btn { display: none; }
 }
+
+/* Fallback address in the inquiry success state — see InquiryForm.jsx. */
+.inquiry-form-fallback {
+  margin-top: 12px;
+  font-size: var(--fs-small);
+  color: var(--mid-gray);
+}
+.inquiry-form-fallback a { color: inherit; text-decoration: underline; }
