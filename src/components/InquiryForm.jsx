@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { ArrowRight } from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
 
 const INITIAL = {
   name: '',
@@ -10,7 +11,16 @@ const INITIAL = {
 };
 
 export default function InquiryForm({ form, mailto }) {
-  const [values, setValues] = useState(INITIAL);
+  // The global feedback button links here as /inquiry?subject=Website%20feedback, so
+  // feedback arrives labelled instead of landing in the pile as an untitled enquiry.
+  // Read once via useState's initializer rather than syncing in an effect: the user must
+  // stay free to edit the field afterwards, and re-applying the param on every render
+  // would fight their typing.
+  const [searchParams] = useSearchParams();
+  const [values, setValues] = useState(() => ({
+    ...INITIAL,
+    subject: searchParams.get('subject') ?? '',
+  }));
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
 
