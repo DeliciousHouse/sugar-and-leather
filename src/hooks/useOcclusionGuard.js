@@ -26,27 +26,23 @@ export function useOcclusionGuard(ref) {
 
     const check = () => {
       frame = 0;
-      const r = node.getBoundingClientRect();
-      if (!r.width) return;
+      const p = node.getBoundingClientRect();
+      if (!p.width) return;
 
-      // Corners inset by 4px, plus the centre. Inset avoids sampling the antialiased edge,
-      // where elementsFromPoint can report the element behind even with no real overlap.
-      const points = [
-        [r.left + 4, r.top + 4],
-        [r.right - 4, r.top + 4],
-        [r.left + 4, r.bottom - 4],
-        [r.right - 4, r.bottom - 4],
-        [r.left + r.width / 2, r.top + r.height / 2],
-      ];
-
-      const blocked = points.some(([x, y]) => {
-        if (x < 0 || y < 0 || x > window.innerWidth || y > window.innerHeight) return false;
-        // elementsFromPoint (plural) returns the whole stack, so we can look past our own
-        // node to whatever it is covering.
-        return document
-          .elementsFromPoint(x, y)
-          .filter((el) => !node.contains(el))
-          .some((el) => el.matches?.(INTERACTIVE) || el.closest?.(INTERACTIVE));
+      // Exact rectangle intersection against every interactive element, NOT point sampling.
+      //
+      // The first version of this sampled the overlay's four corners plus its centre, and
+      // that missed real overlaps: at the footer the pill covers "Privacy" and "Terms",
+      // but two probes landed above the links, two below, and the centre fell in the 26px
+      // gap between them — so the guard saw nothing while both links were unclickable.
+      // Any fixed sample grid has gaps like that; comparing rects does not.
+      const blocked = Array.from(document.querySelectorAll(INTERACTIVE)).some((el) => {
+        if (node.contains(el)) return false;
+        const r = el.getBoundingClientRect();
+        if (!r.width || !r.height) return false;
+        // Skip anything off-screen before the intersection test — cheap rejection first.
+        if (r.bottom <= 0 || r.top >= window.innerHeight) return false;
+        return !(r.right <= p.left || r.left >= p.right || r.bottom <= p.top || r.top >= p.bottom);
       });
 
       setOccluding(blocked);
