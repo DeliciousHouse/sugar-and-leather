@@ -3407,3 +3407,87 @@ body.no-motion .experience-backed-track {
   }
 }
 
+
+/* --- Global feedback button ------------------------------------------------
+   Fixed bottom-right on every route (rendered in Layout). z-index 70 keeps it
+   under the nav (80) and the loader (300) so it can never cover navigation or
+   flash over the intro animation. */
+.feedback-btn {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 70;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 16px;
+  border: 1px solid rgba(197, 184, 212, .38);
+  border-radius: 999px;
+  background: rgba(14, 12, 15, .82);
+  /* The site renders light and dark sections; the blur keeps the pill legible
+     over both without having to know which section is underneath. */
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: var(--cream);
+  font-family: var(--font-body);
+  font-size: var(--fs-caption);
+  font-weight: var(--w-medium);
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  text-decoration: none;
+  box-shadow: 0 6px 24px rgba(14, 12, 15, .28);
+  transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease),
+    color var(--dur) var(--ease), transform var(--dur) var(--ease);
+}
+
+.feedback-btn:hover {
+  background: var(--lavender);
+  border-color: var(--lavender);
+  color: var(--obsidian);
+  transform: translateY(-2px);
+}
+
+.feedback-btn:focus-visible {
+  /* offset 0, not 3px: at an offset the ring lands on the page background and measured
+     1.54:1 against the cream sections — a WCAG 2.1 SC 1.4.11 failure. Drawn on the pill's
+     own dark surface it has real contrast on every section. */
+  outline: 2px solid var(--lavender);
+  outline-offset: 0;
+}
+
+.feedback-btn svg { flex: 0 0 auto; }
+
+/* Set by useOcclusionGuard when an interactive element is underneath the pill.
+   pointer-events: none is the part that matters — it lets the click reach the control
+   below instead of being swallowed. The fade makes that state legible rather than a
+   button that mysteriously stops working. */
+.feedback-btn--tucked {
+  opacity: .32;
+  pointer-events: none;
+}
+
+@media (max-width: 600px), (max-height: 500px) {
+  /* Collapse to a circular icon button; the accessible name lives on aria-label
+     so hiding the text does not leave the control unlabelled.
+     13px padding (not 12) keeps the hit area at 45x45 — 12px measured 43x43,
+     just under the 44x44 minimum in WCAG 2.5.5 Target Size. */
+  .feedback-btn { right: 16px; bottom: 16px; padding: 13px; gap: 0; }
+  .feedback-btn__label { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .feedback-btn { transition: none; }
+  .feedback-btn:hover { transform: none; }
+}
+
+@media print {
+  .feedback-btn { display: none; }
+}
+
+/* Fallback address in the inquiry success state — see InquiryForm.jsx. */
+.inquiry-form-fallback {
+  margin-top: 12px;
+  font-size: var(--fs-small);
+  color: var(--mid-gray);
+}
+.inquiry-form-fallback a { color: inherit; text-decoration: underline; }
