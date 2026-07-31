@@ -32,22 +32,29 @@ const IP_SALT = process.env.FEEDBACK_IP_SALT || randomUUID();
 // A public endpoint that creates Jira issues is a spam cannon if left unbounded.
 const RATE_LIMIT_MAX = Number(process.env.FEEDBACK_RATE_LIMIT_MAX || 5);
 const RATE_LIMIT_WINDOW_MS = Number(process.env.FEEDBACK_RATE_LIMIT_WINDOW_MS || 60 * 60 * 1000);
-// Generous for text, far below anything that would pressure memory.
-const MAX_BODY_BYTES = 64 * 1024;
+// Ceiling covers a 2 MB base64 screenshot (~2.7 MB) plus the text fields.
+const MAX_BODY_BYTES = 4 * 1024 * 1024;
 
-const CATEGORIES = new Set(['bug', 'request', 'question', 'other']);
+// Mirrors aries-app/lib/feedback/report-options.ts exactly.
+const CATEGORIES = new Set(['bug', 'question', 'other']);
 const IMPACTS = new Map([
-  ['p0_blocked', 'Blocked — cannot use the site'],
-  ['p1_broken', 'Something is broken'],
-  ['p2_degraded', 'Works, but not properly'],
-  ['p3_minor', 'Minor or cosmetic'],
-  ['p4_idea', 'Idea or general feedback'],
+  ['p0_system_blocked', 'Entire team/system is blocked'],
+  ['p1_account_blocked', 'My account is blocked, others are OK'],
+  ['p2_feature_degraded', 'A feature is degraded/broken'],
+  ['p3_minor_glitch', 'Minor glitch/cosmetic issue'],
+  ['p4_question', 'General question/feedback'],
 ]);
+
+// Accepted screenshot types and cap, matching the Aries widget.
+const SCREENSHOT_MIMES = new Set(['image/png', 'image/jpeg', 'image/webp']);
+const SCREENSHOT_BYTES_MAX = Number(process.env.FEEDBACK_MAX_IMAGE_BYTES || 2_000_000);
+const CONSOLE_ERRORS_MAX = 20;
+const CONSOLE_ERROR_LINE_MAX = 500;
 // Bugs become Bugs; everything else is a Task. Both exist in SLW (verified against
 // /rest/api/3/issue/createmeta).
 const ISSUE_TYPE_FOR = (category) => (category === 'bug' ? 'Bug' : 'Task');
 
-const LIMITS = { title: 255, description: 5000, email: 254, path: 200 };
+const LIMITS = { title: 255, description: 10_000, email: 254, path: 200 };
 
 const configured = Boolean(JIRA_BASE_URL && JIRA_EMAIL && JIRA_API_TOKEN && JIRA_PROJECT_KEY);
 
@@ -141,7 +148,46 @@ function validate(obj) {
   if (email && (email.length > LIMITS.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)))
     errors.email = 'That email address does not look right.';
 
-  return { errors, value: { category, impact, title, description, email, path } };
+  return {
+    errors,
+    value: {
+      category, impact, title, description, email, path,
+      screenshot: validateScreenshot(obj.screenshot),
+      consoleErrors: validateConsoleErrors(obj.consoleErrors),
+    },
+  };
+}
+
+/**
+ * Optional screenshot as { base64, mime }. A malformed or oversized image is DISCARDED
+ * rather than rejected — losing the attachment is much better than losing the whole bug
+ * report over it. Same contract as the Aries widget.
+ */
+function validateScreenshot(raw) {
+  if (raw == null || typeof raw !== 'object') return null;
+  const { base64, mime } = raw;
+  if (typeof base64 !== 'string' || typeof mime !== 'string') return null;
+  if (!SCREENSHOT_MIMES.has(mime)) return null;
+  let bytes;
+  try {
+    bytes = Buffer.from(base64, 'base64');
+  } catch {
+    return null;
+  }
+  // Buffer.from is lenient with junk input, so confirm it round-trips rather than
+  // trusting that a decode "succeeded".
+  if (!bytes.length || bytes.toString('base64').replace(/=+$/, '') !== base64.replace(/=+$/, '')) return null;
+  if (bytes.length > SCREENSHOT_BYTES_MAX) return null;
+  return { bytes, mime };
+}
+
+/** Recent console errors captured in the page, bounded in both count and line length. */
+function validateConsoleErrors(raw) {
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .filter((l) => typeof l === 'string')
+    .slice(-CONSOLE_ERRORS_MAX)
+    .map((l) => l.slice(0, CONSOLE_ERROR_LINE_MAX));
 }
 
 // --- Jira ---------------------------------------------------------------------------
@@ -159,6 +205,15 @@ function buildIssue(v) {
     para(`Reporter email: ${v.email || '(not supplied)'}`),
     para('Submitted anonymously via the feedback button on sugarandleather.com.'),
   ];
+  if (v.consoleErrors?.length) {
+    lines.push(para('Recent console errors:'));
+    // codeBlock keeps stack traces readable and, more importantly, unparsed — nothing in
+    // here is treated as markup.
+    lines.push({
+      type: 'codeBlock',
+      content: [{ type: 'text', text: v.consoleErrors.join('\n') }],
+    });
+  }
   return {
     fields: {
       project: { key: JIRA_PROJECT_KEY },
@@ -190,6 +245,47 @@ async function createJiraIssue(v) {
     throw new Error(`jira_${res.status}`);
   }
   return res.json();
+}
+
+/**
+ * Attach the screenshot to the issue we just created.
+ *
+ * Aries stores screenshots in Postgres and serves them from its own route. This service
+ * has no database, and it does not need one: Jira's attachment API puts the image on the
+ * ticket itself, which is where triage actually wants it and survives this service being
+ * redeployed or removed.
+ *
+ * Best-effort. A failed attachment must never fail the report — the text is the valuable
+ * part and it is already filed by this point.
+ */
+async function attachScreenshot(issueKey, shot) {
+  try {
+    const auth = Buffer.from(`${JIRA_EMAIL}:${JIRA_API_TOKEN}`).toString('base64');
+    const ext = shot.mime === 'image/png' ? 'png' : shot.mime === 'image/webp' ? 'webp' : 'jpg';
+    const form = new FormData();
+    form.append('file', new Blob([shot.bytes], { type: shot.mime }), `screenshot-${issueKey}.${ext}`);
+    const res = await fetch(`${JIRA_BASE_URL}/rest/api/3/issue/${issueKey}/attachments`, {
+      method: 'POST',
+      headers: {
+        authorization: `Basic ${auth}`,
+        // Required by Jira for attachment uploads; without it the request is rejected
+        // as a suspected XSRF attempt.
+        'X-Atlassian-Token': 'no-check',
+        // Deliberately no content-type: fetch sets the multipart boundary itself.
+      },
+      body: form,
+      signal: AbortSignal.timeout(20_000),
+    });
+    if (!res.ok) {
+      const detail = await res.text().catch(() => '');
+      console.error(`[feedback] attach failed ${issueKey} ${res.status}: ${detail.slice(0, 300)}`);
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.error(`[feedback] attach threw for ${issueKey}: ${err?.message ?? err}`);
+    return false;
+  }
 }
 
 // --- server -------------------------------------------------------------------------
@@ -239,7 +335,13 @@ const server = createServer(async (req, res) => {
 
   try {
     const issue = await createJiraIssue(value);
-    console.log(`[feedback] created ${issue.key} (${value.category}/${value.impact})`);
+    let attached = false;
+    if (value.screenshot) attached = await attachScreenshot(issue.key, value.screenshot);
+    console.log(
+      `[feedback] created ${issue.key} (${value.category}/${value.impact})` +
+        `${value.screenshot ? ` screenshot=${attached ? 'attached' : 'FAILED'}` : ''}` +
+        `${value.consoleErrors?.length ? ` consoleErrors=${value.consoleErrors.length}` : ''}`,
+    );
     // Return the key so the UI can show it. It is not sensitive — the reporter cannot
     // read the issue without a Jira account.
     return json(res, 201, { status: 'ok', key: issue.key });

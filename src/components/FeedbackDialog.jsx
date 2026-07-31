@@ -1,7 +1,16 @@
-import { useEffect, useRef, useState } from 'react';
-import { X } from 'lucide-react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { Camera, Paperclip, X } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
-import { FEEDBACK_CATEGORIES, FEEDBACK_ENDPOINT, FEEDBACK_IMPACTS } from '../lib/feedback';
+import {
+  FEEDBACK_CATEGORIES,
+  FEEDBACK_ENDPOINT,
+  FEEDBACK_IMPACTS,
+  FEEDBACK_LIMITS,
+  FEEDBACK_SCREENSHOT_MIMES,
+  screenshotPayloadFromDataUrl,
+} from '../lib/feedback';
+import { CAPTURE_IGNORE_ATTR, capturePageScreenshot, pageCaptureSupported } from '../lib/captureScreenshot';
+import { getRecentConsoleErrors } from '../lib/consoleCapture';
 
 // Modal report form behind the global Feedback button.
 //
@@ -23,6 +32,10 @@ export default function FeedbackDialog({ open, onClose }) {
   const [values, setValues] = useState(EMPTY);
   const [fieldErrors, setFieldErrors] = useState({});
   const [status, setStatus] = useState('idle'); // idle | sending | done | failed
+  const [screenshot, setScreenshot] = useState(null); // { payload, previewUrl, label }
+  const [capturing, setCapturing] = useState(false);
+  const [screenshotError, setScreenshotError] = useState('');
+  const fileRef = useRef(null);
   const [issueKey, setIssueKey] = useState('');
   const [formError, setFormError] = useState('');
 
@@ -36,6 +49,8 @@ export default function FeedbackDialog({ open, onClose }) {
     setFormError('');
     setStatus('idle');
     setIssueKey('');
+    setScreenshot(null);
+    setScreenshotError('');
     const t = setTimeout(() => firstFieldRef.current?.focus(), 0);
     return () => clearTimeout(t);
   }, [open]);
@@ -82,6 +97,50 @@ export default function FeedbackDialog({ open, onClose }) {
 
   const set = (name) => (e) => setValues((p) => ({ ...p, [name]: e.target.value }));
 
+  const attachDataUrl = (dataUrl, label) => {
+    const result = screenshotPayloadFromDataUrl(dataUrl);
+    if (!result.ok) {
+      setScreenshotError(result.error);
+      return;
+    }
+    setScreenshotError('');
+    setScreenshot({ payload: result.payload, previewUrl: dataUrl, label });
+  };
+
+  const onCapturePage = async () => {
+    setCapturing(true);
+    setScreenshotError('');
+    // Rasterizing the DOM cannot see through the dialog, so the capture excludes the
+    // feedback UI via CAPTURE_IGNORE_ATTR — the shot shows the page behind it.
+    const dataUrl = await capturePageScreenshot();
+    setCapturing(false);
+    if (!dataUrl) {
+      // Same contract as Aries: silent degrade to the file picker rather than an error
+      // the reporter can do nothing about.
+      setScreenshotError('Could not capture the page. You can attach an image instead.');
+      return;
+    }
+    attachDataUrl(dataUrl, 'Captured page');
+  };
+
+  const onPickFile = (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    if (!FEEDBACK_SCREENSHOT_MIMES.includes(file.type)) {
+      setScreenshotError('Use a PNG, JPEG or WebP image.');
+      return;
+    }
+    if (file.size > FEEDBACK_LIMITS.screenshotBytesMax) {
+      setScreenshotError(`Screenshot must be ${Math.floor(FEEDBACK_LIMITS.screenshotBytesMax / 1_000_000)} MB or smaller.`);
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => attachDataUrl(String(reader.result), file.name);
+    reader.onerror = () => setScreenshotError('That image could not be read.');
+    reader.readAsDataURL(file);
+  };
+
   async function onSubmit(e) {
     e.preventDefault();
     setStatus('sending');
@@ -92,7 +151,14 @@ export default function FeedbackDialog({ open, onClose }) {
       const res = await fetch(FEEDBACK_ENDPOINT, {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ ...values, path: pathname }),
+        body: JSON.stringify({
+          ...values,
+          path: pathname,
+          screenshot: screenshot?.payload ?? null,
+          // Errors the page logged before the report was filed — usually the actual
+          // stack trace behind "it broke".
+          consoleErrors: getRecentConsoleErrors(),
+        }),
       });
       const data = await res.json().catch(() => ({}));
 
@@ -127,7 +193,7 @@ export default function FeedbackDialog({ open, onClose }) {
     fieldErrors[name] ? { 'aria-invalid': true, 'aria-describedby': `fb-${name}-error` } : {};
 
   return (
-    <div className="feedback-dialog__scrim" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
+    <div className="feedback-dialog__scrim" {...{ [CAPTURE_IGNORE_ATTR]: '' }} onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
       <div
         className="feedback-dialog"
         role="dialog"
@@ -202,6 +268,57 @@ export default function FeedbackDialog({ open, onClose }) {
             </label>
             <input id="fb-email" name="email" type="email" className="feedback-dialog__control" value={values.email} onChange={set('email')} maxLength={254} placeholder="you@company.com" {...aria('email')} />
             {err('email')}
+
+            <span className="feedback-dialog__label">Screenshot <span className="feedback-dialog__optional">(optional)</span></span>
+            {screenshot ? (
+              <div className="feedback-dialog__shot">
+                <img src={screenshot.previewUrl} alt="" className="feedback-dialog__shot-preview" />
+                <div className="feedback-dialog__shot-meta">
+                  <span className="feedback-dialog__shot-label">{screenshot.label}</span>
+                  <button
+                    type="button"
+                    className="feedback-dialog__shot-remove"
+                    onClick={() => { setScreenshot(null); setScreenshotError(''); }}
+                    disabled={status === 'sending'}
+                  >
+                    Remove
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="feedback-dialog__shot-actions">
+                {pageCaptureSupported() ? (
+                  <button
+                    type="button"
+                    className="feedback-dialog__shot-btn"
+                    onClick={onCapturePage}
+                    disabled={capturing || status === 'sending'}
+                  >
+                    <Camera size={15} strokeWidth={1.75} aria-hidden="true" />
+                    {capturing ? 'Capturing…' : 'Capture page'}
+                  </button>
+                ) : null}
+                <button
+                  type="button"
+                  className="feedback-dialog__shot-btn"
+                  onClick={() => fileRef.current?.click()}
+                  disabled={status === 'sending'}
+                >
+                  <Paperclip size={15} strokeWidth={1.75} aria-hidden="true" />
+                  Attach image
+                </button>
+                <input
+                  ref={fileRef}
+                  type="file"
+                  accept={FEEDBACK_SCREENSHOT_MIMES.join(',')}
+                  onChange={onPickFile}
+                  className="feedback-dialog__file"
+                  tabIndex={-1}
+                  aria-hidden="true"
+                />
+              </div>
+            )}
+            {screenshotError ? <p className="feedback-dialog__error">{screenshotError}</p> : null}
 
             {formError ? (
               <p className="feedback-dialog__error feedback-dialog__error--form" role="alert">
