@@ -3491,3 +3491,117 @@ body.no-motion .experience-backed-track {
   color: var(--mid-gray);
 }
 .inquiry-form-fallback a { color: inherit; text-decoration: underline; }
+
+/* --- Feedback dialog -------------------------------------------------------
+   Modal report form opened by the global feedback button. z-index sits above
+   the nav (80) and overlay (90) but below the custom cursor (200) and the
+   loader (300), so the cursor stays visible over it and the intro animation
+   still wins on first paint. */
+.feedback-dialog__scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(14, 12, 15, .62);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  overflow-y: auto;
+}
+
+.feedback-dialog {
+  /* Re-establish the LIGHT token context.
+     Layout renders this inside .on-obsidian, which reassigns --panel to charcoal,
+     --divider to deep-plum and --fg* to light values for dark sections. The dialog is a
+     cream panel, so inheriting those gave dark controls with dark text inside it.
+     Redeclaring the :root values here means anything nested — now or later — themes
+     correctly without having to remember to avoid the aliases. */
+  --bg: var(--cream);
+  --panel: var(--warm-white);
+  --divider: var(--mist);
+  --hover: var(--deep-plum);
+  --fg1: var(--obsidian);
+  --fg2: var(--deep-plum);
+  --fg3: var(--mid-gray);
+
+  position: relative;
+  width: min(520px, 100%);
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+  padding: 32px;
+  background: var(--warm-white);
+  color: var(--obsidian);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 24px 64px rgba(14, 12, 15, .4);
+}
+
+.feedback-dialog__close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  display: grid;
+  place-items: center;
+  /* 40px keeps the close control at a usable tap size on mobile. */
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--mid-gray);
+  cursor: pointer;
+  transition: background var(--dur) var(--ease), color var(--dur) var(--ease);
+}
+.feedback-dialog__close:hover { background: var(--divider); color: var(--obsidian); }
+.feedback-dialog__close:focus-visible { outline: 2px solid var(--deep-plum); outline-offset: 2px; }
+
+.feedback-dialog__title {
+  margin: 0 0 8px;
+  font-family: var(--font-display);
+  font-size: var(--fs-subhead);
+  font-weight: var(--w-display);
+  line-height: 1.1;
+}
+.feedback-dialog__intro { margin: 0 0 20px; font-size: var(--fs-small); color: var(--mid-gray); }
+
+.feedback-dialog__label {
+  display: block;
+  margin: 16px 0 6px;
+  font-size: var(--fs-caption);
+  font-weight: var(--w-medium);
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+.feedback-dialog__optional { text-transform: none; letter-spacing: 0; color: var(--mid-gray); font-weight: var(--w-body); }
+
+.feedback-dialog__control {
+  width: 100%;
+  padding: 11px 12px;
+  border: 1px solid var(--divider);
+  border-radius: var(--radius-sm);
+  background: var(--panel);
+  color: var(--obsidian);
+  font-family: var(--font-body);
+  /* 16px minimum stops iOS Safari zooming the viewport on focus. */
+  font-size: 16px;
+  transition: border-color var(--dur) var(--ease);
+}
+.feedback-dialog__control:focus-visible { outline: 2px solid var(--deep-plum); outline-offset: 1px; border-color: var(--deep-plum); }
+.feedback-dialog__control--area { resize: vertical; min-height: 110px; }
+.feedback-dialog__control[aria-invalid='true'] { border-color: #9B2C2C; }
+
+.feedback-dialog__error { margin: 6px 0 0; font-size: var(--fs-caption); color: #9B2C2C; }
+.feedback-dialog__error--form { margin-top: 16px; }
+
+.feedback-dialog__actions { margin-top: 24px; }
+.feedback-dialog__actions .btn[disabled] { opacity: .6; cursor: default; }
+.feedback-dialog__meta { margin: 12px 0 0; font-size: var(--fs-caption); color: var(--silver); }
+
+@media (max-width: 600px) {
+  .feedback-dialog__scrim { padding: 0; place-items: end stretch; }
+  .feedback-dialog { max-height: 92vh; padding: 24px 20px 32px; border-radius: var(--radius-sm) var(--radius-sm) 0 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .feedback-dialog__close, .feedback-dialog__control { transition: none; }
+}
