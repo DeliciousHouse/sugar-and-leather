@@ -60,6 +60,20 @@ STACK_COMPOSE="${STACK_COMPOSE-$(cd .. 2>/dev/null && pwd)/docker-compose.yml}"
 
 echo "==> Deploying commit $(git rev-parse --short HEAD) ($(git log -1 --pretty=%s))"
 
+# --- build fingerprint -------------------------------------------------------------
+# Stamp the commit into the build context so the built site can say which commit it is.
+# scripts/seo-build.mjs reads this file and writes dist/build.json; deploy.yml then
+# asserts production serves that exact commit.
+#
+# This has to happen HERE, not in the build, because the image build runs in Docker and
+# .dockerignore excludes .git — `git rev-parse` is impossible inside the container. This
+# script is the last point that has both the git checkout and the build context.
+#
+# The file is gitignored and rewritten on every deploy, including the manual
+# `bash deploy/deploy.sh` path, so it can never go stale behind a real deploy.
+git rev-parse HEAD > .build-commit
+echo "==> Stamped .build-commit $(cat .build-commit)"
+
 # --- rollback snapshot -------------------------------------------------------------
 # Capture what is serving right now, BEFORE we replace it.
 #

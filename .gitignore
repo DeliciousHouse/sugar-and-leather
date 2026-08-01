@@ -2,6 +2,10 @@ node_modules
 dist
 .DS_Store
 
+# Written by deploy/deploy.sh so the image build can stamp dist/build.json with the
+# deployed commit. Machine-local and rewritten every deploy — never commit it.
+.build-commit
+
 # Local Netlify folder
 .netlify
 .gstack/
