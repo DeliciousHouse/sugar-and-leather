@@ -61,11 +61,17 @@ jobs:
 
       # Build the same commit the VM is about to deploy, purely to learn the content-hashed
       # bundle filename Vite produces (e.g. assets/index-C4tm3MiX.js). Vite's hashes are
-      # derived from content, so this filename is a fingerprint of the commit's frontend.
-      # The post-deploy step asserts production is serving exactly this file — which is the
-      # only way to distinguish "deployed" from "the old build is still up".
+      # derived from content, so this filename fingerprints the commit's frontend. It is a
+      # secondary signal only: it cannot detect a change that leaves the bundle identical,
+      # which is why the verify step gates on dist/build.json instead.
       - name: Check out the commit being deployed
         uses: actions/checkout@v4
+        with:
+          # Full history: the verify step runs `git merge-base --is-ancestor` to tell a
+          # superseded run (production on a NEWER commit, which is fine) apart from a
+          # failed deploy (production on an unrelated or older commit). The default
+          # depth-1 checkout has no ancestry to test.
+          fetch-depth: 0
 
       - uses: actions/setup-node@v4
         with:
@@ -111,32 +117,32 @@ jobs:
           printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > ~/.ssh/known_hosts
           chmod 644 ~/.ssh/known_hosts
 
-          # Sync the checkout to the just-merged commit, then run the deploy script
-          # that lives in the repo. Path is single-quoted for the remote shell so
-          # paths with spaces are handled safely.
+          # IMPORTANT: the command string below is NOT what runs on the VM.
           #
-          # The trailing rev-parse reports which commit the VM actually put live. That is
-          # NOT always github.sha: the VM resets to origin/main, so if another push landed
-          # between this run starting and the SSH executing, the VM builds the newer
-          # commit. The verify step asserts against what was deployed and reports the
-          # difference separately, so a superseded run says "superseded" instead of
-          # failing as if the deploy broke.
+          # The deploy key is restricted in the VM's authorized_keys with
+          #   restrict,command="/home/node/bin/sl-deploy-forced.sh"
+          # so sshd runs that script and puts our command in SSH_ORIGINAL_COMMAND, which
+          # the script deliberately ignores (the deploy user is in the docker group, which
+          # is root-equivalent on a VM running ~20 production containers, so the key must
+          # not be able to run arbitrary commands). The forced script does the fetch /
+          # checkout / reset itself and ends in `exec bash deploy/deploy.sh`.
+          #
+          # Two consequences, both of which have already cost a red build:
+          #   1. Editing this string changes nothing about what production runs. Deploy
+          #      behaviour lives in deploy/deploy.sh and in the forced script on the VM.
+          #   2. Nothing can be appended here to collect output. `exec` replaces the
+          #      shell, so there is no "and then echo the SHA" to be had. The verify step
+          #      below therefore works out what got deployed from git, not from the VM.
+          #
+          # `sl-deploy-selftest` is the one accepted argument: it proves the key and the
+          # forced command work without triggering a deploy.
           ssh -i ~/.ssh/deploy_key \
               -o IdentitiesOnly=yes \
               -o UserKnownHostsFile=~/.ssh/known_hosts \
               -o StrictHostKeyChecking=yes \
               -p "$port" \
               "$DEPLOY_USER@$DEPLOY_HOST" \
-              "set -euo pipefail; cd '$DEPLOY_PATH'; git fetch --prune origin; git checkout main; git reset --hard origin/main; bash deploy/deploy.sh; echo \"gha-deployed-sha=\$(git rev-parse HEAD)\"" \
-              | tee /tmp/deploy.log
-
-          deployed="$(grep -o 'gha-deployed-sha=[0-9a-f]\{40\}' /tmp/deploy.log | tail -1 | cut -d= -f2 || true)"
-          if [ -z "$deployed" ]; then
-            echo "::error::The deploy script did not report a deployed commit SHA."
-            exit 1
-          fi
-          echo "deployed_sha=$deployed" >> "$GITHUB_OUTPUT"
-          echo "VM deployed commit: $deployed"
+              "set -euo pipefail; cd '$DEPLOY_PATH'; git fetch --prune origin; git checkout main; git reset --hard origin/main; bash deploy/deploy.sh"
 
       # A bare "is it 200?" check cannot fail. A stale site returns 200, and because the
       # container serves an SPA with a catch-all fallback, so does a MISSING file. That is
@@ -146,24 +152,81 @@ jobs:
         env:
           HEALTHCHECK_URL: ${{ vars.HEALTHCHECK_URL }}
           EXPECTED_BUNDLE: ${{ steps.expected.outputs.bundle }}
-          DEPLOYED_SHA: ${{ steps.deploy.outputs.deployed_sha }}
           GITHUB_SHA: ${{ github.sha }}
         run: |
           set -euo pipefail
           url="${HEALTHCHECK_URL:-https://sugarandleather.com/}"
           base="${url%/}"
 
-          # EXPECTED_BUNDLE was built from this run's commit. If the VM deployed a
-          # different one (main moved while this run was queued), that bundle name
-          # describes a build nobody installed, so comparing against it would report a
-          # broken deploy when the deploy was fine. The build.json assertion below is
-          # commit-exact and covers the superseded case correctly, so skip this one.
+          # The bundle name only fingerprints the JS. Vite hashes by content, so a commit
+          # that touches nothing but static payload (public/assets images, robots/llms
+          # text, favicons, fonts) rebuilds to the SAME bundle name production is already
+          # serving, and comparing the two passes on attempt 1 without proving the deploy
+          # ran. That is the hole #22 fell through when it removed 1.5MB of unused logos.
+          #
+          # dist/build.json carries the commit SHA, which changes on every commit by
+          # construction, so it is the real gate and runs first.
+          #
+          # It may legitimately report a NEWER commit than this run: the VM resets to
+          # origin/main, so a run queued behind another push deploys the newer commit.
+          # That is a healthy deploy of a newer commit, not a failed deploy of this one,
+          # so accept any descendant of GITHUB_SHA and label the run superseded.
+          echo "Waiting for $base/build.json to report $GITHUB_SHA (or a descendant) ..."
+          reported=""
           superseded=no
-          [ "$DEPLOYED_SHA" != "$GITHUB_SHA" ] && superseded=yes
+          accepted=no
+          for attempt in 1 2 3 4 5 6; do
+            # Content type first: when build.json is missing the SPA fallback answers 200
+            # with the HTML shell, and jq would read that as an empty commit rather than
+            # an error. Same trap robots.txt guards against below.
+            ctype="$(curl -sS -o /tmp/build.json -w '%{content_type}' --max-time 20 "$base/build.json" || true)"
+            case "$ctype" in
+              application/json*) reported="$(jq -r '.commit // empty' /tmp/build.json 2>/dev/null || true)" ;;
+              *) reported="" ;;
+            esac
+            echo "Attempt $attempt: build.json reports '${reported:-<none>}' (content-type ${ctype:-<none>})"
+
+            if [ "$reported" = "$GITHUB_SHA" ]; then
+              accepted=yes
+              break
+            fi
+
+            # Fetch so a commit pushed after this run started is resolvable locally.
+            # checkout uses fetch-depth: 0, so the ancestry needed here is present.
+            if [ -n "$reported" ] && [ "$reported" != "unknown" ]; then
+              git fetch -q origin main 2>/dev/null || true
+              if git merge-base --is-ancestor "$GITHUB_SHA" "$reported" 2>/dev/null; then
+                accepted=yes
+                superseded=yes
+                break
+              fi
+            fi
+            sleep 10
+          done
+
+          if [ "$accepted" != "yes" ]; then
+            echo "::error::Production reports commit '${reported:-<nothing>}', which is not"
+            echo "::error::$GITHUB_SHA nor a descendant of it. The new build did not reach the"
+            echo "::error::served container."
+            echo "::error::'unknown' means deploy/deploy.sh did not stamp .build-commit."
+            echo "::error::'<nothing>' with content-type text/html means build.json is not being"
+            echo "::error::served: the live image predates this check, so redeploy from the VM once."
+            exit 1
+          fi
 
           if [ "$superseded" = "yes" ]; then
-            echo "Skipping the bundle-name check: this run targeted $GITHUB_SHA but the VM"
-            echo "deployed $DEPLOYED_SHA, so the expected bundle name is for an uninstalled build."
+            echo "::notice::This run was superseded. It targeted $GITHUB_SHA but main had moved,"
+            echo "::notice::so the VM deployed $reported. Production is live and verified on that"
+            echo "::notice::newer commit, and its own run will confirm it again."
+          else
+            echo "Commit matches: $GITHUB_SHA"
+          fi
+
+          # EXPECTED_BUNDLE was built from THIS run's commit, so it only describes what is
+          # installed when the run was not superseded. Checking it otherwise would report
+          # a broken deploy for a build nobody installed.
+          if [ "$superseded" = "yes" ]; then
+            echo "Skipping the bundle-name check: the expected bundle is for an uninstalled build."
           else
             echo "Waiting for $url to serve $EXPECTED_BUNDLE ..."
             served=""
@@ -177,51 +240,11 @@ jobs:
 
             if [ "$served" != "$EXPECTED_BUNDLE" ]; then
               echo "::error::Production is serving '${served:-<nothing>}' but this commit builds"
-              echo "::error::'$EXPECTED_BUNDLE'. The deploy did not take effect — the container is"
+              echo "::error::'$EXPECTED_BUNDLE'. The deploy did not take effect - the container is"
               echo "::error::probably still running the previous image. See deploy/README.md."
               exit 1
             fi
             echo "Bundle matches."
-          fi
-
-          # The bundle name only fingerprints the JS. Vite hashes by content, so a commit
-          # that touches nothing but static payload (public/assets images, robots/llms
-          # text, favicons, fonts) rebuilds to the SAME bundle name production is already
-          # serving -- and the check above passes on attempt 1 without proving anything.
-          # That is the hole #22 fell through when it removed 1.5MB of unused logos.
-          #
-          # dist/build.json carries the commit SHA, which changes on every commit by
-          # construction, so this assertion covers code and asset changes alike.
-          echo "Waiting for $base/build.json to report $DEPLOYED_SHA ..."
-          reported=""
-          for attempt in 1 2 3 4 5 6; do
-            # Content type first: if build.json is missing, the SPA fallback answers 200
-            # with the HTML shell, and jq would parse that as a null commit rather than
-            # an error. Same trap robots.txt guards against below.
-            ctype="$(curl -sS -o /tmp/build.json -w '%{content_type}' --max-time 20 "$base/build.json" || true)"
-            case "$ctype" in
-              application/json*) reported="$(jq -r '.commit // empty' /tmp/build.json 2>/dev/null || true)" ;;
-              *) reported="" ;;
-            esac
-            echo "Attempt $attempt: build.json reports '${reported:-<none>}' (content-type ${ctype:-<none>})"
-            [ "$reported" = "$DEPLOYED_SHA" ] && break
-            sleep 10
-          done
-
-          if [ "$reported" != "$DEPLOYED_SHA" ]; then
-            echo "::error::Production reports commit '${reported:-<nothing>}' but the VM deployed"
-            echo "::error::'$DEPLOYED_SHA'. The new build did not reach the served container."
-            echo "::error::If the value is 'unknown', deploy/deploy.sh did not stamp .build-commit."
-            echo "::error::If build.json 404s (content-type text/html), the deployed image predates"
-            echo "::error::this check -- redeploy once from the VM to install it."
-            exit 1
-          fi
-          echo "Commit matches: $DEPLOYED_SHA"
-
-          if [ "$superseded" = "yes" ]; then
-            echo "::notice::This run was superseded. It targeted $GITHUB_SHA but main had moved,"
-            echo "::notice::so the VM deployed $DEPLOYED_SHA. Production is live and verified on the"
-            echo "::notice::newer commit; the run for that commit will confirm it again."
           fi
 
           # robots.txt is the canary for the SPA-fallback trap: if the file is missing the
