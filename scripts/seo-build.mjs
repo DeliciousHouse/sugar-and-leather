@@ -20,6 +20,8 @@
 // index.html inside it. Unmatched paths still fall through to the SPA shell. No Caddy
 // change was needed.
 
+import { execFileSync } from 'node:child_process';
+import { readFileSync } from 'node:fs';
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -140,6 +142,54 @@ ${entries}
   console.log(`  sitemap.xml: ${indexableRoutes().length} URLs`);
 }
 
+// The deploy verifier needs one artifact that changes on EVERY commit. The bundle
+// filename cannot do it: Vite hashes bundles by content, so a commit that only touches
+// static payload (public/assets images, robots/llms text, favicons, fonts) rebuilds to a
+// byte-identical bundle name. deploy.yml then compares that name against what production
+// already serves, they match, and the check passes without proving the deploy ran at all.
+// Removing 1.5MB of unused logos in #22 is exactly that case.
+//
+// The commit SHA is deterministic per commit and changes every time, so asserting on it
+// closes the whole class rather than one instance. Resolution order matters because the
+// production build runs INSIDE Docker, where .git does not exist (.dockerignore excludes
+// it): deploy/deploy.sh writes .build-commit into the build context before building, and
+// that is the value that reaches production. The env var is an escape hatch for other
+// build systems; the git call only ever fires for a local `npm run build`.
+//
+// builtAt is for humans reading the file. Never assert on it — CI and the VM build the
+// same commit at different times.
+function resolveCommit() {
+  const fromEnv = process.env.BUILD_COMMIT || process.env.GITHUB_SHA;
+  if (fromEnv?.trim()) return fromEnv.trim();
+
+  try {
+    return readFileSync(join(ROOT, '.build-commit'), 'utf8').trim();
+  } catch {
+    /* not a deploy build */
+  }
+
+  try {
+    return execFileSync('git', ['rev-parse', 'HEAD'], {
+      cwd: ROOT,
+      stdio: ['ignore', 'pipe', 'ignore'],
+    })
+      .toString()
+      .trim();
+  } catch {
+    // No env var, no .build-commit, no git. Emit "unknown" rather than throwing: a local
+    // build from a tarball is legitimate. deploy.yml refuses to accept "unknown" as a
+    // match, so an unfingerprinted build fails the gate instead of passing it silently.
+    return 'unknown';
+  }
+}
+
+async function buildBuildInfo() {
+  const commit = resolveCommit();
+  const json = JSON.stringify({ commit, builtAt: new Date().toISOString() }, null, 2);
+  await writeFile(join(DIST, 'build.json'), `${json}\n`, 'utf8');
+  console.log(`  build.json: ${commit}`);
+}
+
 async function buildRobots() {
   const txt = `User-agent: *
 Allow: /
@@ -199,4 +249,5 @@ await buildPages(shell);
 await buildSitemap();
 await buildRobots();
 await buildLlms();
+await buildBuildInfo();
 console.log('==> SEO build complete');
