@@ -9,8 +9,9 @@
     "build": "node scripts/seo-check.mjs && vite build && node scripts/seo-build.mjs",
     "preview": "vite preview",
     "seo:check": "node scripts/seo-check.mjs",
+    "test:ci-gate": "node --test tests/ci-gate.test.mjs",
     "lint": "eslint .",
-    "verify": "npm run lint && npm run build"
+    "verify": "npm run test:ci-gate && npm run lint && npm run build"
   },
   "dependencies": {
     "html-to-image": "^1.11.13",

@@ -175,7 +175,7 @@
   /* ---------- floating hero names — gentle drift + mouse follow ---------- */
   var floats = Array.prototype.slice.call(document.querySelectorAll('[data-float]'));
   var cluster = document.getElementById('cluster');
-  floats.forEach(function (f, idx) {
+  floats.forEach(function (f) {
     f._phase = Math.random() * Math.PI * 2;
     f._speed = 0.5 + Math.random() * 0.4;
     f._amp = 7 + Math.random() * 6;

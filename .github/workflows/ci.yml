@@ -27,10 +27,9 @@ on:
     branches: [main]
 
 concurrency:
-  group: ci-${{ github.ref }}
-  # Cancel superseded PR runs; never cancel a push to main. Cancelling main runs means a
-  # commit can land with no terminal verification result, which is how a bad commit slips
-  # in behind a fast follow-up. PR runs have no such risk: the branch gets re-verified.
+  # Pull requests share a stable, cancelable group. Every push gets its own group because
+  # GitHub replaces a pending run in a shared group even when cancel-in-progress is false.
+  group: ci-${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || format('push-{0}', github.run_id) }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 permissions:
@@ -39,21 +38,21 @@ permissions:
 jobs:
   verify:
     name: Verify
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           # No token left on disk. This job only reads code; it must never be able to push.
           persist-credentials: false
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          # Must match the image that builds production (Dockerfile: node:22-alpine) and
+          # Must match the image that builds production (Dockerfile: node:22.23.2-alpine) and
           # the deploy workflow. The earlier attempts used Node 24, so CI was verifying
           # against a runtime production never uses.
-          node-version: '22'
+          node-version: '22.23.2'
           cache: npm
 
       # `npm ci` not `npm install`: fails closed if package-lock.json and package.json
