@@ -1,0 +1,67 @@
+name: CI
+
+# Merge gate for sugar-and-leather. Runs `npm run verify` (lint + production build),
+# the same command you run locally. One source of truth, no CI-only script.
+#
+# HISTORY, so the fourth attempt does not become the fifth. SLW-30 was attempted three
+# times (PRs #9, #14, #15) and closed unmerged every time. Every blocking finding was a
+# fail-open path in the GATE'S OWN machinery, never in the code it was checking:
+#   - diff-scoped linting that skipped cross-config dependents
+#   - a TypeScript diagnostic baseline that could be deleted and regrown to launder an error
+#   - tsconfigs that could be renamed to bypass checking entirely
+#   - main-push concurrency that could cancel a run and leave a commit unverified
+#
+# The first three are consequences of two choices this workflow does not make. Diff-scoping
+# and diagnostic baselines exist to retrofit a gate onto a codebase that already has
+# violations. This repo is 80 JSX files, has zero TypeScript, and lints clean. So:
+#   - every run lints the ENTIRE repo. Nothing to scope, so nothing to scope wrongly.
+#   - there is no baseline file. Nothing to tamper with.
+# That is simpler AND strictly stronger than what was proposed before.
+#
+# The fourth (concurrency) is real and is fixed below.
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  # Cancel superseded PR runs; never cancel a push to main. Cancelling main runs means a
+  # commit can land with no terminal verification result, which is how a bad commit slips
+  # in behind a fast follow-up. PR runs have no such risk: the branch gets re-verified.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # No token left on disk. This job only reads code; it must never be able to push.
+          persist-credentials: false
+
+      - uses: actions/setup-node@v4
+        with:
+          # Must match the image that builds production (Dockerfile: node:22-alpine) and
+          # the deploy workflow. The earlier attempts used Node 24, so CI was verifying
+          # against a runtime production never uses.
+          node-version: '22'
+          cache: npm
+
+      # `npm ci` not `npm install`: fails closed if package-lock.json and package.json
+      # disagree, rather than silently resolving something new.
+      - name: Install
+        run: npm ci
+
+      # Lint and production build. The build includes scripts/seo-check.mjs, which already
+      # fails on duplicate or missing route titles and descriptions.
+      - name: Verify
+        run: npm run verify

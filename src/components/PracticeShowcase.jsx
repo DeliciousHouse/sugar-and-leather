@@ -1,5 +1,5 @@
 import {
-  Infinity,
+  Infinity as InfinityIcon,
   UserRound,
   Lock,
   Flame,
@@ -47,7 +47,9 @@ import Button from './ui/Button';
 import Carousel from './ui/Carousel';
 
 const ICONS = {
-  Infinity,
+  // Key must stay 'Infinity': src/data/siteContent.js selects icons by this string.
+  // Only the import binding is renamed, to avoid shadowing the global Infinity.
+  Infinity: InfinityIcon,
   UserRound,
   Lock,
   Flame,
