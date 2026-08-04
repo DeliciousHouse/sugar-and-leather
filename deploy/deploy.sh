@@ -173,9 +173,13 @@ else
   wait_until_serving
 fi
 
-# Deliberately NOT running `docker image prune -f` here. On 2026-07-23 that is what
-# destroyed the only copy of the then-live image, leaving production with no rollback
-# artifact. `${IMAGE_NAME}:previous` is the rollback target and must survive; prune
-# images manually when you have confirmed the deploy is good.
+# Post-deploy cleanup, scoped so the 2026-07-23 incident cannot repeat. That day a
+# blanket image prune destroyed the only copy of the then-live image (built on-host,
+# present in no registry). The rollback target `${IMAGE_NAME}:previous` is TAGGED,
+# and a dangling-only prune (no -a) never touches tagged images, so it survives by
+# construction. `-a` on images stays deliberately forbidden in this repo.
+echo "==> Pruning dangling images and stale build cache (tagged rollback image preserved)"
+docker image prune -f --filter "until=168h" || true
+docker builder prune -af --filter "until=168h" || true
 
 echo "==> Deploy complete"
