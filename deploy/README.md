@@ -48,8 +48,11 @@ Three rules follow, and violating any of them fails **silently** rather than lou
 > leaving production with no rollback artifact.
 >
 > `deploy.sh` now delegates to the parent stack compose file, snapshots the live container
-> before replacing it, refuses to publish a conflicting host port, no longer prunes, and
-> blocks until the new container actually answers an HTTP request.
+> before replacing it, refuses to publish a conflicting host port, and blocks until the new
+> container answers an HTTP request. Only after that readiness gate succeeds, it non-fatally
+> prunes dangling images older than 168 hours and unused builder cache older than 168 hours.
+> Because image cleanup is dangling-only (never `-a`), the tagged
+> `${IMAGE_NAME}:previous` rollback image is preserved.
 
 This repo's own `.env`: there isn't one, and none is needed. The site is a static Vite
 build with no runtime configuration — all environment lives in the stack-level
@@ -63,7 +66,9 @@ from the Actions tab). It:
 1. SSHes into the VM.
 2. Syncs the checkout there to the merged commit (`git reset --hard origin/main`).
 3. Runs [`deploy/deploy.sh`](./deploy.sh), which rebuilds the Docker image and restarts the container.
-4. Curls the live site and fails the run if it doesn't return `HTTP 200`.
+4. Verifies the live commit identity from `build.json`, the expected content-hashed bundle
+   when the run was not superseded, and the `robots.txt` content type. The run fails closed
+   when production is stale or the SPA fallback is masquerading as a real static asset.
 
 > Before this workflow existed, a push to `main` did nothing to the live site — the VM
 > container had to be rebuilt by hand. That's why merged changes could sit undeployed.

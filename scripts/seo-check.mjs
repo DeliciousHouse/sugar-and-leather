@@ -23,12 +23,20 @@ import { fileURLToPath } from 'node:url';
 import { ORGANIZATION, ROUTES, canonicalFor, titleFor } from '../src/data/seo.js';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
+/** @param {string} rel */
 const read = (rel) => readFile(join(ROOT, rel), 'utf8');
 
+/** @type {string[]} */
 const errors = [];
+/** @param {string} msg */
 const fail = (msg) => errors.push(msg);
 
-/** Pull a `export const NAME = ['a', 'b'];` string-array literal out of a source file. */
+/**
+ * Pull a `export const NAME = ['a', 'b'];` string-array literal out of a source file.
+ * @param {string} src
+ * @param {string} name
+ * @returns {string[] | null}
+ */
 function parseSlugArray(src, name) {
   const m = src.match(new RegExp(`export const ${name}\\s*=\\s*\\[([\\s\\S]*?)\\]`));
   if (!m) return null;
@@ -54,7 +62,7 @@ for (const [name, val] of [
 ])
   if (!val?.length) fail(`could not parse ${name} — seo-check needs updating`);
 
-if (errors.length) {
+if (!productSlugs?.length || !podSlugs?.length || !ecosystemSlugs?.length) {
   for (const e of errors) console.error(`seo-check: ${e}`);
   process.exit(1);
 }
@@ -63,6 +71,7 @@ if (errors.length) {
 // Static <Route path="x" element={<Page/>}/> entries, skipping the legacy redirects
 // (element is <Navigate/> or a Redirect* helper) and the dynamic `:param` routes, which
 // we expand from the slug arrays below.
+/** @type {string[]} */
 const staticPaths = [];
 for (const m of appSrc.matchAll(/<Route\s+path="([^"]+)"\s+element=\{([^}]*)\}/g)) {
   const [, path, element] = m;

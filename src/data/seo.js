@@ -233,16 +233,23 @@ export const ROUTES = [
 /** Routes that belong in the sitemap and should be indexed. */
 export const indexableRoutes = () => ROUTES.filter((r) => r.index !== false);
 
-/** Full <title> for a route, applying the site suffix unless the route overrides it. */
+/**
+ * Full <title> for a route, applying the site suffix unless the route overrides it.
+ * @param {(typeof ROUTES)[number]} route
+ */
 export const titleFor = (route) => route.fullTitle ?? `${route.title}${SITE.titleSuffix}`;
 
-/** Absolute canonical URL for a route. */
+/**
+ * Absolute canonical URL for a route.
+ * @param {(typeof ROUTES)[number]} route
+ */
 export const canonicalFor = (route) =>
   route.path === '/' ? `${SITE.origin}/` : `${SITE.origin}${route.path}`;
 
 /**
  * Look up the SEO entry for a pathname. Trailing slashes are normalized so that
  * `/about` and `/about/` resolve to the same entry.
+ * @param {string} pathname
  */
 export const routeFor = (pathname) => {
   const normalized =

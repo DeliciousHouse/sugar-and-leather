@@ -38,6 +38,7 @@ import {
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const DIST = join(ROOT, 'dist');
 
+/** @param {unknown} s */
 const escapeHtml = (s) =>
   String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
@@ -45,6 +46,7 @@ const escapeHtml = (s) =>
 // the timestamp is meaningless. Date granularity matches how often content actually moves.
 const BUILD_DATE = new Date().toISOString().slice(0, 10);
 
+/** @param {(typeof ROUTES)[number]} route */
 function headFor(route) {
   const title = titleFor(route);
   const canonical = canonicalFor(route);
@@ -99,13 +101,17 @@ function headFor(route) {
   ].join('\n    ');
 }
 
-/** Strip the head tags Vite emitted from index.html so ours are the only copy. */
+/**
+ * Strip the head tags Vite emitted from index.html so ours are the only copy.
+ * @param {string} html
+ */
 function stripExisting(html) {
   return html
     .replace(/\s*<title>[\s\S]*?<\/title>/i, '')
     .replace(/\s*<meta\s+name="description"[^>]*>/i, '');
 }
 
+/** @param {string} shell */
 async function buildPages(shell) {
   const stripped = stripExisting(shell);
   for (const route of ROUTES) {
@@ -209,6 +215,7 @@ async function buildLlms() {
   ];
 
   const home = ROUTES.find((r) => r.path === '/');
+  if (!home) throw new Error('src/data/seo.js must declare the home route');
   const lines = [
     `# ${SITE.name}`,
     '',
