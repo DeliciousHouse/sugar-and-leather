@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Camera, Paperclip, X } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 import {
