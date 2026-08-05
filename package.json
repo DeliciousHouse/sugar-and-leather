@@ -4,11 +4,16 @@
   "version": "1.0.0",
   "homepage": "https://sugarandleather.com/",
   "type": "module",
+  "engines": {
+    "node": ">=24 <25"
+  },
   "scripts": {
     "dev": "vite",
     "build": "node scripts/seo-check.mjs && vite build && node scripts/seo-build.mjs",
     "preview": "vite preview",
-    "seo:check": "node scripts/seo-check.mjs"
+    "seo:check": "node scripts/seo-check.mjs",
+    "test": "node --test",
+    "verify": "npm run test && npm run build"
   },
   "dependencies": {
     "html-to-image": "^1.11.13",
