@@ -4,8 +4,12 @@
   "version": "1.0.0",
   "homepage": "https://sugarandleather.com/",
   "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
   "scripts": {
     "dev": "vite",
+    "verify": "npm run build",
     "build": "node scripts/seo-check.mjs && vite build && node scripts/seo-build.mjs",
     "preview": "vite preview",
     "seo:check": "node scripts/seo-check.mjs"
