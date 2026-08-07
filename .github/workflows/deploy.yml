@@ -75,7 +75,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version-file: '.nvmrc'
           cache: npm
 
       - name: Build the expected artifact
@@ -83,7 +83,7 @@ jobs:
         run: |
           set -euo pipefail
           npm ci
-          npm run build
+          npm run verify
           bundle="$(grep -o 'assets/index-[A-Za-z0-9_-]*\.js' dist/index.html | head -1)"
           if [ -z "$bundle" ]; then
             echo "::error::Could not determine the bundle filename from dist/index.html."

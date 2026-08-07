@@ -5,7 +5,7 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
 COPY . .
-RUN npm run build
+RUN npm run verify
 
 FROM caddy:2-alpine AS runner
 COPY Caddyfile.container /etc/caddy/Caddyfile
