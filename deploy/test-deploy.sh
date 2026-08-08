@@ -36,23 +36,40 @@ case "${1:-}" in
       case "${format}" in
         *State.Status*) printf '%s\n' running ;;
         *State.Error*) printf '\n' ;;
+        *.Image*) printf '%s\n' sha256:live-image ;;
       esac
     else
       [ "$(state)" != "none" ]
     fi
     ;;
   commit)
-    [ "${FAKE_DEPLOY_FAILURE:-}" != "snapshot" ] || exit 41
+    if [[ "${FAKE_DEPLOY_FAILURE:-}" = snapshot* ]]; then
+      echo "fake docker commit diagnostic" >&2
+      exit 41
+    fi
     [ "$(state)" != "none" ] || exit 1
     touch "${FAKE_DOCKER_DIR}/rollback-image"
     ;;
   image)
     [ "${2:-}" = "inspect" ] || exit 2
-    [ -f "${FAKE_DOCKER_DIR}/rollback-image" ]
+    case "${3:-}" in
+      sha256:live-image) [ "${FAKE_DEPLOY_FAILURE:-}" != "snapshot-no-image" ] ;;
+      sugar-and-leather:previous) [ -f "${FAKE_DOCKER_DIR}/rollback-image" ] ;;
+      *) exit 2 ;;
+    esac
     ;;
   tag)
-    [ -f "${FAKE_DOCKER_DIR}/rollback-image" ] || exit 1
-    touch "${FAKE_DOCKER_DIR}/rollback-selected"
+    case "${2:-} ${3:-}" in
+      "sha256:live-image sugar-and-leather:previous")
+        [ "${FAKE_DEPLOY_FAILURE:-}" != "snapshot-no-image" ] || exit 1
+        touch "${FAKE_DOCKER_DIR}/rollback-image"
+        ;;
+      "sugar-and-leather:previous openclaw-n8n-stack-sugar-main-web")
+        [ -f "${FAKE_DOCKER_DIR}/rollback-image" ] || exit 1
+        touch "${FAKE_DOCKER_DIR}/rollback-selected"
+        ;;
+      *) exit 2 ;;
+    esac
     ;;
   network)
     [ "${2:-}" = "inspect" ]
@@ -170,6 +187,12 @@ assert_not_logged() {
   fi
 }
 
+assert_output_contains() {
+  local output
+  output="$(cat "${FAKE_DOCKER_DIR}/output")"
+  [[ "${output}" = *"$1"* ]] || fail "missing deploy output: $1"
+}
+
 assert_before() {
   local first second
   first="$(line_of "$1")" || fail "missing docker command: $1"
@@ -209,11 +232,21 @@ run_case first-deploy "" none
 [ "$(cat "${FAKE_DOCKER_STATE}")" = replacement ] || fail "first deploy did not leave the replacement serving"
 assert_not_logged "commit sugar-main-web"
 
-run_case snapshot-failure snapshot
-[ "${CASE_STATUS}" -ne 0 ] || fail "snapshot failure did not propagate"
-[ "$(cat "${FAKE_DOCKER_STATE}")" = live ] || fail "snapshot failure did not retain the live container"
+run_case snapshot-fallback snapshot
+[ "${CASE_STATUS}" -eq 0 ] || fail "inspectable live-image fallback exited ${CASE_STATUS}, expected 0"
+[ "$(cat "${FAKE_DOCKER_STATE}")" = replacement ] || fail "fallback deploy did not leave the replacement serving"
+assert_output_contains "fake docker commit diagnostic"
+assert_logged "inspect --format {{.Image}} sugar-main-web"
+assert_before "image inspect sha256:live-image" "tag sha256:live-image sugar-and-leather:previous"
+assert_before "tag sha256:live-image sugar-and-leather:previous" "image inspect sugar-and-leather:previous"
+
+run_case rollback-capture-failure snapshot-no-image
+[ "${CASE_STATUS}" -ne 0 ] || fail "unusable snapshot and live image did not abort"
+[ "$(cat "${FAKE_DOCKER_STATE}")" = live ] || fail "rollback capture failure did not retain the live container"
+assert_output_contains "fake docker commit diagnostic"
 assert_not_logged "compose -f ${TMP}/docker-compose.yml build sugar-main-web"
 assert_not_logged "rm -f sugar-main-web"
+assert_not_logged "compose -f ${TMP}/docker-compose.yml up"
 
 run_case build-failure build
 [ "${CASE_STATUS}" -ne 0 ] || fail "build failure did not propagate"
