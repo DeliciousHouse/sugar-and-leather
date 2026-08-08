@@ -148,10 +148,12 @@ Push to `main`, or run **Actions → Deploy to production → Run workflow**.
    service matching `SERVICE_NAME`, deploy through it, scoped to just that service.
 3. **Plain docker** — otherwise `docker build` + `docker run` with the settings below.
 
-Every path verifies a snapshot of the outgoing container as
+Every path verifies a rollback target for the outgoing container as
 `sugar-and-leather:previous`, builds the replacement while the outgoing container keeps
-serving, and only then replaces it. A start or readiness failure restores the snapshot and
-returns nonzero. Override via env vars:
+serving, and only then replaces it. It prefers a container snapshot; if that fails, it uses
+the live container's exact image only when that image and the new rollback tag both verify.
+A start or readiness failure restores the rollback target and returns nonzero. Override via
+env vars:
 
 | Variable | Default | When to change it |
 | --- | --- | --- |
@@ -177,8 +179,11 @@ bash deploy/deploy.sh
 
 ## Rolling back
 
-`deploy.sh` snapshots the outgoing container to `sugar-and-leather:previous` (via
-`docker commit`) before each deploy. Start and readiness failures roll back automatically.
+`deploy.sh` captures the outgoing container as `sugar-and-leather:previous` before each
+deploy. It prefers `docker commit`; if that fails, it can tag the live container's exact
+image id only when the image still exists and the resulting rollback tag verifies. If
+neither path works, deployment stops before build or replacement. Start and readiness
+failures roll back automatically.
 To roll back a deploy that passed readiness but was later found bad, keep the service under
 Compose management:
 
@@ -188,11 +193,11 @@ docker tag sugar-and-leather:previous "$ROLLBACK_IMAGE"
 docker compose -f ../docker-compose.yml up -d --no-build --force-recreate sugar-main-web
 ```
 
-It snapshots the **container**, not the image id, on purpose. An image record can be pruned
-out from under a running container — the container keeps serving, but `docker image inspect`
-on its image reports `No such image`, so `docker tag` would fail and abort the deploy. That
-is not hypothetical: it is the state the VM was left in after 2026-07-23, which is why the
-first deploy after that incident had no rollback artifact until one was committed by hand.
+It prefers the **container snapshot** over the image id on purpose. An image record can be
+pruned out from under a running container — the container keeps serving, but `docker image
+inspect` on its image reports `No such image`, so the fallback correctly aborts. That is not
+hypothetical: it is the state the VM was left in after 2026-07-23, which is why the first
+deploy after that incident had no rollback artifact until one was committed by hand.
 
 ## Verifying a deploy actually landed
 

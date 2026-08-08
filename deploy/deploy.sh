@@ -77,26 +77,39 @@ echo "==> Stamped .build-commit $(cat .build-commit)"
 # --- rollback snapshot -------------------------------------------------------------
 # Capture what is serving right now, BEFORE we replace it.
 #
-# Deliberately `docker commit` (snapshot the container) rather than `docker tag` (alias
-# the container's image id): an image record can be pruned out from under a running
-# container, leaving the container alive but its image un-inspectable. Verify the new
-# snapshot before proceeding; replacing a live container without a usable rollback image
-# turns an ordinary deploy failure into an outage.
+# Prefer `docker commit` so rollback still works when the live container's original image
+# was pruned. If commit fails, the exact image id recorded on the live container is a safe
+# fallback only when it remains inspectable and the rollback tag can be verified.
 ROLLBACK_AVAILABLE=no
 COMPOSE_IMAGE="${IMAGE_NAME}:latest"
 snapshot_rollback() {
+  local live_image
+
   if ! docker inspect "${CONTAINER_NAME}" >/dev/null 2>&1; then
     echo "==> No existing ${CONTAINER_NAME} to snapshot (first deploy)"
     return 0
   fi
-  if ! docker commit "${CONTAINER_NAME}" "${IMAGE_NAME}:previous" >/dev/null 2>&1 \
-     || ! docker image inspect "${IMAGE_NAME}:previous" >/dev/null 2>&1; then
+
+  if docker commit "${CONTAINER_NAME}" "${IMAGE_NAME}:previous" >/dev/null \
+     && docker image inspect "${IMAGE_NAME}:previous" >/dev/null; then
+    ROLLBACK_AVAILABLE=yes
+    echo "==> Snapshotted live container as ${IMAGE_NAME}:previous (rollback target)"
+    return 0
+  fi
+
+  echo "WARNING: docker commit did not produce a verified rollback snapshot; checking the live image." >&2
+  if ! live_image="$(docker inspect --format '{{.Image}}' "${CONTAINER_NAME}")" \
+     || [ -z "${live_image}" ] \
+     || ! docker image inspect "${live_image}" >/dev/null \
+     || ! docker tag "${live_image}" "${IMAGE_NAME}:previous" \
+     || ! docker image inspect "${IMAGE_NAME}:previous" >/dev/null; then
     echo "ERROR: could not capture a usable rollback image from ${CONTAINER_NAME}." >&2
     echo "       The live container was not changed." >&2
     return 1
   fi
+
   ROLLBACK_AVAILABLE=yes
-  echo "==> Snapshotted live container as ${IMAGE_NAME}:previous (rollback target)"
+  echo "==> Tagged inspectable live image ${live_image} as ${IMAGE_NAME}:previous (rollback target)"
 }
 
 # --- readiness gate ----------------------------------------------------------------
