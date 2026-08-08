@@ -79,21 +79,24 @@ echo "==> Stamped .build-commit $(cat .build-commit)"
 #
 # Deliberately `docker commit` (snapshot the container) rather than `docker tag` (alias
 # the container's image id): an image record can be pruned out from under a running
-# container, leaving the container alive but its image un-inspectable. That is exactly
-# the state the production VM is in today — `sugar-main-web` runs image e961f56e5916,
-# which `docker image inspect` reports as "No such image", so tagging it would fail and
-# abort the deploy under `set -e`. `docker commit` always works.
+# container, leaving the container alive but its image un-inspectable. Verify the new
+# snapshot before proceeding; replacing a live container without a usable rollback image
+# turns an ordinary deploy failure into an outage.
+ROLLBACK_AVAILABLE=no
+COMPOSE_IMAGE="${IMAGE_NAME}:latest"
 snapshot_rollback() {
   if ! docker inspect "${CONTAINER_NAME}" >/dev/null 2>&1; then
     echo "==> No existing ${CONTAINER_NAME} to snapshot (first deploy)"
     return 0
   fi
-  if docker commit "${CONTAINER_NAME}" "${IMAGE_NAME}:previous" >/dev/null 2>&1; then
-    echo "==> Snapshotted live container as ${IMAGE_NAME}:previous (rollback target)"
-  else
-    echo "WARNING: could not snapshot ${CONTAINER_NAME}. Continuing, but there will be no" >&2
-    echo "         rollback image if this deploy is bad." >&2
+  if ! docker commit "${CONTAINER_NAME}" "${IMAGE_NAME}:previous" >/dev/null 2>&1 \
+     || ! docker image inspect "${IMAGE_NAME}:previous" >/dev/null 2>&1; then
+    echo "ERROR: could not capture a usable rollback image from ${CONTAINER_NAME}." >&2
+    echo "       The live container was not changed." >&2
+    return 1
   fi
+  ROLLBACK_AVAILABLE=yes
+  echo "==> Snapshotted live container as ${IMAGE_NAME}:previous (rollback target)"
 }
 
 # --- readiness gate ----------------------------------------------------------------
@@ -127,12 +130,91 @@ wait_until_serving() {
   done
 }
 
+remove_current_container() {
+  if [ "${ROLLBACK_AVAILABLE}" = yes ]; then
+    docker rm -f "${CONTAINER_NAME}"
+  else
+    docker rm -f "${CONTAINER_NAME}" >/dev/null 2>&1 || true
+  fi
+}
+
+restore_compose_rollback() {
+  local cause="$1"
+  echo "ERROR: ${cause}; restoring ${IMAGE_NAME}:previous" >&2
+  if [ "${ROLLBACK_AVAILABLE}" != yes ]; then
+    echo "ERROR: no previous container existed, so there is no rollback target." >&2
+    return 1
+  fi
+
+  docker rm -f "${CONTAINER_NAME}" >/dev/null 2>&1 || true
+  if ! docker tag "${IMAGE_NAME}:previous" "${COMPOSE_IMAGE}" \
+     || ! "${COMPOSE_COMMAND[@]}" up -d --no-build --force-recreate "${COMPOSE_SERVICES[@]}" \
+     || ! wait_until_serving; then
+    echo "ERROR: automatic rollback failed; ${CONTAINER_NAME} requires immediate recovery." >&2
+    return 1
+  fi
+  echo "==> Restored ${CONTAINER_NAME} from ${IMAGE_NAME}:previous" >&2
+  return 1
+}
+
+deploy_compose() {
+  if [ "${#COMPOSE_SERVICES[@]}" -eq 1 ]; then
+    COMPOSE_IMAGE="$("${COMPOSE_COMMAND[@]}" config --images "${COMPOSE_SERVICES[0]}")"
+    if [ -z "${COMPOSE_IMAGE}" ] || [[ "${COMPOSE_IMAGE}" = *$'\n'* ]]; then
+      echo "ERROR: could not resolve one Compose image for ${COMPOSE_SERVICES[0]}." >&2
+      return 1
+    fi
+  fi
+
+  snapshot_rollback
+
+  # Build while the current container is still serving. Compose cannot adopt an
+  # identically named container that predates its project labels, so remove that
+  # container only after the replacement image and rollback target both exist.
+  "${COMPOSE_COMMAND[@]}" build "${COMPOSE_SERVICES[@]}"
+  remove_current_container
+
+  if ! "${COMPOSE_COMMAND[@]}" up -d --no-build --force-recreate \
+       "${COMPOSE_UP_OPTIONS[@]}" "${COMPOSE_SERVICES[@]}"; then
+    restore_compose_rollback "compose could not start the replacement"
+  fi
+  if ! wait_until_serving; then
+    restore_compose_rollback "the replacement failed its readiness check"
+  fi
+}
+
+run_standalone_container() {
+  local image="$1"
+  local -a run_options=(--name "${CONTAINER_NAME}" --restart unless-stopped)
+  [ -z "${NETWORK}" ] || run_options+=(--network "${NETWORK}")
+  [ -z "${HOST_PORT}" ] || run_options+=(-p "${HOST_PORT}:${CONTAINER_PORT}")
+  docker run -d "${run_options[@]}" "${image}"
+}
+
+restore_standalone_rollback() {
+  local cause="$1"
+  echo "ERROR: ${cause}; restoring ${IMAGE_NAME}:previous" >&2
+  if [ "${ROLLBACK_AVAILABLE}" != yes ]; then
+    echo "ERROR: no previous container existed, so there is no rollback target." >&2
+    return 1
+  fi
+
+  docker rm -f "${CONTAINER_NAME}" >/dev/null 2>&1 || true
+  if ! run_standalone_container "${IMAGE_NAME}:previous" || ! wait_until_serving; then
+    echo "ERROR: automatic rollback failed; ${CONTAINER_NAME} requires immediate recovery." >&2
+    return 1
+  fi
+  echo "==> Restored ${CONTAINER_NAME} from ${IMAGE_NAME}:previous" >&2
+  return 1
+}
+
 if [ -f docker-compose.yml ] || [ -f compose.yml ] || [ -f docker-compose.yaml ] || [ -f compose.yaml ]; then
   # Repo-local compose stack.
   echo "==> Repo compose file detected — deploying with docker compose"
-  snapshot_rollback
-  docker compose up -d --build --remove-orphans
-  wait_until_serving
+  COMPOSE_COMMAND=(docker compose)
+  COMPOSE_SERVICES=()
+  COMPOSE_UP_OPTIONS=(--remove-orphans)
+  deploy_compose
 
 elif [ -n "${STACK_COMPOSE}" ] && [ -f "${STACK_COMPOSE}" ] \
      && docker compose -f "${STACK_COMPOSE}" config --services 2>/dev/null | grep -qx "${SERVICE_NAME}"; then
@@ -140,11 +222,12 @@ elif [ -n "${STACK_COMPOSE}" ] && [ -f "${STACK_COMPOSE}" ] \
   # Deploy through compose so the service keeps its memory limit, healthcheck and
   # network membership, and stays under compose's management.
   echo "==> Service '${SERVICE_NAME}' is managed by ${STACK_COMPOSE} — deploying via that stack"
-  snapshot_rollback
+  COMPOSE_COMMAND=(docker compose -f "${STACK_COMPOSE}")
+  COMPOSE_SERVICES=("${SERVICE_NAME}")
   # Scope strictly to our service: no --remove-orphans, which would reap unrelated
   # containers belonging to the rest of the stack.
-  docker compose -f "${STACK_COMPOSE}" up -d --build "${SERVICE_NAME}"
-  wait_until_serving
+  COMPOSE_UP_OPTIONS=()
+  deploy_compose
 
 else
   # Standalone: plain docker build + run.
@@ -162,15 +245,14 @@ else
   fi
 
   echo "==> Replacing container ${CONTAINER_NAME}${NETWORK:+ on network ${NETWORK}}${HOST_PORT:+ (host ${HOST_PORT} -> container ${CONTAINER_PORT})}"
-  docker rm -f "${CONTAINER_NAME}" 2>/dev/null || true
-  docker run -d \
-    --name "${CONTAINER_NAME}" \
-    --restart unless-stopped \
-    ${NETWORK:+--network "${NETWORK}"} \
-    ${HOST_PORT:+-p "${HOST_PORT}:${CONTAINER_PORT}"} \
-    "${IMAGE_NAME}:latest"
+  remove_current_container
+  if ! run_standalone_container "${IMAGE_NAME}:latest"; then
+    restore_standalone_rollback "docker could not start the replacement"
+  fi
 
-  wait_until_serving
+  if ! wait_until_serving; then
+    restore_standalone_rollback "the replacement failed its readiness check"
+  fi
 fi
 
 # Deliberately NOT running `docker image prune -f` here. On 2026-07-23 that is what

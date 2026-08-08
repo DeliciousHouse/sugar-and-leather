@@ -47,9 +47,9 @@ Three rules follow, and violating any of them fails **silently** rather than lou
 > same script's `docker image prune -f` then deleted the only copy of the live image,
 > leaving production with no rollback artifact.
 >
-> `deploy.sh` now delegates to the parent stack compose file, snapshots the live container
-> before replacing it, refuses to publish a conflicting host port, no longer prunes, and
-> blocks until the new container actually answers an HTTP request.
+> `deploy.sh` now delegates to the parent stack compose file, verifies a rollback snapshot,
+> builds while the live container is still serving, then reconciles the exact container name.
+> A start or health failure restores the snapshot through Compose and still fails the deploy.
 
 This repo's own `.env`: there isn't one, and none is needed. The site is a static Vite
 build with no runtime configuration — all environment lives in the stack-level
@@ -148,8 +148,10 @@ Push to `main`, or run **Actions → Deploy to production → Run workflow**.
    service matching `SERVICE_NAME`, deploy through it, scoped to just that service.
 3. **Plain docker** — otherwise `docker build` + `docker run` with the settings below.
 
-Every path snapshots the outgoing container to `sugar-and-leather:previous` first, then
-blocks until the new one answers a real HTTP request. Override via env vars:
+Every path verifies a snapshot of the outgoing container as
+`sugar-and-leather:previous`, builds the replacement while the outgoing container keeps
+serving, and only then replaces it. A start or readiness failure restores the snapshot and
+returns nonzero. Override via env vars:
 
 | Variable | Default | When to change it |
 | --- | --- | --- |
@@ -176,12 +178,14 @@ bash deploy/deploy.sh
 ## Rolling back
 
 `deploy.sh` snapshots the outgoing container to `sugar-and-leather:previous` (via
-`docker commit`) before each deploy, so a bad deploy reverts without a rebuild:
+`docker commit`) before each deploy. Start and readiness failures roll back automatically.
+To roll back a deploy that passed readiness but was later found bad, keep the service under
+Compose management:
 
 ```bash
-docker rm -f sugar-main-web
-docker run -d --name sugar-main-web --restart unless-stopped \
-  --network docker-stack sugar-and-leather:previous
+ROLLBACK_IMAGE=$(docker compose -f ../docker-compose.yml config --images sugar-main-web)
+docker tag sugar-and-leather:previous "$ROLLBACK_IMAGE"
+docker compose -f ../docker-compose.yml up -d --no-build --force-recreate sugar-main-web
 ```
 
 It snapshots the **container**, not the image id, on purpose. An image record can be pruned
