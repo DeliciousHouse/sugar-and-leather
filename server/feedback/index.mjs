@@ -4,7 +4,7 @@
 // ship to the browser. This is the smallest thing that closes that gap: one endpoint that
 // accepts an anonymous report and files it as a Jira issue in SLW.
 //
-// Deliberately zero runtime dependencies — Node 22 has fetch, crypto and http built in.
+// Deliberately zero runtime dependencies — Node 24 has fetch, crypto and http built in.
 // A public write endpoint is an attack surface; fewer packages is less to audit and
 // nothing to keep patched.
 //
