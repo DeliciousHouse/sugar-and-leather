@@ -61,10 +61,7 @@ describe('repository verification contract', () => {
     ]));
     expect(verify.steps.map((step) => step.run).filter(Boolean)).toEqual([
       'npm ci',
-      'npm run lint',
-      'npm run typecheck',
-      'npm test',
-      'npm run build',
+      'npm run verify',
       'bash deploy/test-deploy.sh',
     ]);
   });

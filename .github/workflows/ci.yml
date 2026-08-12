@@ -34,17 +34,7 @@ jobs:
         run: npm ci
         timeout-minutes: 5
 
-      - name: Lint
-        run: npm run lint
-
-      - name: Typecheck
-        run: npm run typecheck
-
-      - name: Test
-        run: npm test
-
-      - name: Build production artifact
-        run: npm run build
+      - run: npm run verify
 
       - name: Test deployment script
         run: bash deploy/test-deploy.sh
