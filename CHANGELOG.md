@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented in this file.
 
+## 1.0.2 - 2026-08-13
+
+### Fixed
+
+- Recover a verified rollback image from the commit served by the live container when Docker can no longer inspect its image metadata, while preserving the live service and any prior rollback on recovery failure.
+
 ## 1.0.1 - 2026-08-04
 
 ### Added
