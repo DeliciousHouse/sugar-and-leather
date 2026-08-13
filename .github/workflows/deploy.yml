@@ -121,11 +121,12 @@ jobs:
           #
           # The deploy key is restricted in the VM's authorized_keys with
           #   restrict,command="/home/node/bin/sl-deploy-forced.sh"
-          # so sshd runs that script and puts our command in SSH_ORIGINAL_COMMAND, which
-          # the script deliberately ignores (the deploy user is in the docker group, which
-          # is root-equivalent on a VM running ~20 production containers, so the key must
-          # not be able to run arbitrary commands). The forced script does the fetch /
-          # checkout / reset itself and ends in `exec bash deploy/deploy.sh`.
+          # so sshd runs that script and puts our command in SSH_ORIGINAL_COMMAND. The
+          # requested shell is never evaluated (the deploy user is in the docker group,
+          # which is root-equivalent on a VM running ~20 production containers). The
+          # forced script does the fetch / checkout / reset itself and ends in
+          # `exec bash deploy/deploy.sh`; that script only recognizes the exact bounded
+          # `sl-deploy-cleanup` token used after verification below.
           #
           # Two consequences, both of which have already cost a red build:
           #   1. Editing this string changes nothing about what production runs. Deploy
@@ -134,8 +135,8 @@ jobs:
           #      shell, so there is no "and then echo the SHA" to be had. The verify step
           #      below therefore works out what got deployed from git, not from the VM.
           #
-          # `sl-deploy-selftest` is the one accepted argument: it proves the key and the
-          # forced command work without triggering a deploy.
+          # `sl-deploy-selftest` is handled by the forced wrapper and proves the key works
+          # without deploying. `sl-deploy-cleanup` reaches deploy.sh's bounded cleanup mode.
           ssh -i ~/.ssh/deploy_key \
               -o IdentitiesOnly=yes \
               -o UserKnownHostsFile=~/.ssh/known_hosts \
@@ -259,3 +260,22 @@ jobs:
           esac
 
           echo "Deploy verified."
+
+      # Cleanup is deliberately a second forced-command invocation after the public
+      # identity gate. A stale or misrouted deployment therefore retains every local
+      # image and cache needed for diagnosis and rollback.
+      - name: Clean up old deployment artifacts
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_PORT: ${{ secrets.DEPLOY_PORT }}
+        run: |
+          port="${DEPLOY_PORT:-22}"
+          ssh -i ~/.ssh/deploy_key \
+              -o IdentitiesOnly=yes \
+              -o UserKnownHostsFile=~/.ssh/known_hosts \
+              -o StrictHostKeyChecking=yes \
+              -p "$port" \
+              "$DEPLOY_USER@$DEPLOY_HOST" \
+              "sl-deploy-cleanup" \
+            || echo "::warning::Post-verification Docker cleanup failed; the verified deployment is unchanged."
