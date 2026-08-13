@@ -160,8 +160,10 @@ Every path verifies a rollback target for the outgoing container as
 `sugar-and-leather:previous`, builds the replacement while the outgoing container keeps
 serving, and only then replaces it. It prefers a container snapshot; if that fails, it uses
 the live container's exact image only when that image and the new rollback tag both verify.
-A start or readiness failure restores the rollback target and returns nonzero. Override via
-env vars:
+If neither image path works, it can rebuild the one valid ancestor commit reported by the
+running container's `build.json` in an isolated Git archive, verify the rebuilt image reports
+that exact commit, and then use it as the rollback target. A start or readiness failure
+restores the rollback target and returns nonzero. Override via env vars:
 
 | Variable | Default | When to change it |
 | --- | --- | --- |
@@ -190,7 +192,10 @@ bash deploy/deploy.sh
 `deploy.sh` captures the outgoing container as `sugar-and-leather:previous` before each
 deploy. It prefers `docker commit`; if that fails, it can tag the live container's exact
 image id only when the image still exists and the resulting rollback tag verifies. If
-neither path works, deployment stops before build or replacement. Start and readiness
+neither path works, it validates the single lowercase commit in the running container's
+`build.json`, requires that commit to exist locally and be an ancestor of the deploy target,
+then rebuilds and verifies it from an isolated Git archive. Any recovery failure stops before
+replacement and preserves the live container and prior rollback image. Start and readiness
 failures roll back automatically.
 To roll back a deploy that passed readiness but was later found bad, keep the service under
 Compose management:

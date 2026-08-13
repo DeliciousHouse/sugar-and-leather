@@ -98,6 +98,90 @@ echo "==> Stamped .build-commit $(cat .build-commit)"
 # fallback only when it remains inspectable and the rollback tag can be verified.
 ROLLBACK_AVAILABLE=no
 COMPOSE_IMAGE="${IMAGE_NAME}:latest"
+ROLLBACK_RECOVERY_CONTEXT=
+ROLLBACK_RECOVERY_IMAGE=
+
+cleanup_rollback_recovery() {
+  if [ -n "${ROLLBACK_RECOVERY_CONTEXT}" ]; then
+    rm -rf -- "${ROLLBACK_RECOVERY_CONTEXT}"
+    ROLLBACK_RECOVERY_CONTEXT=
+  fi
+  if [ -n "${ROLLBACK_RECOVERY_IMAGE}" ]; then
+    docker image rm -f "${ROLLBACK_RECOVERY_IMAGE}" >/dev/null 2>&1 || true
+    ROLLBACK_RECOVERY_IMAGE=
+  fi
+}
+trap cleanup_rollback_recovery EXIT
+
+read_build_commit() {
+  local build_json="$1" commit_keys commit_matches
+  commit_keys="$(printf '%s\n' "${build_json}" \
+    | grep -Eo '"commit"[[:space:]]*:' | grep -Ec '.' || true)"
+  commit_matches="$(printf '%s\n' "${build_json}" \
+    | grep -Eo '"commit"[[:space:]]*:[[:space:]]*"[0-9a-f]{40}"' || true)"
+
+  [ "${commit_keys}" -eq 1 ] || return 1
+  [ "$(printf '%s\n' "${commit_matches}" | grep -Ec '.' || true)" -eq 1 ] || return 1
+  printf '%s\n' "${commit_matches}" | sed -E 's/.*"([0-9a-f]{40})"/\1/'
+}
+
+recover_rollback_from_served_commit() {
+  local live_build_json live_commit recovered_build_json recovered_commit prior_rollback_image
+
+  echo "WARNING: the live image is not inspectable; checking its served commit identity." >&2
+  if ! live_build_json="$(docker exec "${CONTAINER_NAME}" \
+      cat /usr/share/caddy/build.json)" \
+     || ! live_commit="$(read_build_commit "${live_build_json}")"; then
+    echo "ERROR: the live container does not expose one valid lowercase 40-hex commit." >&2
+    return 1
+  fi
+  if ! git cat-file -e "${live_commit}^{commit}" \
+     || ! git merge-base --is-ancestor "${live_commit}" HEAD; then
+    echo "ERROR: live commit ${live_commit} is not a local ancestor of the deploy target." >&2
+    return 1
+  fi
+
+  if ! ROLLBACK_RECOVERY_CONTEXT="$(mktemp -d \
+      "${TMPDIR:-/tmp}/sl-rollback-recovery.XXXXXX")"; then
+    echo "ERROR: could not create an isolated rollback recovery context." >&2
+    return 1
+  fi
+  ROLLBACK_RECOVERY_IMAGE="${IMAGE_NAME}:rollback-recovery-${live_commit}-$$-${RANDOM}"
+  if ! git archive "${live_commit}" | tar -x -C "${ROLLBACK_RECOVERY_CONTEXT}"; then
+    echo "ERROR: could not materialize live commit ${live_commit} for rollback recovery." >&2
+    return 1
+  fi
+  if ! printf '%s\n' "${live_commit}" > "${ROLLBACK_RECOVERY_CONTEXT}/.build-commit"; then
+    echo "ERROR: could not stamp live commit ${live_commit} into the recovery context." >&2
+    return 1
+  fi
+
+  if ! docker build -t "${ROLLBACK_RECOVERY_IMAGE}" "${ROLLBACK_RECOVERY_CONTEXT}" \
+     || ! docker image inspect "${ROLLBACK_RECOVERY_IMAGE}" >/dev/null \
+     || ! recovered_build_json="$(docker run --rm --network none --entrypoint cat \
+          "${ROLLBACK_RECOVERY_IMAGE}" /usr/share/caddy/build.json)" \
+     || ! recovered_commit="$(read_build_commit "${recovered_build_json}")" \
+     || [ "${recovered_commit}" != "${live_commit}" ]; then
+    echo "ERROR: rollback recovery image for ${live_commit} failed build or identity verification." >&2
+    return 1
+  fi
+
+  prior_rollback_image="$(docker image inspect --format '{{.Id}}' \
+    "${IMAGE_NAME}:previous" 2>/dev/null || true)"
+  if ! docker tag "${ROLLBACK_RECOVERY_IMAGE}" "${IMAGE_NAME}:previous" \
+     || ! docker image inspect "${IMAGE_NAME}:previous" >/dev/null; then
+    if [ -n "${prior_rollback_image}" ]; then
+      docker tag "${prior_rollback_image}" "${IMAGE_NAME}:previous" >/dev/null 2>&1 || true
+    fi
+    echo "ERROR: verified recovery image could not become ${IMAGE_NAME}:previous." >&2
+    return 1
+  fi
+
+  ROLLBACK_AVAILABLE=yes
+  echo "==> Rebuilt served commit ${live_commit} as ${IMAGE_NAME}:previous (rollback target)"
+  cleanup_rollback_recovery
+}
+
 snapshot_rollback() {
   local live_image
 
@@ -114,18 +198,23 @@ snapshot_rollback() {
   fi
 
   echo "WARNING: docker commit did not produce a verified rollback snapshot; checking the live image." >&2
-  if ! live_image="$(docker inspect --format '{{.Image}}' "${CONTAINER_NAME}")" \
-     || [ -z "${live_image}" ] \
-     || ! docker image inspect "${live_image}" >/dev/null \
-     || ! docker tag "${live_image}" "${IMAGE_NAME}:previous" \
-     || ! docker image inspect "${IMAGE_NAME}:previous" >/dev/null; then
-    echo "ERROR: could not capture a usable rollback image from ${CONTAINER_NAME}." >&2
-    echo "       The live container was not changed." >&2
-    return 1
+  if live_image="$(docker inspect --format '{{.Image}}' "${CONTAINER_NAME}")" \
+     && [ -n "${live_image}" ] \
+     && docker image inspect "${live_image}" >/dev/null \
+     && docker tag "${live_image}" "${IMAGE_NAME}:previous" \
+     && docker image inspect "${IMAGE_NAME}:previous" >/dev/null; then
+    ROLLBACK_AVAILABLE=yes
+    echo "==> Tagged inspectable live image ${live_image} as ${IMAGE_NAME}:previous (rollback target)"
+    return 0
   fi
 
-  ROLLBACK_AVAILABLE=yes
-  echo "==> Tagged inspectable live image ${live_image} as ${IMAGE_NAME}:previous (rollback target)"
+  if recover_rollback_from_served_commit; then
+    return 0
+  fi
+
+  echo "ERROR: could not capture a usable rollback image from ${CONTAINER_NAME}." >&2
+  echo "       The live container was not changed." >&2
+  return 1
 }
 
 # --- readiness gate ----------------------------------------------------------------
