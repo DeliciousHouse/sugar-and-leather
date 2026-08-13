@@ -51,12 +51,20 @@ case "${1:-}" in
     touch "${FAKE_DOCKER_DIR}/rollback-image"
     ;;
   image)
-    [ "${2:-}" = "inspect" ] || exit 2
-    case "${3:-}" in
-      sha256:live-image) [ "${FAKE_DEPLOY_FAILURE:-}" != "snapshot-no-image" ] ;;
-      sugar-and-leather:previous) [ -f "${FAKE_DOCKER_DIR}/rollback-image" ] ;;
+    case "${2:-}" in
+      inspect)
+        case "${3:-}" in
+          sha256:live-image) [ "${FAKE_DEPLOY_FAILURE:-}" != "snapshot-no-image" ] ;;
+          sugar-and-leather:previous) [ -f "${FAKE_DOCKER_DIR}/rollback-image" ] ;;
+          *) exit 2 ;;
+        esac
+        ;;
+      prune) ;;
       *) exit 2 ;;
     esac
+    ;;
+  builder)
+    [ "${2:-}" = "prune" ] || exit 2
     ;;
   tag)
     case "${2:-} ${3:-}" in
@@ -181,6 +189,14 @@ assert_logged() {
   line_of "$1" >/dev/null || fail "missing docker command: $1"
 }
 
+assert_exact_logged() {
+  local expected="$1" line
+  while IFS= read -r line; do
+    [ "${line}" = "${expected}" ] && return 0
+  done < "${FAKE_DOCKER_LOG}"
+  fail "missing exact docker command: ${expected}"
+}
+
 assert_not_logged() {
   if line_of "$1" >/dev/null; then
     fail "unexpected docker command: $1"
@@ -201,7 +217,7 @@ assert_before() {
 }
 
 run_case() {
-  local name="$1" failure="${2:-}" initial_state="${3:-live}" status
+  local name="$1" failure="${2:-}" initial_state="${3:-live}" original_command="${4:-}" status
   export FAKE_DOCKER_DIR="${TMP}/${name}"
   export FAKE_DOCKER_LOG="${FAKE_DOCKER_DIR}/docker.log"
   export FAKE_DOCKER_STATE="${FAKE_DOCKER_DIR}/state"
@@ -212,6 +228,7 @@ run_case() {
   set +e
   PATH="${TMP}/bin:${PATH}" \
     STACK_COMPOSE="${TMP}/docker-compose.yml" \
+    SSH_ORIGINAL_COMMAND="${original_command}" \
     bash "${DEPLOY_SCRIPT}" >"${FAKE_DOCKER_DIR}/output" 2>&1
   status=$?
   set -e
@@ -226,6 +243,16 @@ assert_before "image inspect sugar-and-leather:previous" "compose -f ${TMP}/dock
 assert_before "compose -f ${TMP}/docker-compose.yml build sugar-main-web" "rm -f sugar-main-web"
 assert_before "rm -f sugar-main-web" "compose -f ${TMP}/docker-compose.yml up -d --no-build --force-recreate sugar-main-web"
 assert_before "compose -f ${TMP}/docker-compose.yml up -d --no-build --force-recreate sugar-main-web" "exec sugar-main-web wget"
+assert_not_logged "image prune"
+assert_not_logged "builder prune"
+
+run_case cleanup "" live sl-deploy-cleanup
+[ "${CASE_STATUS}" -eq 0 ] || fail "post-verification cleanup exited ${CASE_STATUS}, expected 0"
+assert_exact_logged "image prune -f --filter until=168h"
+assert_exact_logged "builder prune -af --filter until=168h"
+assert_not_logged "image prune -af"
+assert_not_logged "commit sugar-main-web"
+assert_not_logged "compose -f ${TMP}/docker-compose.yml build sugar-main-web"
 
 run_case first-deploy "" none
 [ "${CASE_STATUS}" -eq 0 ] || fail "first deploy exited ${CASE_STATUS}, expected 0"

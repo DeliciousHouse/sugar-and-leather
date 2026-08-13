@@ -7,6 +7,7 @@ import { parse } from 'yaml';
 
 const packagePath = fileURLToPath(new URL('../package.json', import.meta.url));
 const workflowPath = fileURLToPath(new URL('../.github/workflows/ci.yml', import.meta.url));
+const deployWorkflowPath = fileURLToPath(new URL('../.github/workflows/deploy.yml', import.meta.url));
 const typecheckConfigPath = fileURLToPath(new URL('../tsconfig.json', import.meta.url));
 
 const read = (path) => readFile(path, 'utf8');
@@ -43,6 +44,7 @@ describe('repository verification contract', () => {
   it('runs the full fail-closed gate on Linux for pull requests and main pushes', async () => {
     const workflow = parse(await read(workflowPath));
     const verify = workflow.jobs.verify;
+    const checkout = verify.steps.find((step) => step.uses?.startsWith('actions/checkout@'));
 
     expect(workflow.on).toEqual({
       pull_request: { branches: ['main'] },
@@ -52,8 +54,13 @@ describe('repository verification contract', () => {
     expect(verify['runs-on']).toBe('ubuntu-latest');
     expect(verify['timeout-minutes']).toBeGreaterThan(0);
     expect(() => assertNoBypass(verify)).not.toThrow();
+    expect(checkout).toMatchObject({
+      with: {
+        'persist-credentials': false,
+        ref: "${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}",
+      },
+    });
     expect(verify.steps).toEqual(expect.arrayContaining([
-      expect.objectContaining({ uses: expect.stringMatching(/^actions\/checkout@/) }),
       expect.objectContaining({
         uses: expect.stringMatching(/^actions\/setup-node@/),
         with: expect.objectContaining({ 'node-version-file': '.nvmrc' }),
@@ -80,5 +87,19 @@ describe('repository verification contract', () => {
 
     expect(workflow.concurrency.group).toContain('github.run_id');
     expect(workflow.concurrency['cancel-in-progress']).toContain("github.event_name == 'pull_request'");
+  });
+
+  it('runs bounded cleanup only after the public deployment identity gate', async () => {
+    const workflow = parse(await read(deployWorkflowPath));
+    const steps = workflow.jobs.deploy.steps;
+    const verifyIndex = steps.findIndex((step) => step.name === 'Verify production is serving this commit');
+    const cleanupIndex = steps.findIndex((step) => step.name === 'Clean up old deployment artifacts');
+
+    expect(verifyIndex).toBeGreaterThan(-1);
+    expect(steps[verifyIndex].run).toContain('build.json');
+    expect(steps[verifyIndex].run).toContain('EXPECTED_BUNDLE');
+    expect(steps[verifyIndex].run).toContain('robots.txt');
+    expect(cleanupIndex).toBeGreaterThan(verifyIndex);
+    expect(steps[cleanupIndex].run).toContain('"sl-deploy-cleanup"');
   });
 });

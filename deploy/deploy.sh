@@ -55,6 +55,22 @@ CONTAINER_PORT=80                # Caddy inside the container listens on :80 (se
 # Move to the repository root (this script lives in <repo>/deploy).
 cd "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
+cleanup_deploy_artifacts() {
+  # Dangling-only image cleanup preserves every tagged image, including the rollback
+  # target. `-a` on images stays deliberately forbidden in this repo.
+  echo "==> Pruning dangling images and stale build cache (tagged rollback image preserved)"
+  docker image prune -f --filter "until=168h" || true
+  docker builder prune -af --filter "until=168h" || true
+}
+
+# The production workflow calls this mode only after its public build.json, bundle and
+# robots.txt identity gate passes. SSH_ORIGINAL_COMMAND is set by sshd even though the
+# restricted deploy key's forced command ignores the requested command itself.
+if [ "${SSH_ORIGINAL_COMMAND:-}" = "sl-deploy-cleanup" ]; then
+  cleanup_deploy_artifacts
+  exit 0
+fi
+
 # The shared stack compose file lives one level up on the production VM.
 STACK_COMPOSE="${STACK_COMPOSE-$(cd .. 2>/dev/null && pwd)/docker-compose.yml}"
 
@@ -267,14 +283,5 @@ else
     restore_standalone_rollback "the replacement failed its readiness check"
   fi
 fi
-
-# Post-deploy cleanup, scoped so the 2026-07-23 incident cannot repeat. That day a
-# blanket image prune destroyed the only copy of the then-live image (built on-host,
-# present in no registry). The rollback target `${IMAGE_NAME}:previous` is TAGGED,
-# and a dangling-only prune (no -a) never touches tagged images, so it survives by
-# construction. `-a` on images stays deliberately forbidden in this repo.
-echo "==> Pruning dangling images and stale build cache (tagged rollback image preserved)"
-docker image prune -f --filter "until=168h" || true
-docker builder prune -af --filter "until=168h" || true
 
 echo "==> Deploy complete"

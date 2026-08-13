@@ -50,9 +50,10 @@ Three rules follow, and violating any of them fails **silently** rather than lou
 > `deploy.sh` now delegates to the parent stack compose file, verifies a rollback snapshot,
 > builds while the live container is still serving, then reconciles the exact container name.
 > A start or health failure restores the snapshot through Compose and still fails the deploy.
-> After readiness succeeds, it non-fatally prunes dangling images and unused builder cache
-> older than 168 hours. Because image cleanup is dangling-only (never `-a`), the tagged
-> `${IMAGE_NAME}:previous` rollback image is preserved.
+> After the workflow's public identity checks succeed, a separate `sl-deploy-cleanup` SSH call
+> non-fatally prunes dangling images and unused builder cache older than 168 hours. Because
+> image cleanup is dangling-only (never `-a`), the tagged `${IMAGE_NAME}:previous` rollback
+> image is preserved. A failed identity check skips cleanup so rollback diagnostics remain.
 
 This repo's own `.env`: there isn't one, and none is needed. The site is a static Vite
 build with no runtime configuration — all environment lives in the stack-level
@@ -69,6 +70,8 @@ from the Actions tab). It:
 4. Verifies the live commit identity from `build.json`, the expected content-hashed bundle
    when the run was not superseded, and the `robots.txt` content type. The run fails closed
    when production is stale or the SPA fallback is masquerading as a real static asset.
+5. Only after verification, sends the forced deploy command `sl-deploy-cleanup` to prune dangling images and unused
+   builder cache older than 168 hours without touching tagged rollback images.
 
 > Before this workflow existed, a push to `main` did nothing to the live site — the VM
 > container had to be rebuilt by hand. That's why merged changes could sit undeployed.
