@@ -10,6 +10,7 @@ touch "${TMP}/docker-compose.yml"
 
 TARGET_COMMIT=7cccbb9b3a1a19ab1599ba6df31f5f0978498b34
 SERVED_COMMIT=5dee0be1c40c07f53d4c22556ff4420a4d4f0e80
+UPPER_SERVED_COMMIT=5DEE0BE1C40C07F53D4C22556FF4420A4D4F0E80
 
 cat > "${TMP}/bin/git" <<'GIT'
 #!/usr/bin/env bash
@@ -18,13 +19,13 @@ case "$*" in
   "rev-parse --short HEAD") echo 7d447ae ;;
   "rev-parse HEAD") echo "${FAKE_TARGET_COMMIT}" ;;
   "log -1 --pretty=%s") echo "fixture deploy" ;;
-  "cat-file -e ${FAKE_SERVED_COMMIT}^{commit}")
+  "cat-file -e ${FAKE_SERVED_COMMIT}^{commit}"|"cat-file -e ${FAKE_UPPER_SERVED_COMMIT}^{commit}")
     [ "${FAKE_DEPLOY_FAILURE:-}" != "recovery-object" ]
     ;;
-  "merge-base --is-ancestor ${FAKE_SERVED_COMMIT} HEAD")
+  "merge-base --is-ancestor ${FAKE_SERVED_COMMIT} HEAD"|"merge-base --is-ancestor ${FAKE_UPPER_SERVED_COMMIT} HEAD")
     [ "${FAKE_DEPLOY_FAILURE:-}" != "recovery-non-ancestor" ]
     ;;
-  "archive ${FAKE_SERVED_COMMIT}")
+  "archive ${FAKE_SERVED_COMMIT}"|"archive ${FAKE_UPPER_SERVED_COMMIT}")
     [ "${FAKE_DEPLOY_FAILURE:-}" != "recovery-archive" ] || exit 46
     tar -cf - --files-from /dev/null
     ;;
@@ -129,8 +130,10 @@ case "${1:-}" in
   build)
     if [[ " ${*:2} " = *" -t sugar-and-leather:rollback-recovery-"* ]]; then
       context="${!#}"
+      commit="$(cat "${context}/.build-commit" 2>/dev/null)"
       [ "${FAKE_DEPLOY_FAILURE:-}" != "recovery-build" ] || exit 45
-      [ "$(cat "${context}/.build-commit" 2>/dev/null)" = "${FAKE_SERVED_COMMIT}" ] || exit 47
+      [[ "${commit}" = "${FAKE_SERVED_COMMIT}" || "${commit}" = "${FAKE_UPPER_SERVED_COMMIT}" ]] || exit 47
+      printf '%s' "${commit}" > "${FAKE_DOCKER_DIR}/recovery-commit"
       touch "${FAKE_DOCKER_DIR}/recovery-image"
       exit 0
     fi
@@ -148,7 +151,7 @@ case "${1:-}" in
       if [ "${FAKE_DEPLOY_FAILURE:-}" = "recovery-identity" ]; then
         commit="${FAKE_TARGET_COMMIT}"
       else
-        commit="${FAKE_SERVED_COMMIT}"
+        commit="$(cat "${FAKE_DOCKER_DIR}/recovery-commit")"
       fi
       printf '{\n  "commit": "%s",\n  "builtAt": "2026-08-13T00:00:00.000Z"\n}\n' "${commit}"
       exit 0
@@ -170,7 +173,7 @@ case "${1:-}" in
       case "${FAKE_DEPLOY_FAILURE:-}" in
         recovery-malformed) printf '%s\n' '{"commit":"not-a-commit"}' ;;
         recovery-missing) printf '%s\n' '{"builtAt":"2026-08-01T00:00:00.000Z"}' ;;
-        recovery-uppercase) printf '%s\n' '{"commit":"5DEE0BE1C40C07F53D4C22556FF4420A4D4F0E80"}' ;;
+        recovery-uppercase) printf '{"commit":"%s"}\n' "${FAKE_UPPER_SERVED_COMMIT}" ;;
         recovery-duplicate) printf '%s\n' "{\"commit\":\"${FAKE_SERVED_COMMIT}\",\"commit\":\"bad\"}" ;;
         *) printf '{\n  "commit": "%s",\n  "builtAt": "2026-08-01T00:00:00.000Z"\n}\n' "${FAKE_SERVED_COMMIT}" ;;
       esac
@@ -311,6 +314,7 @@ run_case() {
   export FAKE_DEPLOY_FAILURE="${failure}"
   export FAKE_TARGET_COMMIT="${TARGET_COMMIT}"
   export FAKE_SERVED_COMMIT="${SERVED_COMMIT}"
+  export FAKE_UPPER_SERVED_COMMIT="${UPPER_SERVED_COMMIT}"
   mkdir -p "${FAKE_DOCKER_DIR}"
   : > "${FAKE_GIT_LOG}"
   printf '%s' "${initial_state}" > "${FAKE_DOCKER_STATE}"
