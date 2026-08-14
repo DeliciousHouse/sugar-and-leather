@@ -1,7 +1,6 @@
 import { useRef, useState } from 'react';
 import { MessageSquarePlus } from 'lucide-react';
 import { useOcclusionGuard } from '../hooks/useOcclusionGuard';
-import { CAPTURE_IGNORE_ATTR } from '../lib/captureScreenshot';
 import FeedbackDialog from './FeedbackDialog';
 
 // Persistent feedback affordance, rendered once in Layout so it appears on every route.
@@ -28,8 +27,6 @@ export default function FeedbackButton() {
         ref={ref}
         className={`feedback-btn${tucked ? ' feedback-btn--tucked' : ''}`}
         data-testid="feedback-button"
-        // Excluded from the page capture so the screenshot shows the page, not our chrome.
-        {...{ [CAPTURE_IGNORE_ATTR]: '' }}
         aria-haspopup="dialog"
         aria-expanded={open}
         // Mirror the pointer-events drop for assistive tech and keyboard users: while
