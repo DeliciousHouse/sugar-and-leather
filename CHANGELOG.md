@@ -2,6 +2,20 @@
 
 All notable changes to this project are documented in this file.
 
+## 1.0.3 - 2026-08-14
+
+### Changed
+
+- Keep website feedback private by sending only details the reporter enters and a bounded page pathname, without page URLs, referrers, or cookies.
+
+### Fixed
+
+- Prevent rapid or close-and-reopen submissions from creating duplicate feedback issues, while keeping keyboard focus inside the dialog during delivery.
+
+### Removed
+
+- Remove automatic console-error capture, page screenshots, image attachments, and their browser dependency from feedback reports.
+
 ## 1.0.2 - 2026-08-13
 
 ### Fixed
