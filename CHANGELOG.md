@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented in this file.
 
+## 1.0.4 - 2026-08-14
+
+### Fixed
+
+- Keep production Docker builds reproducible by including tracked CI workflows and excluding machine-local agent worktrees from the build context.
+
 ## 1.0.3 - 2026-08-14
 
 ### Changed
