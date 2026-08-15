@@ -1,11 +1,13 @@
 // @vitest-environment node
 
 import { readFile } from 'node:fs/promises';
+import { matchesGlob } from 'node:path/posix';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { parse } from 'yaml';
 
 const packagePath = fileURLToPath(new URL('../package.json', import.meta.url));
+const dockerIgnorePath = fileURLToPath(new URL('../.dockerignore', import.meta.url));
 const workflowPath = fileURLToPath(new URL('../.github/workflows/ci.yml', import.meta.url));
 const deployWorkflowPath = fileURLToPath(new URL('../.github/workflows/deploy.yml', import.meta.url));
 const typecheckConfigPath = fileURLToPath(new URL('../tsconfig.json', import.meta.url));
@@ -21,6 +23,27 @@ function assertNoBypass(job) {
 }
 
 describe('repository verification contract', () => {
+  it('keeps CI workflows in Docker context and excludes machine-local agent worktrees', async () => {
+    const rules = (await read(dockerIgnorePath))
+      .split('\n')
+      .map((line) => line.trim())
+      .filter((line) => line && !line.startsWith('#'));
+    const isIgnored = (candidate) => candidate
+      .split('/')
+      .map((_, index, parts) => parts.slice(0, index + 1).join('/'))
+      .some((path) => rules.some((rule) => matchesGlob(path, rule)));
+
+    expect({
+      ciWorkflowIncluded: !isIgnored('.github/workflows/ci.yml'),
+      deployWorkflowIncluded: !isIgnored('.github/workflows/deploy.yml'),
+      agentWorktreeIncluded: !isIgnored('.claude/worktrees/task/checkout'),
+    }).toEqual({
+      ciWorkflowIncluded: true,
+      deployWorkflowIncluded: true,
+      agentWorktreeIncluded: false,
+    });
+  });
+
   it('keeps lint, type, test, and production-build gates in the local source of truth', async () => {
     const packageJson = JSON.parse(await read(packagePath));
 
