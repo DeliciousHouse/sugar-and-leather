@@ -1,5 +1,5 @@
 import { asset as a } from '../lib/asset';
-import { CAL_BOOKING_URL } from '../lib/links';
+import { calendarBookingUrl } from '../lib/links';
 
 export const PRODUCT_SLUGS = ['atelier', 'forge', 'compass', 'lexicon'];
 
@@ -89,7 +89,7 @@ export const PRODUCT_PAGES = {
       highlight: 'that is truly yours',
       sub: 'AriesAI engagements are limited. If the fit is right, we will know quickly — and so will you.',
       primaryLabel: 'Book a call',
-      primaryHref: CAL_BOOKING_URL,
+      primaryHref: calendarBookingUrl('atelier-cta'),
       secondaryLabel: 'Explore the ecosystem',
       secondaryHref: '/#ecosystem',
     },
@@ -173,7 +173,7 @@ export const PRODUCT_PAGES = {
       highlight: 'Leave with a team that holds.',
       sub: 'Tell us about your leadership group and the pressure you are preparing for. We will design the intensive from there.',
       primaryLabel: 'Book a call',
-      primaryHref: CAL_BOOKING_URL,
+      primaryHref: calendarBookingUrl('forge-cta'),
       secondaryLabel: 'View AriesAI',
       secondaryHref: '/practices/atelier',
     },
@@ -257,7 +257,7 @@ export const PRODUCT_PAGES = {
       highlight: 'Steer with clarity.',
       sub: 'If your AI strategy needs a senior hand — not another slide — we should talk.',
       primaryLabel: 'Book a call',
-      primaryHref: CAL_BOOKING_URL,
+      primaryHref: calendarBookingUrl('compass-cta'),
       secondaryLabel: 'View Lexicon',
       secondaryHref: '/practices/lexicon',
     },
@@ -347,7 +347,7 @@ export const PRODUCT_PAGES = {
       highlight: 'before the decision arrives',
       sub: 'Fluency is not optional at this altitude. Lexicon makes it achievable — and current.',
       primaryLabel: 'Book a call',
-      primaryHref: CAL_BOOKING_URL,
+      primaryHref: calendarBookingUrl('lexicon-cta'),
       secondaryLabel: 'View Compass',
       secondaryHref: '/practices/compass',
     },
@@ -363,7 +363,7 @@ export const ABOUT_PAGE = {
     image: a('/assets/about-hero.webp'),
     primaryAction: {
       label: 'Book a call',
-      href: CAL_BOOKING_URL,
+      href: calendarBookingUrl('about-hero'),
     },
   },
   name: {
@@ -451,6 +451,6 @@ export const ABOUT_PAGE = {
     highlight: 'The best are built.',
     sub: 'Human judgment. Intelligent technology. Enduring businesses.',
     primaryLabel: 'Book a call',
-    primaryHref: CAL_BOOKING_URL,
+    primaryHref: calendarBookingUrl('about-cta'),
   },
 };

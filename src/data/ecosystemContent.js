@@ -1,5 +1,5 @@
 import { asset as a } from '../lib/asset';
-import { CAL_BOOKING_URL } from '../lib/links';
+import { calendarBookingUrl } from '../lib/links';
 
 export const ECOSYSTEM_SLUGS = [
   'capital-access-and-grant-services',
@@ -118,7 +118,7 @@ export const ECOSYSTEM_PAGES = {
       highlight: 'without diluting the vision',
       sub: 'Capital access engagements are scoped to your stage and timeline. If the fit is right, we will know quickly.',
       primaryLabel: 'Book a call',
-      primaryHref: CAL_BOOKING_URL,
+      primaryHref: calendarBookingUrl('capital-access-and-grant-services-cta'),
       secondaryLabel: 'View all products',
       secondaryHref: '/#ecosystem',
     },
@@ -232,7 +232,7 @@ export const ECOSYSTEM_PAGES = {
       highlight: 'that matches your ambition',
       sub: 'ARIES deployments are scoped to your operating model. See the platform in context — not in a generic demo.',
       primaryLabel: 'Book a call',
-      primaryHref: CAL_BOOKING_URL,
+      primaryHref: calendarBookingUrl('aries-platform-cta'),
       secondaryLabel: 'View all products',
       secondaryHref: '/#ecosystem',
     },
@@ -352,7 +352,7 @@ export const ECOSYSTEM_PAGES = {
       highlight: 'requires more than speed',
       sub: 'Advanced tech engagements are principal-led and selectively scoped. If the mandate is real, we will know quickly.',
       primaryLabel: 'Book a call',
-      primaryHref: CAL_BOOKING_URL,
+      primaryHref: calendarBookingUrl('innovation-and-advanced-tech-cta'),
       secondaryLabel: 'View all products',
       secondaryHref: '/#ecosystem',
     },

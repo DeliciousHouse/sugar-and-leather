@@ -1,5 +1,5 @@
 import { asset } from '../lib/asset';
-import { CAL_BOOKING_URL } from '../lib/links';
+import { calendarBookingUrl } from '../lib/links';
 import Reveal from './ui/Reveal';
 import SplitText from './ui/SplitText';
 import Button from './ui/Button';
@@ -9,7 +9,7 @@ export default function CTA({
   highlight = 'You will be built',
   sub = 'If you are leading through change and refuse to lose your humanity in the process, we should talk. Introductions are limited, and considered.',
   primaryLabel = 'Book a call',
-  primaryHref = CAL_BOOKING_URL,
+  primaryHref = calendarBookingUrl('cta-default'),
   secondaryLabel = 'Revisit the ecosystem',
   secondaryHref = '/#ecosystem',
   tone = 'dark',

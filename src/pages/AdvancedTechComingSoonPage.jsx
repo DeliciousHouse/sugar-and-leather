@@ -1,5 +1,5 @@
 import { asset } from '../lib/asset';
-import { CAL_BOOKING_URL } from '../lib/links';
+import { calendarBookingUrl } from '../lib/links';
 import Reveal from '../components/ui/Reveal';
 import SplitText from '../components/ui/SplitText';
 import Eyebrow from '../components/ui/Eyebrow';
@@ -39,7 +39,7 @@ export default function AdvancedTechComingSoonPage() {
             <p className="coming-soon-body">
               Want to know about Innovation &amp; Advanced Tech?
             </p>
-            <Button href={CAL_BOOKING_URL}>Book a call</Button>
+            <Button href={calendarBookingUrl('innovation-and-advanced-tech-cta')}>Book a call</Button>
           </div>
           <div className="coming-soon-footer-right">
             <p className="coming-soon-email-label">Connect through email</p>

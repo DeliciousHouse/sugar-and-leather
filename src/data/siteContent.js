@@ -1,5 +1,5 @@
 import { asset as a } from '../lib/asset';
-import { CAL_BOOKING_URL } from '../lib/links';
+import { calendarBookingUrl } from '../lib/links';
 
 export const MARQUEE_ITEMS = [
   'Capital',
@@ -186,7 +186,7 @@ export const HOMEPAGE_CTA = {
   sub:
     "Whether you're looking for funding, leadership support, execution capacity, or AI-powered technology, Sugar & Leather provides the infrastructure to help organizations grow with confidence.",
   primaryLabel: 'Book a Strategy Call',
-  primaryHref: CAL_BOOKING_URL,
+  primaryHref: calendarBookingUrl('home-cta'),
   secondaryLabel: 'Talk to Our Team',
   secondaryHref: 'mailto:contact@sugarandleather.com',
 };
@@ -197,7 +197,7 @@ export const HOMEPAGE_HERO = {
   sub:
     'Sugar & Leather helps founders secure grants and non-dilutive funding, deploy executive leadership, and scale with execution pods across marketing, sales, development, and recruitment.',
   heroImage: a('/assets/home-hero.webp'),
-  primaryCta: { label: 'Book a Strategy Call', href: CAL_BOOKING_URL },
+  primaryCta: { label: 'Book a Strategy Call', href: calendarBookingUrl('home-hero') },
   secondaryCta: { label: 'Explore Our Ecosystem', href: '#ecosystem' },
 };
 

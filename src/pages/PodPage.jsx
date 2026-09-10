@@ -1,6 +1,6 @@
 import { Navigate, useParams } from 'react-router-dom';
 import { POD_PAGES } from '../data/podContent';
-import { CAL_BOOKING_URL, HOW_IT_WORKS_HASH } from '../lib/links';
+import { calendarBookingUrl, HOW_IT_WORKS_HASH } from '../lib/links';
 import PageHero from '../components/PageHero';
 import ContentSection from '../components/ContentSection';
 import ExpertiseSection from '../components/ExpertiseSection';
@@ -32,7 +32,7 @@ export default function PodPage() {
         stackedTitle
         primaryAction={{
           label: pod.heroPrimaryLabel || 'Book a Strategy Call',
-          href: pod.heroPrimaryHref || CAL_BOOKING_URL,
+          href: pod.heroPrimaryHref || calendarBookingUrl(`${pod.slug}-hero`),
         }}
         secondaryAction={{
           label: 'How we work',
