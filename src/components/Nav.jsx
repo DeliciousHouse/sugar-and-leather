@@ -4,7 +4,7 @@ import { ChevronDown, Menu, X } from 'lucide-react';
 import { useScrollNav } from '../hooks/useScrollNav';
 import { scrollToSection } from '../hooks/useSmoothAnchor';
 import { hashHref } from '../lib/asset';
-import { CAL_BOOKING_URL } from '../lib/links';
+import { calendarBookingUrl } from '../lib/links';
 import Brand from './ui/Brand';
 import Button from './ui/Button';
 
@@ -157,7 +157,7 @@ export default function Nav() {
               <NavAnchor key={`${link.label}-${link.href}`} {...link} />
             ))}
           </nav>
-          <Button href={CAL_BOOKING_URL} variant="outline" className="nav-cta" magnetic={false}>
+          <Button href={calendarBookingUrl('nav-desktop')} variant="outline" className="nav-cta" magnetic={false}>
             Book a call
           </Button>
           <button
@@ -190,7 +190,7 @@ export default function Nav() {
         {NAV_LINKS.slice(1).map((link) => (
           <NavAnchor key={`${link.label}-${link.href}`} {...link} onNavigate={closeDrawer} />
         ))}
-        <a href={CAL_BOOKING_URL} className="nav-drawer-link" onClick={closeDrawer}>
+        <a href={calendarBookingUrl('nav-mobile')} className="nav-drawer-link" onClick={closeDrawer}>
           Book a call
         </a>
       </div>

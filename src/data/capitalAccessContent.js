@@ -1,5 +1,5 @@
 import { asset as a } from '../lib/asset';
-import { CAL_BOOKING_URL } from '../lib/links';
+import { calendarBookingUrl } from '../lib/links';
 
 const MAIL = 'mailto:contact@sugarandleather.com';
 
@@ -13,7 +13,7 @@ export const CAPITAL_ACCESS = {
     'We help organizations pursue grants with a stronger strategy, clearer narrative, credible budget, and the operational readiness funders expect.',
   heroImage: a('/assets/ca-hero.webp'),
   heroActionNote: 'Grant Strategy · Grant Writing · Funding Readiness',
-  primaryCta: { label: 'Book a Complimentary Fit Call', href: CAL_BOOKING_URL },
+  primaryCta: { label: 'Book a Complimentary Fit Call', href: calendarBookingUrl('capital-access-and-grant-services-hero') },
   secondaryCta: { label: 'See How Grant Support Works', href: '#grant-support' },
   foundation: {
     eyebrow: 'Before the application is written',
@@ -43,7 +43,7 @@ export const CAPITAL_ACCESS = {
     id: 'grant-support',
     eyebrow: 'Grant support built around the opportunity',
     title: 'Support for the work that happens before, during, and after submission.',
-    cta: { label: 'Discuss Your Funding Goals', href: CAL_BOOKING_URL },
+    cta: { label: 'Discuss Your Funding Goals', href: calendarBookingUrl('capital-access-and-grant-services-cta-grant-support') },
     items: [
       {
         title: 'Grant Strategy',
@@ -89,7 +89,7 @@ export const CAPITAL_ACCESS = {
         title: 'Complimentary Fit Call',
         description:
           'We start with a short conversation to understand your funding goal, current opportunity, timeline, and readiness.',
-        cta: { label: 'Book a Fit Call', href: CAL_BOOKING_URL },
+        cta: { label: 'Book a Fit Call', href: calendarBookingUrl('capital-access-and-grant-services-cta-process-fit-call') },
       },
       {
         num: '02',
@@ -128,7 +128,7 @@ export const CAPITAL_ACCESS = {
           'Fit and readiness conversation',
           'Recommended next step',
         ],
-        cta: { label: 'Book a Fit Call', href: CAL_BOOKING_URL },
+        cta: { label: 'Book a Fit Call', href: calendarBookingUrl('capital-access-and-grant-services-cta-engagement-fit-call') },
       },
       {
         title: 'Grant Readiness Review',
@@ -276,7 +276,7 @@ export const CAPITAL_ACCESS = {
     highlight: 'make sure you are pursuing the right opportunity.',
     sub: 'Book a complimentary fit call to clarify your funding path and determine the strongest next step.',
     primaryLabel: 'Book a Complimentary Fit Call',
-    primaryHref: CAL_BOOKING_URL,
+    primaryHref: calendarBookingUrl('capital-access-and-grant-services-cta'),
     secondaryLabel: 'Discuss a Grant Opportunity',
     secondaryHref: MAIL,
   },

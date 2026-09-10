@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented in this file.
 
+## 1.0.5 - 2026-09-10
+
+### Added
+
+- Distinguish website calendar referrals by navigation, page, and call-to-action placement using public source labels, without collecting visitor data or changing the booking destination.
+
 ## 1.0.4 - 2026-08-14
 
 ### Fixed

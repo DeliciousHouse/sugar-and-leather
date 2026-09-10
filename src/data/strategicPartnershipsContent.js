@@ -1,5 +1,5 @@
 import { asset as a } from '../lib/asset';
-import { CAL_BOOKING_URL, HOW_IT_WORKS_HASH } from '../lib/links';
+import { calendarBookingUrl, HOW_IT_WORKS_HASH } from '../lib/links';
 
 export const STRATEGIC_PARTNERSHIPS = {
   slug: 'strategic-cxo-team',
@@ -12,7 +12,7 @@ export const STRATEGIC_PARTNERSHIPS = {
   heroImage: a('/assets/sp-hero.webp'),
   primaryCta: {
     label: 'Book a Discovery Call',
-    href: CAL_BOOKING_URL,
+    href: calendarBookingUrl('strategic-cxo-team-hero'),
   },
   secondaryCta: {
     label: 'See how it works',
@@ -280,7 +280,7 @@ export const STRATEGIC_PARTNERSHIPS = {
     highlight: 'the right partner',
     sub: 'Access leadership, execution, and specialized expertise through a single Strategic CXO team designed around your growth objectives.',
     primaryLabel: 'Schedule a Discovery Session',
-    primaryHref: CAL_BOOKING_URL,
+    primaryHref: calendarBookingUrl('strategic-cxo-team-cta'),
     secondaryLabel: 'See how it works',
     secondaryHref: HOW_IT_WORKS_HASH,
   },

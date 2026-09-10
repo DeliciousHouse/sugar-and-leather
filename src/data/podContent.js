@@ -1,5 +1,5 @@
 import { asset as a } from '../lib/asset';
-import { CAL_BOOKING_URL, HOW_IT_WORKS_HASH } from '../lib/links';
+import { calendarBookingUrl, HOW_IT_WORKS_HASH } from '../lib/links';
 
 export const POD_SLUGS = ['marketing-pod', 'sales-pod', 'development-pod', 'recruitment-pod'];
 
@@ -140,7 +140,7 @@ export const POD_PAGES = {
       highlight: 'sustainable growth',
       sub: 'Not just activity. Book a strategy call and discover how the Marketing Pod can support your next stage of growth.',
       primaryLabel: 'Book a Strategy Call',
-      primaryHref: CAL_BOOKING_URL,
+      primaryHref: calendarBookingUrl('marketing-pod-cta'),
       secondaryLabel: 'How we work',
       secondaryHref: HOW_IT_WORKS_HASH,
     },
